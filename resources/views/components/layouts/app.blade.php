@@ -11,11 +11,27 @@
     <header class="border-b border-slate-200 bg-white">
         <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
             <a href="{{ route('home') }}" class="text-lg font-semibold text-slate-900">Reforma<span class="text-emerald-600">360</span></a>
-            <span class="text-sm text-slate-500">Simulador CBS/IBS · LC 214/2025</span>
+            <nav class="flex items-center gap-4 text-sm">
+                <a href="{{ route('simulacoes.item.create') }}" class="text-slate-600 hover:text-slate-900">Simular item</a>
+                @auth
+                    <a href="{{ route('produtos.index') }}" class="text-slate-600 hover:text-slate-900">Produtos</a>
+                    <span class="hidden text-slate-400 sm:inline">{{ auth()->user()->empresa->razao_social }}</span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="text-slate-600 hover:text-slate-900">Sair</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-slate-600 hover:text-slate-900">Entrar</a>
+                    <a href="{{ route('register') }}" class="rounded-md bg-emerald-600 px-3 py-1.5 font-medium text-white hover:bg-emerald-700">Criar conta</a>
+                @endauth
+            </nav>
         </div>
     </header>
 
     <main class="mx-auto max-w-5xl px-4 py-8">
+        @if (session('status'))
+            <div class="mb-6 rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
+        @endif
         {{ $slot }}
     </main>
 

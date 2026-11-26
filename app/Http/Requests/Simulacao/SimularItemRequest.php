@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Simulacao;
 
 use App\Enums\Uf;
+use App\Http\Requests\Concerns\NormalizaEntradaFiscal;
 use App\Integrations\Calculadora\Data\AliquotasNominais;
 use App\Services\Simulacao\Data\DadosSimulacaoItem;
 use Carbon\CarbonImmutable;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class SimularItemRequest extends FormRequest
 {
+    use NormalizaEntradaFiscal;
+
     public function authorize(): bool
     {
         return true;
@@ -112,31 +115,10 @@ class SimularItemRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $normalizados = [];
-
-        foreach (['ncm', 'nbs', 'cst', 'c_class_trib', 'municipio'] as $campo) {
-            if (is_string($this->input($campo))) {
-                $normalizados[$campo] = preg_replace('/\D/', '', $this->input($campo));
-            }
-        }
-
-        foreach (['valor', 'aliquota_cbs', 'aliquota_ibs_estadual', 'aliquota_ibs_municipal'] as $campo) {
-            if (is_string($this->input($campo))) {
-                $normalizados[$campo] = self::decimalComPonto($this->input($campo));
-            }
-        }
-
-        $this->merge($normalizados);
-    }
-
-    /**
-     * Aceita "1.234,56" (pt-BR) ou "1234.56".
-     */
-    private static function decimalComPonto(string $valor): string
-    {
-        $valor = mb_trim(str_replace(['R$', '%', ' '], '', $valor));
-
-        return str_contains($valor, ',') ? str_replace(['.', ','], ['', '.'], $valor) : $valor;
+        $this->normalizarEntradaFiscal(
+            camposSoDigitos: ['ncm', 'nbs', 'cst', 'c_class_trib', 'municipio'],
+            camposDecimais: ['valor', 'aliquota_cbs', 'aliquota_ibs_estadual', 'aliquota_ibs_municipal'],
+        );
     }
 
     private function exigeAliquotasNominais(): bool
