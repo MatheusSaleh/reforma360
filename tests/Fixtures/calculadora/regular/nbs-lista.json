@@ -1,0 +1,26 @@
+[
+    {
+        "codigo": "101011100",
+        "descricao": "Serviços de construção de edificações residenciais de um e dois pavimentos"
+    },
+    {
+        "codigo": "122011100",
+        "descricao": "Serviços de creche ou entidade equivalente"
+    },
+    {
+        "codigo": "122011200",
+        "descricao": "Serviços de pré-escola"
+    },
+    {
+        "codigo": "122011900",
+        "descricao": "Serviços de educação infantil não classificados em subposições anteriores"
+    },
+    {
+        "codigo": "122012000",
+        "descricao": "Serviços de ensino fundamental"
+    },
+    {
+        "codigo": "122013000",
+        "descricao": "Serviços de ensino médio"
+    }
+]

@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Catalogo\ProdutoController;
+use App\Http\Controllers\DadosAbertos\BuscarNomenclaturaController;
+use App\Http\Controllers\DadosAbertos\DetalheNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\MunicipiosController;
+use App\Http\Controllers\DadosAbertos\SituacoesTributariasController;
 use App\Http\Controllers\Simulacao\SimulacaoItemController;
 use App\Http\Controllers\Simulacao\SimularItemController;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +18,12 @@ Route::get('simulacoes/item/resultado', SimularItemController::class)
     ->middleware('throttle:simulacoes')
     ->name('simulacoes.item.resultado');
 
-Route::get('dados-abertos/ufs/{uf}/municipios', MunicipiosController::class)->name('dados-abertos.municipios');
+Route::prefix('dados-abertos')->name('dados-abertos.')->middleware('throttle:dados-abertos')->group(function (): void {
+    Route::get('ufs/{uf}/municipios', MunicipiosController::class)->name('municipios');
+    Route::get('nomenclaturas/{tipo}', BuscarNomenclaturaController::class)->name('nomenclaturas.busca');
+    Route::get('nomenclaturas/{tipo}/{codigo}', DetalheNomenclaturaController::class)->whereNumber('codigo')->name('nomenclaturas.detalhe');
+    Route::get('situacoes-tributarias', SituacoesTributariasController::class)->name('situacoes-tributarias');
+});
 
 Route::middleware('auth')->group(function (): void {
     Route::resource('produtos', ProdutoController::class)->except('show');

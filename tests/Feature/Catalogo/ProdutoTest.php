@@ -164,3 +164,15 @@ test('não acessa produto de outra empresa (404)', function (string $metodo, str
     ['put', 'produtos.update'],
     ['delete', 'produtos.destroy'],
 ]);
+
+test('o formulário usa o autocomplete de NCM/NBS e as sugestões de classificação', function (): void {
+    $this->actingAs($this->usuario)
+        ->get(route('produtos.create'))
+        ->assertSuccessful()
+        ->assertSee('data-autocomplete-nomenclatura', escape: false)
+        ->assertSee(route('dados-abertos.nomenclaturas.busca', 'ncm'), escape: false)
+        ->assertSee(route('dados-abertos.nomenclaturas.busca', 'nbs'), escape: false)
+        ->assertSee('role="combobox"', escape: false)
+        ->assertSee('list="opcoes-c-class-trib"', escape: false)
+        ->assertSee(route('dados-abertos.situacoes-tributarias'), escape: false);
+});

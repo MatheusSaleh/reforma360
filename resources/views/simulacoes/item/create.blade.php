@@ -19,19 +19,9 @@
         <fieldset class="grid gap-4 sm:grid-cols-2">
             <legend class="mb-2 text-sm font-semibold text-slate-900">Item</legend>
 
-            @foreach ([
-                ['ncm', 'NCM (mercadoria)', '8 dígitos. Ex.: 1006.30.21'],
-                ['nbs', 'NBS (serviço)', '9 dígitos. Preencha só um dos dois.'],
-                ['cst', 'CST', '3 dígitos. Ex.: 000, 200'],
-                ['c_class_trib', 'cClassTrib', '6 dígitos. Ex.: 000001, 200028'],
-            ] as [$campo, $rotulo, $ajuda])
-                <label class="block">
-                    <span class="mb-1 block text-sm font-medium text-slate-700">{{ $rotulo }}</span>
-                    <input type="text" inputmode="numeric" name="{{ $campo }}" value="{{ $valor($campo) }}" class="{{ $input }}" @error($campo) aria-invalid="true" @enderror>
-                    <span class="mt-1 block text-xs text-slate-500">{{ $ajuda }}</span>
-                    @error($campo)<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-                </label>
-            @endforeach
+            <x-campo-nomenclatura tipo="ncm" rotulo="NCM (mercadoria)" :valor="$valor('ncm')" placeholder="Código ou descrição" ajuda="Preencha o NCM ou o NBS." />
+            <x-campo-nomenclatura tipo="nbs" rotulo="NBS (serviço)" :valor="$valor('nbs')" placeholder="Código ou descrição" />
+            <x-campos-classificacao :cst="$valor('cst')" :c-class-trib="$valor('c_class_trib')" />
 
             <label class="block">
                 <span class="mb-1 block text-sm font-medium text-slate-700">Valor (base de cálculo)</span>
