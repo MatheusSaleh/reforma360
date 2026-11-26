@@ -21,9 +21,13 @@ services:
             - '.:/var/www/html'
         networks:
             - sail
+            - calculadoras
         depends_on:
             - mysql
             - redis
+            - calculadora-regular
+            - calculadora-simples
+            - danfse
     mysql:
         image: 'mysql:8.4'
         ports:
@@ -64,11 +68,106 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+    # Calculadoras da Receita Federal (código upstream em services/, sem modificações).
+    # Ficam só na rede interna "calculadoras", sem portas publicadas no host.
+    calculadora-db:
+        image: 'maven:3.9-eclipse-temurin-25'
+        working_dir: /src
+        command:
+            - sh
+            - '-c'
+            - >-
+                mvn -B -q flyway:migrate
+                -Dflyway.configFiles=./flyway/flyway-pro.conf
+                "-Dflyway.url=jdbc:sqlite:file:/db/calculadora-pro.db?date_class=TEXT&foreign_keys=ON"
+        volumes:
+            - './services/calculadora-rtc-regime-regular:/src'
+            - 'calculadora-db:/db'
+            - 'calculadora-m2:/root/.m2'
+        networks:
+            - sail
+    calculadora-regular:
+        build:
+            context: './services/calculadora-rtc-regime-regular'
+            dockerfile: '../../docker/calculadora-java/Dockerfile'
+        image: 'reforma360/calculadora-regime-regular'
+        environment:
+            SERVER_PORT: 8080
+        volumes:
+            - 'calculadora-db:/app/calculadora/db:ro'
+        networks:
+            - calculadoras
+        depends_on:
+            calculadora-db:
+                condition: service_completed_successfully
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '-q'
+                - '-O'
+                - /dev/null
+                - 'http://localhost:8080/api/calculadora/dados-abertos/versao'
+            interval: 15s
+            timeout: 5s
+            retries: 5
+            start_period: 60s
+    calculadora-simples:
+        build:
+            context: './services/calculadora-rtc-simples-nacional'
+            dockerfile: '../../docker/calculadora-java/Dockerfile'
+        image: 'reforma360/calculadora-simples-nacional'
+        environment:
+            SERVER_PORT: 8080
+        volumes:
+            - 'calculadora-db:/app/calculadora/db:ro'
+        networks:
+            - calculadoras
+        depends_on:
+            calculadora-db:
+                condition: service_completed_successfully
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '-q'
+                - '-O'
+                - /dev/null
+                - 'http://localhost:8080/api/versao'
+            interval: 15s
+            timeout: 5s
+            retries: 5
+            start_period: 60s
+    danfse:
+        build:
+            context: './services/calculadora-rtc-gerador-danfse'
+        image: 'reforma360/danfse'
+        networks:
+            - calculadoras
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '-q'
+                - '-O'
+                - /dev/null
+                - 'http://localhost:8080/health/ready'
+            interval: 15s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
 networks:
     sail:
         driver: bridge
+    calculadoras:
+        driver: bridge
+        internal: true
 volumes:
     sail-mysql:
         driver: local
     sail-redis:
+        driver: local
+    calculadora-db:
+        driver: local
+    calculadora-m2:
         driver: local

@@ -15,6 +15,28 @@ description: "Use ao integrar com as calculadoras da Reforma Tributária da Rece
 
 Rodam em containers internos, **sem modificações** e sem porta pública. Nunca edite `services/`.
 
+## Infra (compose.yaml)
+
+- Rede `calculadoras` (`internal: true`): só o `laravel.test` alcança os serviços, pelo nome (`http://calculadora-regular:8080`).
+- APIs Java: Spring Boot 4 / Java 25, perfil `offline`, context path `/api`. Imagem: `docker/calculadora-java/Dockerfile`.
+- Banco: SQLite único gerado pelo serviço `calculadora-db` (`flyway:migrate` com os scripts do regime regular) no volume `calculadora-db`, montado `:ro` nas duas APIs.
+- Health: `GET /api/versao/status` (Java) e `GET /health/ready` (DANFSe).
+- Swagger em dev: `/api/swagger-ui.html` (acesse de dentro da rede: `sail exec laravel.test curl ...`).
+
+## Endpoints conhecidos (regime regular — base `/api/calculadora`)
+
+| Uso | Endpoint |
+|-----|----------|
+| Cálculo (falha no primeiro erro) | `POST /regime-geral` |
+| Cálculo com erros por item | `POST /observabilidade/regime-geral` |
+| Gerar XML do grupo IBS/CBS | `POST /xml/generate?tipo=nfe` |
+| Validar XML contra XSD | `POST /xml/validate?tipo=nfe&subtipo=grupo` |
+| NCM / NBS | `GET /dados-abertos/ncm`, `GET /dados-abertos/nbs` |
+| CST / cClassTrib | `GET /dados-abertos/situacoes-tributarias/cbs-ibs`, `GET /dados-abertos/classificacoes-tributarias/...` |
+| Alíquotas de referência | `GET /dados-abertos/aliquota-uniao`, `/aliquota-uf`, `/aliquota-municipio` |
+
+Exemplos de payload: `services/calculadora-rtc-regime-regular/docs/exemplos.md`. Para o Simples e o DANFSe, consulte o README/Swagger de cada repositório.
+
 ## Antes de codar contra um endpoint
 
 1. Leia o README e a especificação OpenAPI/Swagger do repositório em `services/<repo>/` (ou `/swagger-ui`/`/v3/api-docs` do container em dev).
