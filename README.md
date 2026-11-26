@@ -40,7 +40,7 @@ As calculadoras da Receita rodam **sem modificações**, como serviços internos
 | Serviço | Repositório upstream | Stack |
 |---|---|---|
 | Regime regular | [calculadora-rtc-regime-regular](https://github.com/ReceitaFederal/calculadora-rtc-regime-regular) | Java 25, Spring Boot 4, SQLite |
-| Simples Nacional | [calculadora-rtc-simples-nacional](https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional) | Java 21, Spring Boot 3.5, SQLite |
+| Simples Nacional | [calculadora-rtc-simples-nacional](https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional) | Java 25, Spring Boot 4, SQLite |
 | DANFSe | [calculadora-rtc-gerador-danfse](https://github.com/ReceitaFederal/calculadora-rtc-gerador-danfse) | Go, Echo |
 
 ## Como desenvolver
@@ -59,28 +59,40 @@ git clone https://github.com/MatheusSaleh/reforma360.git
 cd reforma360
 ```
 
-### 2. Subir as calculadoras da Receita
+### 2. Calculadoras da Receita
 
-As calculadoras ficam em `services/`, clonadas do upstream (não versionadas aqui, para facilitar a atualização):
-
-```bash
-mkdir -p services && cd services
-git clone https://github.com/ReceitaFederal/calculadora-rtc-regime-regular.git
-git clone https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional.git
-git clone https://github.com/ReceitaFederal/calculadora-rtc-gerador-danfse.git
-cd ..
-```
-
-As APIs Java precisam do banco SQLite gerado antes da primeira execução (ver README de cada repositório):
+As calculadoras ficam em `services/`, clonadas do upstream (não versionadas aqui, para facilitar a atualização). O script clona na primeira vez e atualiza nas seguintes:
 
 ```bash
-cd services/calculadora-rtc-regime-regular
-mkdir -p ./calculadora/db
-./mvnw flyway:migrate -Dflyway.configFiles=./flyway/flyway-pro.conf --batch-mode --errors
-cd ../..
+./scripts/calculadoras-clone.sh
 ```
 
-> O `docker-compose.yml` com todos os serviços será adicionado na issue de setup (Semana 1).
+O `compose.yaml` sobe, junto com o Laravel:
+
+| Serviço | O que faz | Healthcheck |
+|---|---|---|
+| `calculadora-db` | Execução única: gera/atualiza o SQLite com `flyway:migrate` (scripts do regime regular) no volume `calculadora-db` | termina com código 0 |
+| `calculadora-regular` | API do regime regular (Java 25) | `GET /api/versao/status` |
+| `calculadora-simples` | API do Simples Nacional (Java 25) | `GET /api/versao/status` |
+| `danfse` | Gerador de DANFSe (Go) | `GET /health/ready` |
+
+- As duas APIs Java usam o **mesmo banco**, montado como somente leitura. O Simples não traz scripts Flyway próprios; o README dele manda usar os do regime regular.
+- As calculadoras ficam na rede interna `calculadoras` (`internal: true`), **sem porta publicada no host** e sem saída para a internet. Só o container do Laravel participa dessa rede.
+- A imagem das APIs Java é construída por [`docker/calculadora-java/Dockerfile`](docker/calculadora-java/Dockerfile) a partir do código upstream; o DANFSe usa o Dockerfile do próprio repositório.
+
+O primeiro `sail up` demora (build Maven/Go e geração do banco). Para conferir de dentro da rede:
+
+```bash
+./vendor/bin/sail ps
+./vendor/bin/sail exec laravel.test curl -s http://calculadora-regular:8080/api/versao/status
+```
+
+Depois de atualizar o upstream (`./scripts/calculadoras-clone.sh`), reconstrua as imagens e rode as migrações do banco:
+
+```bash
+./vendor/bin/sail build calculadora-regular calculadora-simples danfse
+./vendor/bin/sail up -d
+```
 
 ### 3. Aplicação Laravel
 
@@ -138,7 +150,7 @@ composer lint      # Pint (--test); `composer format` corrige
 
 - As alíquotas são **entrada** da API (`aliquotasNominais`). O app busca as alíquotas de referência e respeita o cronograma de transição.
 - O retorno da API marca os itens como `CALCULO_SIMULADO`.
-- O README do repositório do Simples Nacional aponta para uma origem pouco clara dos scripts Flyway; pode ser necessário reaproveitar os do regime regular.
+- O Simples Nacional não tem scripts Flyway próprios: o banco é gerado com os do regime regular e compartilhado pelas duas APIs (serviço `calculadora-db`).
 
 ## Licença
 
