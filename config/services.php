@@ -41,7 +41,11 @@ return [
     */
 
     'calculadora_regular' => [
-        'url' => env('CALCULADORA_REGIME_REGULAR_URL', 'http://calculadora-regular:8080/api'),
+        'url'             => env('CALCULADORA_REGIME_REGULAR_URL', 'http://calculadora-regular:8080/api'),
+        'timeout'         => (int) env('CALCULADORA_TIMEOUT', 15),
+        'connect_timeout' => (int) env('CALCULADORA_CONNECT_TIMEOUT', 3),
+        'retries'         => (int) env('CALCULADORA_RETRIES', 3),
+        'retry_sleep_ms'  => (int) env('CALCULADORA_RETRY_SLEEP_MS', 200),
     ],
 
     'calculadora_simples' => [

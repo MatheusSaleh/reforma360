@@ -8,7 +8,7 @@ paths:
 
 Ative a skill `calculadora-rtc`.
 
-- Um client por serviço em `App\Integrations\Calculadora\`: `RegimeRegularClient`, `SimplesNacionalClient`, `DanfseClient`. Domínio depende de **interfaces** (`Contracts\...`), bindadas no provider — facilita fake em teste.
+- Um client por serviço em `App\Integrations\Calculadora\` (regime regular: `ReceitaCalculadoraClient` implementa `Contracts\CalculadoraTributos`). Domínio depende de **interfaces** (`Contracts\...`), bindadas no `AppServiceProvider` — facilita fake em teste.
 - `Http::baseUrl(config('services.calculadora_regular.url'))->timeout(...)->connectTimeout(...)->retry(...)->acceptJson()`. Configuração em `config/services.php` ← `.env` (`CALCULADORA_REGIME_REGULAR_URL`, `CALCULADORA_SIMPLES_URL`, `DANFSE_URL`). Nunca `env()` fora de `config/`.
 - Retry só em falha de conexão/5xx; 4xx é erro de payload → exceção de domínio, sem retry.
 - Entrada e saída em **DTOs** (`readonly` classes) em `App\Integrations\Calculadora\Data\`. Nenhum array cru da API sai do client.

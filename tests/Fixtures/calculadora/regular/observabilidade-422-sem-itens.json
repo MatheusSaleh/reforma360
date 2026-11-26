@@ -1,0 +1,17 @@
+{
+    "detail": "O cálculo contém 1 erro(s).",
+    "instance": "/api/calculadora/observabilidade/regime-geral",
+    "status": 422,
+    "title": "Erros no processamento do cálculo",
+    "type": "about:blank",
+    "timestamp": "2026-11-26T12:55:56.167136702Z",
+    "errors": [
+        {
+            "type": "http://calculadora-regular/calculadora/observabilidade/erros?codigo=VAL-003",
+            "title": "Lista ou campo não pode estar vazio",
+            "code": "VAL-003",
+            "pointer": "#/itens",
+            "detail": "Campo 'itens' must not be empty, recebido: '[]'"
+        }
+    ]
+}

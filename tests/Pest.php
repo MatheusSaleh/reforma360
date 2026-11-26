@@ -50,3 +50,19 @@ function something(): void
 {
     // ..
 }
+
+/*
+|--------------------------------------------------------------------------
+| Fixtures
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * @return array<array-key, mixed>
+ */
+function fixtureJson(string $caminho): array
+{
+    $conteudo = file_get_contents(base_path("tests/Fixtures/{$caminho}"));
+
+    return json_decode((string) $conteudo, true, flags: JSON_THROW_ON_ERROR);
+}
