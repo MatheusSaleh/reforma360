@@ -46,4 +46,10 @@ return [
 
     'maximo_itens_xml' => 990,
 
+    /*
+    | Relatório em PDF: itens no detalhamento. Acima disso, vão os de maior carga.
+    */
+
+    'relatorio_maximo_itens' => (int) env('SIMULACAO_RELATORIO_MAXIMO_ITENS', 1000),
+
 ];

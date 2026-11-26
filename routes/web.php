@@ -10,6 +10,7 @@ use App\Http\Controllers\DadosAbertos\SituacoesTributariasController;
 use App\Http\Controllers\Importacao\BaixarDanfseController;
 use App\Http\Controllers\Importacao\ImportacaoController;
 use App\Http\Controllers\Importacao\ModeloPlanilhaController;
+use App\Http\Controllers\Simulacao\BaixarRelatorioPdfController;
 use App\Http\Controllers\Simulacao\BaixarXmlDoGrupoController;
 use App\Http\Controllers\Simulacao\ComparacaoRegimeController;
 use App\Http\Controllers\Simulacao\LinhaDoTempoController;
@@ -47,6 +48,10 @@ Route::middleware('auth')->group(function (): void {
     Route::get('simulacoes/{simulacao}/comparacao/create', [ComparacaoRegimeController::class, 'create'])->name('simulacoes.comparacao.create');
     Route::post('simulacoes/{simulacao}/comparacao', [ComparacaoRegimeController::class, 'store'])->middleware('throttle:simulacoes')->name('simulacoes.comparacao.store');
     Route::get('simulacoes/{simulacao}/comparacao', [ComparacaoRegimeController::class, 'show'])->name('simulacoes.comparacao.show');
+
+    Route::get('simulacoes/{simulacao}/relatorio.pdf', BaixarRelatorioPdfController::class)
+        ->middleware('throttle:simulacoes')
+        ->name('simulacoes.relatorio');
 
     Route::get('simulacoes/{simulacao}/xml-ibscbs', BaixarXmlDoGrupoController::class)
         ->middleware('throttle:simulacoes')
