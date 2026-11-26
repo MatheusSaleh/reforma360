@@ -73,7 +73,7 @@ Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::
 - Operação inválida (ex.: `itens` vazio) → 422 *problem detail* com `errors[]` no mesmo formato. JSON malformado → 400 sem `errors`.
 - Headers: `x-warning-dados-simulados` (presente quando simulado), `X-CALC-APP-VERSION`, `X-CALC-DB-VERSION`.
 - A partir de 2027 `aliquotasNominais` é obrigatório; antes, proibido.
-- Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`).
+- Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`). Consequência: a partir de 2027, NCMs sujeitos ao IS (ex.: cerveja 22030000) voltam com **REG-013** ("Dados do Imposto Seletivo devem ser informados").
 - Em 2026, sem alíquotas, o item sai `CALCULADO` (usa as de referência); de 2027 em diante, com alíquotas, sai `CALCULO_SIMULADO`.
 
 ## Dados abertos (implementado na #4)

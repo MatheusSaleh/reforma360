@@ -33,7 +33,7 @@
                         <th class="px-4 py-3">Tipo</th>
                         <th class="px-4 py-3">NCM / NBS</th>
                         <th class="px-4 py-3">CST / cClassTrib</th>
-                        <th class="px-4 py-3 text-right">Preço</th>
+                        <th class="whitespace-nowrap px-4 py-3 text-right">Preço</th>
                         <th class="px-4 py-3"><span class="sr-only">Ações</span></th>
                     </tr>
                 </thead>
@@ -44,7 +44,7 @@
                             <td class="px-4 py-3">{{ $produto->tipo()->label() }}</td>
                             <td class="px-4 py-3 font-mono">{{ $produto->ncm ?? $produto->nbs }}</td>
                             <td class="px-4 py-3 font-mono">{{ $produto->cst }} / {{ $produto->c_class_trib }}</td>
-                            <td class="px-4 py-3 text-right">{{ \App\Support\Formatador::moeda($produto->preco) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">{{ \App\Support\Formatador::moeda($produto->preco) }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end gap-3">
                                     <a href="{{ route('produtos.edit', $produto) }}" class="text-emerald-700 hover:underline">Editar</a>

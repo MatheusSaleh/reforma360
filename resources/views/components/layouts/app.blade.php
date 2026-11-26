@@ -15,6 +15,13 @@
             <nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                 <a href="{{ route('simulacoes.item.create') }}" class="text-slate-600 hover:text-slate-900">Simular item</a>
                 @auth
+                    @php($naoLidas = auth()->user()->unreadNotifications()->count())
+                    <a href="{{ route('simulacoes.index') }}" class="text-slate-600 hover:text-slate-900">
+                        Simulações
+                        @if ($naoLidas > 0)
+                            <span class="ml-1 inline-flex min-w-5 justify-center rounded-full bg-emerald-600 px-1.5 text-xs font-semibold text-white" aria-label="{{ $naoLidas }} {{ $naoLidas === 1 ? 'aviso novo' : 'avisos novos' }}">{{ $naoLidas }}</span>
+                        @endif
+                    </a>
                     <a href="{{ route('produtos.index') }}" class="text-slate-600 hover:text-slate-900">Produtos</a>
                     <a href="{{ route('importacoes.index') }}" class="text-slate-600 hover:text-slate-900">Importações</a>
                     <span class="hidden text-slate-400 sm:inline">{{ auth()->user()->empresa->razao_social }}</span>

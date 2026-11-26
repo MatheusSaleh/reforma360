@@ -119,13 +119,18 @@ DANFSE_URL=http://danfse:8080/api
 
 ### 4. Filas e tempo real
 
-O serviço `queue` do `compose.yaml` processa as filas (importação de planilhas) e sobe junto com o `sail up`. Depois de mudar código de jobs, reinicie-o:
+O `compose.yaml` sobe junto com o `sail up`:
+
+- **`horizon`**: processa as filas (`simulacoes`, `importacoes`, `default`). Painel em [`/horizon`](http://localhost/horizon) (em produção, só para os e-mails de `HORIZON_ADMINS`).
+- **`reverb`**: WebSocket do progresso em tempo real, na porta `8080` do host (`FORWARD_REVERB_PORT`). O Laravel fala com ele pela rede do Docker (`REVERB_HOST=reverb`); o navegador, por `VITE_REVERB_HOST=localhost`.
+
+Depois de mudar código de jobs ou eventos, reinicie os workers:
 
 ```bash
-./vendor/bin/sail restart queue
+./vendor/bin/sail restart horizon reverb
 ```
 
-> Horizon e Reverb entram na simulação em lote (#8).
+E-mails vão para `storage/logs/laravel.log` em desenvolvimento (`MAIL_MAILER=log`).
 
 ### 5. Testes e qualidade
 

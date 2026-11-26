@@ -34,4 +34,10 @@ return [
     'data_minima' => '2026-01-01',
     'data_maxima' => '2033-12-31',
 
+    /*
+    | Simulação em lote: itens enviados em cada chamada à calculadora (um job por bloco).
+    */
+
+    'itens_por_chamada' => (int) env('SIMULACAO_ITENS_POR_CHAMADA', 50),
+
 ];

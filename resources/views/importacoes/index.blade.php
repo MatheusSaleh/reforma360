@@ -16,8 +16,8 @@
                         <th class="px-4 py-3">Arquivo</th>
                         <th class="px-4 py-3">Enviado em</th>
                         <th class="px-4 py-3">Situação</th>
-                        <th class="px-4 py-3 text-right">Importadas</th>
-                        <th class="px-4 py-3 text-right">Com erro</th>
+                        <th class="whitespace-nowrap px-4 py-3 text-right">Importadas</th>
+                        <th class="whitespace-nowrap px-4 py-3 text-right">Com erro</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -26,8 +26,8 @@
                             <td class="px-4 py-3"><a href="{{ route('importacoes.show', $importacao) }}" class="font-medium text-emerald-700 hover:underline">{{ $importacao->nome_arquivo }}</a></td>
                             <td class="px-4 py-3">{{ $importacao->created_at?->timezone('America/Sao_Paulo')->format('d/m/Y H:i') }}</td>
                             <td class="px-4 py-3">@include('importacoes._status', ['status' => $importacao->status])</td>
-                            <td class="px-4 py-3 text-right">{{ $importacao->linhas_importadas }}</td>
-                            <td class="px-4 py-3 text-right">{{ $importacao->linhas_com_erro }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">{{ $importacao->linhas_importadas }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">{{ $importacao->linhas_com_erro }}</td>
                         </tr>
                     @endforeach
                 </tbody>
