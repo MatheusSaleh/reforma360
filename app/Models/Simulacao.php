@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Simulação do catálogo inteiro de uma empresa, processada em lote.
@@ -33,7 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Table('simulacoes')]
 #[Fillable([
-    'user_id', 'importacao_id', 'status', 'data_fato_gerador', 'uf', 'municipio', 'aliquota_cbs', 'aliquota_ibs_estadual',
+    'user_id', 'importacao_id', 'linha_do_tempo_id', 'status', 'data_fato_gerador', 'uf', 'municipio', 'aliquota_cbs', 'aliquota_ibs_estadual',
     'aliquota_ibs_municipal', 'total_itens', 'itens_processados', 'itens_com_erro', 'total_base_calculo',
     'total_cbs', 'total_ibs', 'total_imposto_seletivo', 'total_tributos', 'batch_id', 'iniciada_em', 'concluida_em',
 ])]
@@ -66,6 +67,41 @@ class Simulacao extends Model
     public function importacao(): BelongsTo
     {
         return $this->belongsTo(Importacao::class);
+    }
+
+    /**
+     * Linha do tempo de que esta simulação é um dos anos (nulo = simulação principal).
+     *
+     * @return BelongsTo<LinhaDoTempo, $this>
+     */
+    public function linhaDoTempoPai(): BelongsTo
+    {
+        return $this->belongsTo(LinhaDoTempo::class, 'linha_do_tempo_id');
+    }
+
+    /**
+     * Linha do tempo gerada a partir desta simulação.
+     *
+     * @return HasOne<LinhaDoTempo, $this>
+     */
+    public function linhaDoTempo(): HasOne
+    {
+        return $this->hasOne(LinhaDoTempo::class);
+    }
+
+    public function ehAnoDeLinhaDoTempo(): bool
+    {
+        return $this->linha_do_tempo_id !== null;
+    }
+
+    /**
+     * Comparação com o Simples Nacional.
+     *
+     * @return HasOne<ComparacaoRegime, $this>
+     */
+    public function comparacao(): HasOne
+    {
+        return $this->hasOne(ComparacaoRegime::class);
     }
 
     /**

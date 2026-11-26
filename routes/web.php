@@ -11,6 +11,8 @@ use App\Http\Controllers\Importacao\BaixarDanfseController;
 use App\Http\Controllers\Importacao\ImportacaoController;
 use App\Http\Controllers\Importacao\ModeloPlanilhaController;
 use App\Http\Controllers\Simulacao\BaixarXmlDoGrupoController;
+use App\Http\Controllers\Simulacao\ComparacaoRegimeController;
+use App\Http\Controllers\Simulacao\LinhaDoTempoController;
 use App\Http\Controllers\Simulacao\SimulacaoController;
 use App\Http\Controllers\Simulacao\SimulacaoItemController;
 use App\Http\Controllers\Simulacao\SimularItemController;
@@ -37,6 +39,14 @@ Route::middleware('auth')->group(function (): void {
         ->only(['index', 'create', 'store', 'show'])
         ->parameters(['simulacoes' => 'simulacao'])
         ->where(['simulacao' => '[0-9]+']);
+
+    Route::get('simulacoes/{simulacao}/linha-do-tempo/create', [LinhaDoTempoController::class, 'create'])->name('simulacoes.linha-do-tempo.create');
+    Route::post('simulacoes/{simulacao}/linha-do-tempo', [LinhaDoTempoController::class, 'store'])->name('simulacoes.linha-do-tempo.store');
+    Route::get('simulacoes/{simulacao}/linha-do-tempo', [LinhaDoTempoController::class, 'show'])->name('simulacoes.linha-do-tempo.show');
+
+    Route::get('simulacoes/{simulacao}/comparacao/create', [ComparacaoRegimeController::class, 'create'])->name('simulacoes.comparacao.create');
+    Route::post('simulacoes/{simulacao}/comparacao', [ComparacaoRegimeController::class, 'store'])->middleware('throttle:simulacoes')->name('simulacoes.comparacao.store');
+    Route::get('simulacoes/{simulacao}/comparacao', [ComparacaoRegimeController::class, 'show'])->name('simulacoes.comparacao.show');
 
     Route::get('simulacoes/{simulacao}/xml-ibscbs', BaixarXmlDoGrupoController::class)
         ->middleware('throttle:simulacoes')

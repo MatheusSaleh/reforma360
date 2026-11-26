@@ -12,7 +12,7 @@ Regras que valem para qualquer código que calcule, mostre ou importe dados trib
 
 - A calculadora só tem alíquotas de referência para **2026** (`/dados-abertos/aliquota-uniao` etc. dão 404 de 2027 em diante). A partir de 2027 as alíquotas são **entrada obrigatória** (`aliquotasNominais`) e o resultado sai `CALCULO_SIMULADO`; antes disso são proibidas.
 - O ano de corte fica em `config('simulacao.ano_inicio_aliquotas_nominais')` e as sugestões do formulário em `config('simulacao.aliquotas_nominais_sugeridas')` — são estimativas editáveis, nunca apresentadas como alíquota legal.
-- O cronograma (ano → percentuais de CBS/IBS e do sistema antigo) fica em um único lugar (config ou tabela) e é consultado por um Service; não espalhe `if ($ano === 2027)` pelo código.
+- O cronograma fica em `config/transicao.php` (base legal citada no arquivo) e só é lido pelo `CronogramaTransicaoService::aliquotasDoAno()`; não espalhe `if ($ano === 2027)` pelo código. As alíquotas **plenas** (`transicao.aliquotas_plenas_estimadas`: CBS 8,8% + IBS 17,7%) são estimativas editáveis e a UI sempre as rotula assim.
 - A linha do tempo por item é calculada chamando a simulação por ano, não extrapolando um ano para os outros.
 
 ## Dinheiro e precisão

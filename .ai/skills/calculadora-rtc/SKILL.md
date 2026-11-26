@@ -76,6 +76,24 @@ Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::
 - Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`). Consequência: a partir de 2027, NCMs sujeitos ao IS (ex.: cerveja 22030000) voltam com **REG-013** ("Dados do Imposto Seletivo devem ser informados").
 - Em 2026, sem alíquotas, o item sai `CALCULADO` (usa as de referência); de 2027 em diante, com alíquotas, sai `CALCULO_SIMULADO`.
 
+## Calculadora do Simples Nacional (implementado na #11)
+
+`Contracts\CalculadoraSimples` → `SimplesNacionalClient` (usa `CalculadoraSimplesHttp`; `CalculadoraRegularHttp` e ela estendem `HttpDaCalculadora`).
+
+| Método | Endpoint | Observação |
+|---|---|---|
+| `calcular(OperacaoSimples): list<ResultadoItemSimples>` | `POST /calculadora/observabilidade/simples-nacional` | Payload: `id`, `versao` "2.0.0", `data` (Y-m-d), `tpDoc` 55/65, `CRT` "1", itens com `cAtivSN`, `cClassTrib`, `ncm`, `baseCalculo`, `valorImpostoSeletivo` "0.00", **`pCBSSN`/`pIBSSN` obrigatórios** (alíquotas efetivas do contribuinte no Simples — o usuário informa; a calculadora não deduz). Saída por item: `tribCalc.vCBSSN`, `vIBSSN`, `totalItem`. |
+| `atividades(data)` | `GET /calculadora/simples-nacional/atividades?data=` | 15 atividades; `tpDocsAdmissiveis` (01–04 e 90 para NF-e/NFC-e; serviços só para NFS-e 91). Cache 1 dia. |
+
+- **Só a partir de 2027** (2026 → 422 VSN-015). **Serviços (NBS) não são calculados** em NF-e/NFC-e (VSN-022), e NFS-e (tpDoc 91) não é suportado pelo endpoint.
+- `CompararRegimesService`: compara só os itens calculados no regime regular e no Simples; crédito estimado das compras = compras × (CBS + IBS nominais do ano)/100.
+
+## Linha do tempo (implementado na #11)
+
+- `IniciarLinhaDoTempo` cria uma `LinhaDoTempo` e **uma `Simulacao` filha por ano** (`linha_do_tempo_id`, itens com `origem_id`), com as alíquotas do `CronogramaTransicaoService`, e despacha um lote por ano (`DespacharLoteDaSimulacao`). Filhas não aparecem na lista de simulações.
+- `FinalizarSimulacao` não notifica anos de linha do tempo; chama `FinalizarLinhaDoTempo`, que fecha a linha com update condicional (avisa **uma vez**).
+- Gráfico: `<x-grafico-colunas-empilhadas>` (SVG no servidor, geometria com bcmath em `App\Support\GraficoColunas`, paleta validada da skill dataviz: azul #257de0, laranja #f47230).
+
 ## XML do grupo e DANFSe (implementado na #10)
 
 | Contrato → client | Endpoint | Observação |

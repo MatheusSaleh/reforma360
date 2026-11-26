@@ -1,0 +1,256 @@
+[
+    {
+        "codigo": "01",
+        "ordem": 1,
+        "descricao": "Revenda de mercadorias, venda de mercadorias industrializadas pelo contribuinte",
+        "anexoSemFatorR": "I",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "I",
+        "rotuloCurtoAnexo": "I",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "55",
+            "65"
+        ]
+    },
+    {
+        "codigo": "02",
+        "ordem": 2,
+        "descricao": "Operações com os demais bens materiais, sem incidência de ICMS",
+        "anexoSemFatorR": "I",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "I, menos ICMS",
+        "rotuloCurtoAnexo": "I",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "55",
+            "65"
+        ]
+    },
+    {
+        "codigo": "03",
+        "ordem": 3,
+        "descricao": "Venda de mercadorias industrializadas pelo contribuinte, com industrialização incentivada na Zona Franca de Manaus",
+        "anexoSemFatorR": "II",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "II",
+        "rotuloCurtoAnexo": "II",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "55",
+            "65"
+        ]
+    },
+    {
+        "codigo": "04",
+        "ordem": 4,
+        "descricao": "Operações com os demais bens materiais, com industrialização incentivada na Zona Franca de Manaus, sem incidência de ICMS",
+        "anexoSemFatorR": "II",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "II, menos ICMS",
+        "rotuloCurtoAnexo": "II",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "55",
+            "65"
+        ]
+    },
+    {
+        "codigo": "05",
+        "ordem": 5,
+        "descricao": "Prestação de serviços de transporte intermunicipal e interestadual de carga ou de passageiros autorizados no inciso VI do art. 17 da LC 123",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III, menos ISS, mais ICMS do I",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "57",
+            "63",
+            "67",
+            "93"
+        ]
+    },
+    {
+        "codigo": "06",
+        "ordem": 6,
+        "descricao": "Prestação de serviços de comunicação",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III, menos ISS, mais ICMS do I",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "62"
+        ]
+    },
+    {
+        "codigo": "07",
+        "ordem": 7,
+        "descricao": "Prestação de serviços, cessão de direitos, de uso ou de espaço com incidência do ISS, tributados exclusivamente pelo Anexo III",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "08",
+        "ordem": 8,
+        "descricao": "Prestação de serviços contábeis autorizados a pagar o ISS em valor fixo em guia do Município",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III, menos o ISS",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "09",
+        "ordem": 9,
+        "descricao": "Prestação de serviços — Sujeitos ao Fator \"R\"",
+        "anexoSemFatorR": "V",
+        "anexoComFatorR": "III",
+        "sujeitaFatorR": true,
+        "rotuloAnexo": "III ou V",
+        "rotuloCurtoAnexo": "III ou V",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "OPCIONAL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "10",
+        "ordem": 10,
+        "descricao": "Prestação de serviços de transporte municipal rodoviário, metroviário, ferroviário e aquaviário de passageiros relacionados no subitem 16.01 da lista anexa à LC 116/2003",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "11",
+        "ordem": 11,
+        "descricao": "Locação de bens móveis e operações com serviços, bens imateriais e direitos, inclusive com bens imóveis, sem incidência de ISS",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III, menos o ISS",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "12",
+        "ordem": 12,
+        "descricao": "Prestação de serviços da área da construção civil relacionados nos subitens 7.02 e 7.05 da lista anexa à LC 116/2003",
+        "anexoSemFatorR": "III",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "III",
+        "rotuloCurtoAnexo": "III",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "13",
+        "ordem": 13,
+        "descricao": "Prestação de serviços da área da construção civil relacionados nos subitens 7.02 e 7.05 da lista anexa à LC 116/2003",
+        "anexoSemFatorR": "IV",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "IV",
+        "rotuloCurtoAnexo": "IV",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "14",
+        "ordem": 14,
+        "descricao": "Prestação de serviços",
+        "anexoSemFatorR": "IV",
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "IV",
+        "rotuloCurtoAnexo": "IV",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "91"
+        ]
+    },
+    {
+        "codigo": "90",
+        "ordem": 15,
+        "descricao": "Operações não Tributáveis",
+        "anexoSemFatorR": null,
+        "anexoComFatorR": null,
+        "sujeitaFatorR": false,
+        "rotuloAnexo": "Não tributável",
+        "rotuloCurtoAnexo": "Não tributável",
+        "disponivel": true,
+        "anexosFaltantes": [],
+        "modoFatorR": "NAO_APLICAVEL",
+        "tpDocsAdmissiveis": [
+            "55",
+            "57",
+            "62",
+            "63",
+            "65",
+            "67",
+            "91",
+            "93"
+        ]
+    }
+]

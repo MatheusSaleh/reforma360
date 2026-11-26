@@ -1,6 +1,7 @@
 /**
- * Progresso da simulação em lote em tempo real (Reverb). Se o WebSocket não
- * conectar, recarrega a página periodicamente enquanto a simulação estiver em andamento.
+ * Progresso em tempo real (Reverb) de uma simulação (data-canal) ou de várias
+ * somadas, como os 8 anos de uma linha do tempo (data-canais, JSON). Se o WebSocket
+ * não conectar, recarrega a página periodicamente enquanto houver algo em andamento.
  */
 
 const RECARGA_SEM_WEBSOCKET_MS = 5000;
@@ -12,11 +13,15 @@ export function iniciarProgressoSimulacao() {
         return;
     }
 
+    const canais = painel.dataset.canais ? JSON.parse(painel.dataset.canais) : [painel.dataset.canal];
     const barra = painel.querySelector('[data-progresso-barra]');
     const texto = painel.querySelector('[data-progresso-texto]');
     const erros = painel.querySelector('[data-progresso-erros]');
     const progresso = painel.querySelector('[role="progressbar"]');
-    const status = document.querySelector('[data-status-simulacao]');
+    const status = canais.length === 1 ? document.querySelector('[data-status-simulacao]') : null;
+    const porCanal = new Map();
+    const totalInicial = Number(painel.dataset.total || 0);
+    const processadosIniciais = Number(painel.dataset.processados || 0);
 
     let recarga = null;
     const recarregarPeriodicamente = () => {
@@ -32,20 +37,40 @@ export function iniciarProgressoSimulacao() {
     conexao?.bind('unavailable', recarregarPeriodicamente);
     conexao?.bind('failed', recarregarPeriodicamente);
 
-    window.Echo.private(painel.dataset.canal)
-        .error(recarregarPeriodicamente)
-        .listen('.simulacao.atualizada', (dados) => {
-            barra.style.width = `${dados.percentual}%`;
-            progresso.setAttribute('aria-valuenow', String(dados.percentual));
-            texto.textContent = `${dados.processados} de ${dados.total}`;
-            erros.textContent = dados.com_erro > 0 ? `${dados.com_erro} com erro até agora.` : '';
+    const atualizar = () => {
+        const valores = [...porCanal.values()];
+        const todosResponderam = porCanal.size === canais.length;
+        // Enquanto nem todos os canais responderam, usa o total do servidor e soma o que já chegou.
+        const total = todosResponderam ? valores.reduce((soma, d) => soma + d.total, 0) : totalInicial;
+        const processados = Math.max(processadosIniciais, valores.reduce((soma, d) => soma + d.processados, 0));
+        const comErro = valores.reduce((soma, d) => soma + d.com_erro, 0);
+        const percentual = total > 0 ? Math.floor((processados * 100) / total) : 0;
 
-            if (status) {
-                status.textContent = dados.status_label;
-            }
+        barra.style.width = `${percentual}%`;
+        progresso.setAttribute('aria-valuenow', String(percentual));
 
-            if (!dados.em_andamento) {
-                window.location.reload();
-            }
-        });
+        texto.textContent = `${processados} de ${total}`;
+
+        erros.textContent = comErro > 0 ? `${comErro} com erro até agora.` : '';
+
+        const terminou = todosResponderam && valores.every((d) => !d.em_andamento);
+
+        if (terminou) {
+            window.location.reload();
+        }
+    };
+
+    canais.forEach((canal) => {
+        window.Echo.private(canal)
+            .error(recarregarPeriodicamente)
+            .listen('.simulacao.atualizada', (dados) => {
+                porCanal.set(canal, dados);
+
+                if (status) {
+                    status.textContent = dados.status_label;
+                }
+
+                atualizar();
+            });
+    });
 }

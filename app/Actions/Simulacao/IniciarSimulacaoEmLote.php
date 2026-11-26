@@ -6,7 +6,6 @@ namespace App\Actions\Simulacao;
 
 use App\Enums\StatusImportacao;
 use App\Enums\StatusSimulacao;
-use App\Jobs\SimularItensJob;
 use App\Models\Importacao;
 use App\Models\ImportacaoProduto;
 use App\Models\Produto;
@@ -14,9 +13,6 @@ use App\Models\Simulacao;
 use App\Models\User;
 use App\Services\Simulacao\Data\ParametrosSimulacao;
 use App\Services\Simulacao\SimularItemService;
-use Illuminate\Bus\Batch;
-use Illuminate\Container\Attributes\Config;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -29,8 +25,7 @@ final readonly class IniciarSimulacaoEmLote
 {
     public function __construct(
         private SimularItemService $simulacaoDeItem,
-        #[Config('simulacao.itens_por_chamada')]
-        private int $itensPorChamada = 50,
+        private DespacharLoteDaSimulacao $despacharLote,
     ) {}
 
     /**
@@ -82,7 +77,7 @@ final readonly class IniciarSimulacaoEmLote
             return $simulacao;
         });
 
-        $this->despacharLote($simulacao);
+        $this->despacharLote->handle($simulacao);
 
         return $simulacao;
     }
@@ -104,27 +99,5 @@ final readonly class IniciarSimulacaoEmLote
             'created_at'   => now(),
             'updated_at'   => now(),
         ];
-    }
-
-    private function despacharLote(Simulacao $simulacao): void
-    {
-        $jobs = [];
-
-        $simulacao->itens()->orderBy('id')->select('id')->chunkById($this->itensPorChamada, function ($itens) use ($simulacao, &$jobs): void {
-            $jobs[] = new SimularItensJob($simulacao->id, array_values($itens->pluck('id')->map(fn (mixed $id): int => (int) $id)->all()));
-        });
-
-        $simulacaoId = $simulacao->id;
-
-        $batch = Bus::batch($jobs)
-            ->name("Simulação #{$simulacaoId}")
-            ->onQueue('simulacoes')
-            ->allowFailures()
-            ->finally(function (Batch $batch) use ($simulacaoId): void {
-                app(FinalizarSimulacao::class)->handle($simulacaoId);
-            })
-            ->dispatch();
-
-        $simulacao->update(['batch_id' => $batch->id]);
     }
 }

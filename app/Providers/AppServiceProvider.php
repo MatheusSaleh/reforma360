@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Importers\CsvImporter;
 use App\Importers\NfeXmlImporter;
 use App\Importers\XlsxImporter;
+use App\Integrations\Calculadora\Contracts\CalculadoraSimples;
 use App\Integrations\Calculadora\Contracts\CalculadoraTributos;
 use App\Integrations\Calculadora\Contracts\DadosAbertos;
 use App\Integrations\Calculadora\Contracts\GeradorDanfse;
@@ -14,6 +15,7 @@ use App\Integrations\Calculadora\Contracts\XmlTributacao;
 use App\Integrations\Calculadora\DadosAbertosClient;
 use App\Integrations\Calculadora\DanfseClient;
 use App\Integrations\Calculadora\ReceitaCalculadoraClient;
+use App\Integrations\Calculadora\SimplesNacionalClient;
 use App\Integrations\Calculadora\XmlTributacaoClient;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DadosAbertos::class, DadosAbertosClient::class);
         $this->app->bind(XmlTributacao::class, XmlTributacaoClient::class);
         $this->app->bind(GeradorDanfse::class, DanfseClient::class);
+        $this->app->bind(CalculadoraSimples::class, SimplesNacionalClient::class);
         $this->app->tag([CsvImporter::class, XlsxImporter::class, NfeXmlImporter::class], 'catalog-importers');
     }
 

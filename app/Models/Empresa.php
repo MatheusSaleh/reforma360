@@ -47,4 +47,20 @@ class Empresa extends Model
     {
         return $this->hasMany(Simulacao::class);
     }
+
+    /**
+     * @return HasMany<LinhaDoTempo, $this>
+     */
+    public function linhasDoTempo(): HasMany
+    {
+        return $this->hasMany(LinhaDoTempo::class);
+    }
+
+    /**
+     * @return HasMany<ComparacaoRegime, $this>
+     */
+    public function comparacoesRegime(): HasMany
+    {
+        return $this->hasMany(ComparacaoRegime::class);
+    }
 }
