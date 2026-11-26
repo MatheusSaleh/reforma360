@@ -84,13 +84,18 @@ cd ../..
 
 ### 3. Aplicação Laravel
 
+O ambiente usa [Laravel Sail](https://laravel.com/docs/sail) (`compose.yaml`) com MySQL 8.4 e Redis:
+
 ```bash
 cp .env.example .env
 composer install
-php artisan key:generate
-php artisan migrate --seed
-npm install && npm run dev
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail npm install && ./vendor/bin/sail npm run dev
 ```
+
+> Se as portas 80, 3306 ou 6379 já estiverem em uso, defina `APP_PORT`, `FORWARD_DB_PORT` e `FORWARD_REDIS_PORT` no `.env`.
 
 Variáveis de ambiente das calculadoras:
 
@@ -110,9 +115,9 @@ php artisan reverb:start
 ### 5. Testes e qualidade
 
 ```bash
-./vendor/bin/pest
-./vendor/bin/phpstan analyse   # Larastan
-./vendor/bin/pint --test
+composer test      # Pest (SQLite em memória)
+composer analyse   # Larastan nível 7
+composer lint      # Pint (--test); `composer format` corrige
 ```
 
 ## Fluxo de trabalho

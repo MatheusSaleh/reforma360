@@ -1,0 +1,14 @@
+---
+description: Convenções do Reforma360 (Laravel, domínio tributário, qualidade)
+alwaysApply: true
+---
+
+# Reforma360
+
+Siga `AGENTS.md` (guia principal) e `.ai/guidelines/reforma360.md` (domínio).
+
+- Antes de editar: leia `.ai/rules/index.md` e as regras cujos globs cobrem os arquivos.
+- Ative a skill do domínio em `.cursor/skills/` (fonte: `.ai/skills/`).
+- Nunca `float` para dinheiro/alíquota. Resultados são simulações.
+- Controllers enxutos, só REST ou invokáveis; regra em Services/Actions; HTTP só via `App\Integrations\Calculadora`.
+- Após alterar PHP: `vendor/bin/pint --dirty --format agent` e testes Pest estreitos.
