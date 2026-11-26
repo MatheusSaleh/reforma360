@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Importers\CsvImporter;
+use App\Importers\NfeXmlImporter;
 use App\Importers\XlsxImporter;
 use App\Integrations\Calculadora\Contracts\CalculadoraTributos;
 use App\Integrations\Calculadora\Contracts\DadosAbertos;
@@ -24,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(CalculadoraTributos::class, ReceitaCalculadoraClient::class);
         $this->app->bind(DadosAbertos::class, DadosAbertosClient::class);
-        $this->app->tag([CsvImporter::class, XlsxImporter::class], 'catalog-importers');
+        $this->app->tag([CsvImporter::class, XlsxImporter::class, NfeXmlImporter::class], 'catalog-importers');
     }
 
     /**

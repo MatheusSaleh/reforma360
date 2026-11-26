@@ -29,4 +29,29 @@ final class ArquivoInvalidoException extends RuntimeException
     {
         return new self("A planilha passa do limite de {$maximo} linhas. Divida o arquivo e importe em partes.");
     }
+
+    public static function xmlInseguro(): self
+    {
+        return new self('O XML contém declarações (DOCTYPE/ENTITY) que não existem em notas fiscais e foi recusado por segurança.');
+    }
+
+    public static function xmlMalformado(string $detalhe): self
+    {
+        return new self('O arquivo não é um XML válido: '.$detalhe);
+    }
+
+    public static function naoEhNotaFiscal(): self
+    {
+        return new self('O XML não é uma NF-e, NFC-e ou NFS-e reconhecida.');
+    }
+
+    public static function maisDeUmaNota(int $quantidade): self
+    {
+        return new self("O arquivo tem {$quantidade} notas. Envie uma nota por arquivo.");
+    }
+
+    public static function campoObrigatorioDaNota(string $campo): self
+    {
+        return new self("A nota não tem o campo obrigatório {$campo}.");
+    }
 }

@@ -1,13 +1,13 @@
-<x-layouts.app titulo="Importar planilha">
-    <h1 class="text-2xl font-semibold text-slate-900">Importar planilha de produtos</h1>
-    <p class="mt-1 text-sm text-slate-600">Envie um arquivo CSV ou Excel (XLSX). Cada linha válida vira um produto; produtos com a mesma descrição são atualizados.</p>
+<x-layouts.app titulo="Importar planilha ou nota">
+    <h1 class="text-2xl font-semibold text-slate-900">Importar planilha ou nota fiscal</h1>
+    <p class="mt-1 text-sm text-slate-600">Envie uma planilha (CSV ou Excel) ou o XML de uma NF-e, NFC-e ou NFS-e. Cada linha ou item válido vira um produto; produtos com a mesma descrição são atualizados.</p>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-3">
         <form method="POST" action="{{ route('importacoes.store') }}" enctype="multipart/form-data" class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
             @csrf
             <label class="block">
                 <span class="mb-1 block text-sm font-medium text-slate-700">Arquivo</span>
-                <input type="file" name="arquivo" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required
+                <input type="file" name="arquivo" accept=".csv,.xlsx,.xml,text/csv,text/xml,application/xml,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required
                     class="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
                 <span class="mt-1 block text-xs text-slate-500">
                     Até {{ number_format(config('importacao.tamanho_maximo_kb') / 1024, 0) }} MB e {{ number_format(config('importacao.maximo_linhas'), 0, ',', '.') }} linhas.
@@ -34,6 +34,10 @@
                 <div><dt class="inline font-mono">preco</dt> <dd class="inline text-slate-600">— ex.: 1.200,00</dd></div>
             </dl>
             <p class="mt-3 text-xs text-slate-500">CSV com separador ";" ou ",", em UTF-8 ou no formato salvo pelo Excel. Os códigos são conferidos com as tabelas vigentes da Receita.</p>
+
+            <h2 class="mt-5 font-semibold text-slate-900">Nota fiscal (XML)</h2>
+            <p class="mt-1">Uma nota por arquivo. Depois de importar, você pode <strong>simular só os itens da nota</strong>, com o local da operação já preenchido.</p>
+            <p class="mt-1 text-xs text-slate-500">Notas sem o grupo IBS/CBS (leiaute antigo) usam o CST e o cClassTrib de um produto do catálogo com o mesmo NCM/NBS.</p>
         </aside>
     </div>
 </x-layouts.app>

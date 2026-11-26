@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE NFe [<!ENTITY segredo SYSTEM "file:///etc/passwd">]>
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+  <infNFe versao="4.00">
+    <ide><mod>55</mod><nNF>1</nNF><dhEmi>2027-03-10T10:00:00-03:00</dhEmi><cMunFG>4314902</cMunFG></ide>
+    <det nItem="1"><prod><xProd>&segredo;</xProd><NCM>10063021</NCM><vUnCom>1.00</vUnCom><vProd>1.00</vProd></prod></det>
+  </infNFe>
+</NFe>

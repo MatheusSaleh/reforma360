@@ -38,4 +38,17 @@ final class NormalizadorFiscal
 
         return mb_str_pad($digitos, $tamanho, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Arredonda um decimal não negativo meio para cima, sem float.
+     * Ex.: arredondar("2.3456", 2) = "2.35".
+     *
+     * @param  numeric-string  $valor
+     */
+    public static function arredondar(string $valor, int $casas): string
+    {
+        $meiaUnidade = bcdiv('5', bcpow('10', (string) ($casas + 1)), $casas + 1);
+
+        return bcadd($valor, $meiaUnidade, $casas);
+    }
 }

@@ -49,6 +49,22 @@ enum Uf: string
         };
     }
 
+    public static function doCodigoIbge(int $codigo): ?self
+    {
+        foreach (self::cases() as $uf) {
+            if ($uf->codigoIbge() === $codigo) {
+                return $uf;
+            }
+        }
+
+        return null;
+    }
+
+    public static function doMunicipio(int $codigoMunicipio): ?self
+    {
+        return self::doCodigoIbge(intdiv($codigoMunicipio, 100000));
+    }
+
     public function contemMunicipio(int $codigoMunicipio): bool
     {
         return intdiv($codigoMunicipio, 100000) === $this->codigoIbge();

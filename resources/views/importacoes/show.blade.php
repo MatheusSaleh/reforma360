@@ -12,6 +12,14 @@
         @include('importacoes._status', ['status' => $importacao->status])
     </div>
 
+    @if ($importacao->ehDocumentoFiscal())
+        <p class="mt-1 text-sm text-slate-600">
+            {{ $importacao->tipo_documento->label() }} nº {{ $importacao->numero_documento }}
+            @if ($importacao->data_documento) · emitida em {{ $importacao->data_documento->format('d/m/Y') }} @endif
+            @if ($importacao->uf) · {{ $importacao->uf->value }}, município {{ $importacao->municipio }} @endif
+        </p>
+    @endif
+
     @if ($importacao->status->emAndamento())
         <p class="mt-2 text-sm text-slate-600" role="status">Processando a planilha… esta página se atualiza sozinha.</p>
     @endif
@@ -36,13 +44,33 @@
     </dl>
 
     @if ($importacao->status === \App\Enums\StatusImportacao::Concluida && $importacao->linhas_importadas > 0)
-        <p class="mt-4 text-sm"><a href="{{ route('produtos.index') }}" class="text-emerald-700 hover:underline">Ver produtos →</a></p>
+        <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
+            @if ($importacao->ehDocumentoFiscal())
+                @php
+                    $dataNota = $importacao->data_documento?->toDateString();
+                    $dataNoPeriodo = $dataNota !== null && $dataNota >= config('simulacao.data_minima') && $dataNota <= config('simulacao.data_maxima');
+                @endphp
+                <a href="{{ route('simulacoes.create', array_filter([
+                    'importacao' => $importacao->id,
+                    'uf' => $importacao->uf?->value,
+                    'municipio' => $importacao->municipio,
+                    'data' => $dataNoPeriodo ? $dataNota : null,
+                ])) }}" class="rounded-md bg-emerald-600 px-4 py-2 font-semibold text-white shadow-sm hover:bg-emerald-700">Simular esta nota</a>
+            @endif
+            <a href="{{ route('produtos.index') }}" class="text-emerald-700 hover:underline">Ver produtos →</a>
+        </div>
     @endif
 
     @if ($erros->isNotEmpty())
         <section class="mt-8" aria-labelledby="titulo-erros">
-            <h2 id="titulo-erros" class="text-lg font-semibold text-slate-900">Erros por linha</h2>
-            <p class="mt-1 text-sm text-slate-600">Corrija estas linhas na planilha e importe de novo: as linhas já importadas serão apenas atualizadas.</p>
+            <h2 id="titulo-erros" class="text-lg font-semibold text-slate-900">Erros por {{ $importacao->ehDocumentoFiscal() ? 'item' : 'linha' }}</h2>
+            <p class="mt-1 text-sm text-slate-600">
+                @if ($importacao->ehDocumentoFiscal())
+                    Os itens abaixo não foram importados. Corrija o catálogo (por exemplo, cadastrando o produto de referência) e importe a nota de novo.
+                @else
+                    Corrija estas linhas na planilha e importe de novo: as linhas já importadas serão apenas atualizadas.
+                @endif
+            </p>
             @if ($importacao->linhas_com_erro > 0 && $erros->total() >= \App\Services\Importacao\ImportarCatalogoService::MAXIMO_ERROS_GRAVADOS)
                 <p class="mt-1 text-xs text-amber-700">Mostrando os primeiros {{ \App\Services\Importacao\ImportarCatalogoService::MAXIMO_ERROS_GRAVADOS }} erros.</p>
             @endif
@@ -50,7 +78,7 @@
                 <table class="w-full text-left text-sm">
                     <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
                         <tr>
-                            <th class="px-4 py-3">Linha</th>
+                            <th class="px-4 py-3">{{ $importacao->ehDocumentoFiscal() ? 'Item' : 'Linha' }}</th>
                             <th class="px-4 py-3">Campo</th>
                             <th class="px-4 py-3">Problema</th>
                         </tr>

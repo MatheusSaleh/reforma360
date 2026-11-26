@@ -217,7 +217,7 @@ test('valida o arquivo enviado', function (?UploadedFile $arquivo, string $mensa
     expect(Importacao::query()->count())->toBe(0);
 })->with([
     'sem arquivo'   => [null, 'Selecione a planilha.'],
-    'PDF'           => [fn () => UploadedFile::fake()->create('catalogo.pdf', 10, 'application/pdf'), 'Envie um arquivo .csv ou .xlsx.'],
+    'PDF'           => [fn () => UploadedFile::fake()->create('catalogo.pdf', 10, 'application/pdf'), 'Envie um arquivo .csv, .xlsx ou .xml.'],
     'grande demais' => [fn () => UploadedFile::fake()->create('catalogo.csv', 6000, 'text/csv'), 'O arquivo deve ter no máximo 5120 KB.'],
 ]);
 

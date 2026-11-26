@@ -33,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Table('simulacoes')]
 #[Fillable([
-    'user_id', 'status', 'data_fato_gerador', 'uf', 'municipio', 'aliquota_cbs', 'aliquota_ibs_estadual',
+    'user_id', 'importacao_id', 'status', 'data_fato_gerador', 'uf', 'municipio', 'aliquota_cbs', 'aliquota_ibs_estadual',
     'aliquota_ibs_municipal', 'total_itens', 'itens_processados', 'itens_com_erro', 'total_base_calculo',
     'total_cbs', 'total_ibs', 'total_imposto_seletivo', 'total_tributos', 'batch_id', 'iniciada_em', 'concluida_em',
 ])]
@@ -56,6 +56,16 @@ class Simulacao extends Model
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Nota importada que originou a simulação (nulo = catálogo inteiro).
+     *
+     * @return BelongsTo<Importacao, $this>
+     */
+    public function importacao(): BelongsTo
+    {
+        return $this->belongsTo(Importacao::class);
     }
 
     /**

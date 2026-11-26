@@ -28,7 +28,12 @@
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($simulacoes as $simulacao)
                         <tr>
-                            <td class="px-4 py-3"><a href="{{ route('simulacoes.show', $simulacao) }}" class="font-medium text-emerald-700 hover:underline">#{{ $simulacao->id }}</a></td>
+                            <td class="px-4 py-3">
+                                <a href="{{ route('simulacoes.show', $simulacao) }}" class="font-medium text-emerald-700 hover:underline">#{{ $simulacao->id }}</a>
+                                @if ($simulacao->importacao_id)
+                                    <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">nota</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">{{ $simulacao->data_fato_gerador->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">{{ $simulacao->uf->value }} · {{ $simulacao->municipio }}</td>
                             <td class="px-4 py-3">@include('simulacoes._status', ['status' => $simulacao->status])</td>

@@ -5,7 +5,7 @@
             <p class="mt-1 text-sm text-slate-600">Catálogo de {{ auth()->user()->empresa->razao_social }}.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('importacoes.create') }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Importar planilha</a>
+            <a href="{{ route('importacoes.create') }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Importar planilha ou nota</a>
             <a href="{{ route('produtos.create') }}" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700">Novo produto</a>
         </div>
     </div>
