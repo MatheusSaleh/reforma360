@@ -119,10 +119,13 @@ DANFSE_URL=http://danfse:8080/api
 
 ### 4. Filas e tempo real
 
+O serviço `queue` do `compose.yaml` processa as filas (importação de planilhas) e sobe junto com o `sail up`. Depois de mudar código de jobs, reinicie-o:
+
 ```bash
-php artisan horizon
-php artisan reverb:start
+./vendor/bin/sail restart queue
 ```
+
+> Horizon e Reverb entram na simulação em lote (#8).
 
 ### 5. Testes e qualidade
 

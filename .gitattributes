@@ -9,3 +9,6 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Fixtures de teste preservadas byte a byte (CRLF, Latin-1, BOM do Excel)
+tests/Fixtures/** -text

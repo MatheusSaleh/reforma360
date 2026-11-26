@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Catalogo;
 
 use App\Http\Requests\Concerns\NormalizaEntradaFiscal;
+use App\Rules\Catalogo\RegrasProduto;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -24,14 +25,7 @@ class ProdutoRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'descricao'    => ['required', 'string', 'max:255'],
-            'ncm'          => ['nullable', 'required_without:nbs', 'prohibits:nbs', 'digits:8'],
-            'nbs'          => ['nullable', 'required_without:ncm', 'digits:9'],
-            'cst'          => ['required', 'digits:3'],
-            'c_class_trib' => ['required', 'digits:6'],
-            'preco'        => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:9999999999999.99'],
-        ];
+        return RegrasProduto::regras();
     }
 
     /**
@@ -39,13 +33,7 @@ class ProdutoRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'ncm.required_without' => 'Informe o NCM (mercadoria) ou o NBS (serviço).',
-            'nbs.required_without' => 'Informe o NCM (mercadoria) ou o NBS (serviço).',
-            'ncm.prohibits'        => 'Informe apenas o NCM ou apenas o NBS.',
-            'preco.decimal'        => 'O preço deve ter no máximo 2 casas decimais.',
-            'preco.gt'             => 'O preço deve ser maior que zero.',
-        ];
+        return RegrasProduto::mensagens();
     }
 
     /**

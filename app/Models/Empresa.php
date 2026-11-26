@@ -31,4 +31,12 @@ class Empresa extends Model
     {
         return $this->hasMany(Produto::class);
     }
+
+    /**
+     * @return HasMany<Importacao, $this>
+     */
+    public function importacoes(): HasMany
+    {
+        return $this->hasMany(Importacao::class);
+    }
 }

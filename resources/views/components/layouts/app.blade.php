@@ -6,15 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $titulo ? $titulo.' · ' : '' }}{{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
     <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4">
             <a href="{{ route('home') }}" class="text-lg font-semibold text-slate-900">Reforma<span class="text-emerald-600">360</span></a>
-            <nav class="flex items-center gap-4 text-sm">
+            <nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                 <a href="{{ route('simulacoes.item.create') }}" class="text-slate-600 hover:text-slate-900">Simular item</a>
                 @auth
                     <a href="{{ route('produtos.index') }}" class="text-slate-600 hover:text-slate-900">Produtos</a>
+                    <a href="{{ route('importacoes.index') }}" class="text-slate-600 hover:text-slate-900">Importações</a>
                     <span class="hidden text-slate-400 sm:inline">{{ auth()->user()->empresa->razao_social }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
