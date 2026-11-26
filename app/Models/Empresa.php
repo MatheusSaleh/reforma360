@@ -39,4 +39,12 @@ class Empresa extends Model
     {
         return $this->hasMany(Importacao::class);
     }
+
+    /**
+     * @return HasMany<Simulacao, $this>
+     */
+    public function simulacoes(): HasMany
+    {
+        return $this->hasMany(Simulacao::class);
+    }
 }

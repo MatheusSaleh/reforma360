@@ -28,16 +28,13 @@ services:
             - calculadora-regular
             - calculadora-simples
             - danfse
-    # Worker de filas (importações). Será substituído pelo Horizon na #8.
-    queue:
+    # Filas (importações e simulações em lote) com Horizon. Painel em /horizon.
+    horizon:
         image: 'sail-8.5/app'
         command:
             - php
             - artisan
-            - queue:work
-            - '--queue=importacoes,default'
-            - '--tries=4'
-            - '--timeout=600'
+            - horizon
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -49,6 +46,28 @@ services:
         depends_on:
             - laravel.test
             - mysql
+            - redis
+        restart: unless-stopped
+    # WebSocket do progresso em tempo real (Laravel Reverb).
+    reverb:
+        image: 'sail-8.5/app'
+        command:
+            - php
+            - artisan
+            - reverb:start
+            - '--host=0.0.0.0'
+            - '--port=8080'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        ports:
+            - '${FORWARD_REVERB_PORT:-8080}:8080'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
             - redis
         restart: unless-stopped
     mysql:
