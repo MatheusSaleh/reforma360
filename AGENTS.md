@@ -8,7 +8,9 @@ Reforma360 é um simulador da Reforma Tributária do Consumo (CBS/IBS — LC 214
 
 - PHP ^8.4 · Laravel 13 · Pest 5 · Pint (`pint.json`, `declare_strict_types`) · Larastan nível 7 (`phpstan.neon.dist`)
 - Ambiente local: Laravel Sail (`compose.yaml`) — PHP 8.5, MySQL 8.4, Redis. Testes em SQLite `:memory:` (`phpunit.xml`)
-- MySQL · Redis · Horizon (filas) · Reverb (tempo real) · Sanctum (API pública) · Filament (painel admin)
+- MySQL · Redis · Fortify (login, registro, redefinição de senha) · Blade + Tailwind 4
+- Previstos: Horizon (filas) · Reverb (tempo real) · Sanctum (API pública) · Filament (painel admin)
+- Traduções em `lang/pt_BR/` (parcial: chave ausente cai no inglês); locale padrão `pt_BR`
 - Serviços internos (Docker, **sem modificações**, sem acesso público):
   - `calculadora-regime-regular` (Java/Spring Boot)
   - `calculadora-simples-nacional` (Java/Spring Boot)
@@ -56,6 +58,7 @@ Edite skills **apenas** em `.ai/skills/`. Detalhes em `.ai/README.md`.
 - **Integrações HTTP** só via clients em `App\Integrations\Calculadora\` (nunca `Http::` solto em controller/service de domínio). URLs em `config/services.php` ← `.env`.
 - **Importadores** implementam `App\Importers\CatalogImporter` (Strategy): `CsvImporter`, `XlsxImporter`, `NfeXmlImporter`.
 - **Dinheiro e alíquotas nunca em `float`.** Valores monetários em centavos (`int`) ou `decimal` com cast; alíquotas como string decimal / `decimal` cast. Ver guideline.
+- **Escopo por empresa:** usuário pertence a uma empresa; consultas pela relação (`$user->empresa->produtos()`), policies com 404 para recurso alheio. Ver `.ai/rules/tenancy.md`.
 - **Mass assignment:** `$fillable`/`#[Fillable]` ou `$guarded` explícito; nunca `Model::unguard()` global. Persistir com `$request->validated()`.
 - `Model::shouldBeStrict()` fora de produção; `DB::prohibitDestructiveCommands()` em produção.
 - Resultados são **simulações**: toda tela/relatório/resposta de API que mostre cálculo deve deixar isso claro (o retorno da Receita marca `CALCULO_SIMULADO`).

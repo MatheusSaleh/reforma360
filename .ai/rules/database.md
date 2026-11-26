@@ -12,7 +12,7 @@ paths:
 - Uma migration por mudança; nunca edite migration já mergeada em `main`, crie outra.
 - FKs com `foreignId()->constrained()` e `cascadeOnDelete()`/`restrictOnDelete()` explícitos.
 - Índices para colunas de filtro/busca (`ncm`, `user_id`, `status`, `created_at` de importações).
-- Dinheiro: decida o padrão (centavos em `unsignedBigInteger` **ou** `decimal(15,2)`) na primeira tabela monetária e registre aqui. Alíquotas: `decimal(7,4)`. **Nunca** `float`/`double`.
+- Dinheiro: `decimal(15,2)` (ver decisões abaixo). Alíquotas: `decimal(7,4)`. **Nunca** `float`/`double`.
 - NCM `char(8)`, NBS `char(9)`, CNPJ `char(14)`.
 - `down()` funcional.
 
@@ -26,4 +26,5 @@ paths:
 - Estados nomeados para variações de domínio.
 
 ## Decisões registradas
-<!-- Registre aqui decisões de schema (ex.: "Dinheiro em centavos (int) — decidido em #5"). -->
+- **Dinheiro (#5):** coluna `decimal(15,2)` com cast `decimal:2` (string `"1200.00"`), o mesmo formato que a calculadora usa. Aritmética com `bcmath`. Nunca centavos em int, nunca float.
+- **Migration que adiciona coluna obrigatória em tabela com dados (#5):** crie a coluna `nullable`, preencha os registros existentes e só depois aplique `->nullable(false)->change()` + FK. O MySQL não faz rollback de DDL: se a FK falhar, a coluna fica criada e a migration não roda de novo. Os testes (SQLite vazio) não pegam isso: rode `sail artisan migrate` com dados no banco antes de abrir o PR.
