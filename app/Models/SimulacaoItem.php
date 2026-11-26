@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 #[Table('simulacao_itens')]
 #[Fillable([
-    'produto_id', 'descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'base_calculo', 'estado', 'valor_cbs',
+    'produto_id', 'origem_id', 'descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'base_calculo', 'estado', 'valor_cbs',
     'valor_ibs', 'valor_imposto_seletivo', 'total_tributos', 'percentual_reducao', 'detalhes', 'erros',
 ])]
 class SimulacaoItem extends Model

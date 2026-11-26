@@ -18,6 +18,7 @@ final readonly class FinalizarSimulacao
 {
     public function __construct(
         private TransmitirProgresso $transmitir,
+        private FinalizarLinhaDoTempo $finalizarLinhaDoTempo,
     ) {}
 
     public function handle(int $simulacaoId): void
@@ -64,6 +65,14 @@ final readonly class FinalizarSimulacao
         ]);
 
         ($this->transmitir)($simulacao);
+
+        // Ano de uma linha do tempo: o aviso é um só, quando todos os anos terminam.
+        if ($simulacao->linha_do_tempo_id !== null) {
+            $this->finalizarLinhaDoTempo->handle($simulacao->linha_do_tempo_id);
+
+            return;
+        }
+
         $simulacao->usuario?->notify(new SimulacaoConcluida($simulacao));
     }
 }

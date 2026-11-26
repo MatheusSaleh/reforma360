@@ -1,0 +1,69 @@
+{
+    "oper": {
+        "data": "2027-03-10",
+        "tpDoc": "55",
+        "CRT": "1"
+    },
+    "objetos": [
+        {
+            "nObj": 1,
+            "estadoItem": "CALCULADO",
+            "tribCalc": {
+                "vRBSNitem": "3000.00",
+                "tpRBSN": 1,
+                "tpRBSNDescricao": "Receita bruta - interna",
+                "vBC": "3000.00",
+                "pIBSSN": "0.50",
+                "vIBSSN": "15.00",
+                "vIBSPendSusp": "0.00",
+                "pCBSSN": "2.75",
+                "vCBSSN": "82.50",
+                "vCBSPendSusp": "0.00",
+                "IS": {
+                    "valor": "0.00"
+                },
+                "totalItem": "97.50",
+                "memoriaCalculo": {
+                    "cbs": "Receita bruta do Simples Nacional de R$ 3.000,00 (Receita bruta - interna). A base de cálculo utilizada é de R$ 3.000,00, com alíquota efetiva de 2,75%. Valor devido de R$ 82,50 e pendente/suspenso de R$ 0,00.",
+                    "ibs": "Receita bruta do Simples Nacional de R$ 3.000,00 (Receita bruta - interna). A base de cálculo utilizada é de R$ 3.000,00, com alíquota efetiva de 0,50%. Valor devido de R$ 15,00 e pendente/suspenso de R$ 0,00."
+                }
+            }
+        },
+        {
+            "nObj": 2,
+            "estadoItem": "INCONSISTENCIA_ENTRADA",
+            "erros": [
+                {
+                    "type": "http://calculadora-simples/calculadora/observabilidade/simples-nacional/erros?codigo=VSN-022",
+                    "title": "cClassTrib incompatível com o tpDoc",
+                    "code": "VSN-022",
+                    "pointer": "#/itens/1/cClassTrib",
+                    "detail": "O cClassTrib '200028' não é admissível para o tipo de documento fiscal 55."
+                }
+            ]
+        },
+        {
+            "nObj": 3,
+            "estadoItem": "INCONSISTENCIA_ENTRADA",
+            "erros": [
+                {
+                    "type": "http://calculadora-simples/calculadora/observabilidade/simples-nacional/erros?codigo=VSN-047",
+                    "title": "NCM não aplicável",
+                    "code": "VSN-047",
+                    "pointer": "#/itens/2/ncm",
+                    "detail": "NCM de código 02013000 não vinculada à Classificação Tributária de código 200035 (CBS e IBS)"
+                }
+            ]
+        }
+    ],
+    "total": {
+        "vRBSNtot": "3000.00",
+        "vBC": "3000.00",
+        "vIBSSNtot": "15.00",
+        "vIBSSNtotPendSusp": "0.00",
+        "vCBSSNtot": "82.50",
+        "vCBSSNtotPendSusp": "0.00",
+        "totalIs": "0.00",
+        "totalTributos": "97.50"
+    }
+}

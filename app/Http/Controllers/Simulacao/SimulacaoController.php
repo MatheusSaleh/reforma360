@@ -24,7 +24,7 @@ class SimulacaoController extends Controller
         Gate::authorize('viewAny', Simulacao::class);
 
         return view('simulacoes.index', [
-            'simulacoes' => $this->usuario($request)->empresa->simulacoes()->latest()->paginate(15),
+            'simulacoes' => $this->usuario($request)->empresa->simulacoes()->whereNull('linha_do_tempo_id')->latest()->paginate(15),
         ]);
     }
 

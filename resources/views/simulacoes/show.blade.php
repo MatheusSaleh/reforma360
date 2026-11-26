@@ -8,6 +8,12 @@
         <h1 class="text-2xl font-semibold text-slate-900">Simulação #{{ $simulacao->id }}</h1>
         @include('simulacoes._status', ['status' => $simulacao->status])
     </div>
+    @if ($simulacao->linhaDoTempoPai)
+        <p class="mt-1 text-sm text-slate-600">
+            Ano {{ $simulacao->data_fato_gerador->year }} da
+            <a href="{{ route('simulacoes.linha-do-tempo.show', $simulacao->linhaDoTempoPai->simulacao_id) }}" class="text-emerald-700 hover:underline">linha do tempo da simulação #{{ $simulacao->linhaDoTempoPai->simulacao_id }}</a>.
+        </p>
+    @endif
     @if ($simulacao->importacao)
         <p class="mt-1 text-sm text-slate-600">
             Itens da nota
@@ -27,7 +33,8 @@
         <div class="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
             data-progresso-simulacao
             data-canal="simulacoes.{{ $simulacao->id }}"
-            data-total="{{ $simulacao->total_itens }}">
+            data-total="{{ $simulacao->total_itens }}"
+            data-processados="{{ $simulacao->itens_processados }}">
             <div class="flex items-center justify-between text-sm">
                 <span class="font-medium text-slate-700">Simulando os itens…</span>
                 <span data-progresso-texto>{{ $simulacao->itens_processados }} de {{ $simulacao->total_itens }}</span>
@@ -53,6 +60,16 @@
         </div>
 
         <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+            @if (! $simulacao->ehAnoDeLinhaDoTempo() && $simulacao->itens_processados > $simulacao->itens_com_erro)
+                <a href="{{ route($simulacao->linhaDoTempo ? 'simulacoes.linha-do-tempo.show' : 'simulacoes.linha-do-tempo.create', $simulacao) }}" class="rounded-md bg-emerald-600 px-4 py-2 font-semibold text-white shadow-sm hover:bg-emerald-700">
+                    {{ $simulacao->linhaDoTempo ? 'Ver linha do tempo 2026→2033' : 'Gerar linha do tempo 2026→2033' }}
+                </a>
+            @endif
+            @if ($simulacao->itens_processados > $simulacao->itens_com_erro)
+                <a href="{{ route($simulacao->comparacao ? 'simulacoes.comparacao.show' : 'simulacoes.comparacao.create', $simulacao) }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                    {{ $simulacao->comparacao ? 'Ver Simples × regime regular' : 'Comparar com o Simples Nacional' }}
+                </a>
+            @endif
             @if ($xmlDoGrupo && $xmlDoGrupo['tipo'] && $simulacao->itens_processados > $simulacao->itens_com_erro)
                 <a href="{{ route('simulacoes.xml-ibscbs', $simulacao) }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
                     Baixar XML do grupo IBS/CBS ({{ $xmlDoGrupo['tipo']->label() }})

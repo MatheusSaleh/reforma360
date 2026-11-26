@@ -18,6 +18,10 @@ paths:
 - Progresso em tempo real: evento `ShouldBroadcast` (ex.: `ProgressoLoteAtualizado`) em **canal privado** autorizado em `routes/channels.php`; payload só com contadores/percentual, sem dados fiscais.
 - Testes: `Bus::fake()`/`Queue::fake()` para disparo; teste o `handle()` do job diretamente com `Http::fake()`.
 
+## Linha do tempo (#11)
+
+- Reaproveita o lote da #8: cada ano é uma `Simulacao` com `linha_do_tempo_id`. O progresso da página da linha do tempo soma os canais privados dos 8 anos (`data-canais` em `progresso-simulacao.js`).
+
 ## Implementado na #8 (simulação em lote)
 
 - `IniciarSimulacaoEmLote` grava um retrato do catálogo em `simulacao_itens` e despacha `Bus::batch()` de `SimularItensJob` (um job por bloco de `config('simulacao.itens_por_chamada')` itens = **uma** chamada à calculadora). `->allowFailures()->finally(...)` chama `FinalizarSimulacao` (totais com `bcadd`, status, notificação).
