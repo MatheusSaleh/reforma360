@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(function (CalculadoraIndisponivelException $e, Request $request) {
-            $mensagem = 'A calculadora da Receita está indisponível no momento. Tente novamente em instantes.';
+            $mensagem = $e->mensagemParaUsuario();
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => $mensagem], 503);

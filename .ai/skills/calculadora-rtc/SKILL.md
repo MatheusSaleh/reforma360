@@ -76,6 +76,17 @@ Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::
 - Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`). Consequência: a partir de 2027, NCMs sujeitos ao IS (ex.: cerveja 22030000) voltam com **REG-013** ("Dados do Imposto Seletivo devem ser informados").
 - Em 2026, sem alíquotas, o item sai `CALCULADO` (usa as de referência); de 2027 em diante, com alíquotas, sai `CALCULO_SIMULADO`.
 
+## XML do grupo e DANFSe (implementado na #10)
+
+| Contrato → client | Endpoint | Observação |
+|---|---|---|
+| `XmlTributacao::gerarGrupo(Operacao, TipoDocumentoFiscal)` → `XmlTributacaoClient` | `POST /calculadora/regime-geral` e, com o corpo da resposta, `POST /calculadora/xml/generate?tipo=nfe\|nfce` | O generate recebe a resposta do cálculo **normal** (não a da observabilidade). `regime-geral` falha no 1º item com erro (422) → envie só itens já calculados. **Não há generate para NFS-e** (500 "Tipo de documento não suportado"). |
+| `XmlTributacao::validar(xml, tipo, 'grupo'\|'nota')` | `POST /calculadora/xml/validate?tipo=&subtipo=` (`Content-Type: application/xml`) | 200 com corpo `true` = válido; 422 com `detail` = linha/coluna do erro. Valida também NFS-e. |
+| `GeradorDanfse::gerar(xmlDaNfse)` → `DanfseClient` | serviço Go `POST {DANFSE_URL}/danfse` (`application/xml`) | Devolve o PDF; 400 com `{"mensagem": ...}` quando o XML não é NFS-e. Gera o DANFSe **da nota original**. |
+
+- `GerarXmlDoGrupoService`: tipo = tipo da nota importada (NF-e/NFC-e) ou NF-e para simulações só com mercadorias; recusa NFS-e, simulações com NBS, em andamento, sem itens calculados ou com mais de 990 itens (`config('simulacao.maximo_itens_xml')`). Entrega o XML só se o `/xml/validate` aprovar.
+- **Nunca** injete valores simulados no XML de uma nota para gerar DANFSe: viraria um documento com cara de oficial e valores não autorizados.
+
 ## Dados abertos (implementado na #4)
 
 `Contracts\DadosAbertos` → `DadosAbertosClient` (cache de 1 dia), usando `CalculadoraRegularHttp` (config HTTP compartilhada com o client de cálculo):

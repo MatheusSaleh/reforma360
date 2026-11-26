@@ -14,4 +14,5 @@ Ative a skill `calculadora-rtc`.
 - Entrada e saída em **DTOs** (`readonly` classes) em `App\Integrations\Calculadora\Data\`. Nenhum array cru da API sai do client.
 - Erros viram exceções próprias (`CalculadoraIndisponivelException`, `PayloadInvalidoException`) com contexto (id da simulação), sem logar dado sensível.
 - Não descubra endpoints/campos por tentativa: confira o OpenAPI/README do serviço em `services/<repo>/` e grave um exemplo real (anonimizado) em `tests/Fixtures/calculadora/`.
+- Clients existentes: `ReceitaCalculadoraClient` (cálculo com observabilidade), `DadosAbertosClient`, `XmlTributacaoClient` (gerar/validar XML do grupo), `DanfseClient` (PDF). Todos usam exceções de domínio; `CalculadoraIndisponivelException::mensagemParaUsuario()` vira o aviso de serviço fora (chave de erro `simulacao`, que as telas exibem).
 - Dados de referência (`/dados-abertos`) podem ser cacheados (`Cache::remember`) com TTL longo; o resultado de simulação, não.

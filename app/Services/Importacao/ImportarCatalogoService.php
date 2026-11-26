@@ -83,7 +83,11 @@ final readonly class ImportarCatalogoService
             return;
         }
 
-        $this->apagarArquivo($importacao);
+        // O XML da NFS-e fica guardado (disco privado) para gerar o DANFSe; o comando
+        // importacoes:apagar-arquivos-vencidos remove depois da retenção.
+        if (! $importacao->guardaXmlParaDanfse()) {
+            $this->apagarArquivo($importacao);
+        }
     }
 
     public function falhar(Importacao $importacao, string $mensagem): void

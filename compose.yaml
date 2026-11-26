@@ -48,6 +48,25 @@ services:
             - mysql
             - redis
         restart: unless-stopped
+    # Tarefas agendadas (routes/console.php), ex.: apagar XMLs de NFS-e vencidos.
+    scheduler:
+        image: 'sail-8.5/app'
+        command:
+            - php
+            - artisan
+            - schedule:work
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+            - mysql
+            - redis
+        restart: unless-stopped
     # WebSocket do progresso em tempo real (Laravel Reverb).
     reverb:
         image: 'sail-8.5/app'

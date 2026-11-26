@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Importação de catálogo a partir de um arquivo (CSV/XLSX).
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property TipoDocumentoFiscal|null $tipo_documento
  * @property CarbonImmutable|null $data_documento
  * @property Uf|null $uf
+ * @property Carbon|null $concluida_em
  */
 #[Table('importacoes')]
 #[Fillable([
@@ -64,6 +66,29 @@ class Importacao extends Model
     public function ehDocumentoFiscal(): bool
     {
         return $this->tipo_documento !== null;
+    }
+
+    /**
+     * NFS-e importada com sucesso: o XML é guardado para gerar o DANFSe.
+     */
+    public function guardaXmlParaDanfse(): bool
+    {
+        return $this->tipo_documento === TipoDocumentoFiscal::Nfse && $this->status === StatusImportacao::Concluida;
+    }
+
+    public function temXmlParaDanfse(): bool
+    {
+        return $this->guardaXmlParaDanfse() && $this->caminho_arquivo !== null;
+    }
+
+    /**
+     * Até quando o XML da NFS-e fica guardado.
+     */
+    public function xmlGuardadoAte(): ?CarbonImmutable
+    {
+        return $this->concluida_em === null
+            ? null
+            : CarbonImmutable::instance($this->concluida_em)->addDays(config()->integer('importacao.retencao_xml_dias'));
     }
 
     /**

@@ -24,4 +24,11 @@ return [
 
     'fila' => 'importacoes',
 
+    /*
+    | Dias que o XML de uma NFS-e importada fica guardado (disco privado) para gerar
+    | o DANFSe. Depois disso o comando importacoes:apagar-arquivos-vencidos apaga.
+    */
+
+    'retencao_xml_dias' => (int) env('IMPORTACAO_RETENCAO_XML_DIAS', 30),
+
 ];

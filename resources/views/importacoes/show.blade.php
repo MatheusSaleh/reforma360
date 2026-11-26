@@ -45,6 +45,9 @@
 
     @if ($importacao->status === \App\Enums\StatusImportacao::Concluida && $importacao->linhas_importadas > 0)
         <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
+            @if ($importacao->temXmlParaDanfse())
+                <a href="{{ route('importacoes.danfse', $importacao) }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Baixar DANFSe (PDF)</a>
+            @endif
             @if ($importacao->ehDocumentoFiscal())
                 @php
                     $dataNota = $importacao->data_documento?->toDateString();
@@ -59,6 +62,21 @@
             @endif
             <a href="{{ route('produtos.index') }}" class="text-emerald-700 hover:underline">Ver produtos →</a>
         </div>
+        @if ($importacao->guardaXmlParaDanfse())
+            <p class="mt-2 text-xs text-slate-500">
+                @if ($importacao->temXmlParaDanfse())
+                    O XML desta NFS-e fica guardado até {{ $importacao->xmlGuardadoAte()?->timezone('America/Sao_Paulo')->format('d/m/Y') }} para gerar o DANFSe; depois é apagado.
+                @else
+                    O XML desta NFS-e já foi apagado (guardado por {{ config('importacao.retencao_xml_dias') }} dias). Importe a nota de novo para gerar o DANFSe.
+                @endif
+            </p>
+        @endif
+        @error('simulacao')
+            <div class="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{{ $message }}</div>
+        @enderror
+        @error('danfse')
+            <div class="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{{ $message }}</div>
+        @enderror
     @endif
 
     @if ($erros->isNotEmpty())

@@ -11,6 +11,7 @@ use App\Http\Requests\Simulacao\IniciarSimulacaoRequest;
 use App\Models\Importacao;
 use App\Models\Simulacao;
 use App\Models\User;
+use App\Services\Simulacao\GerarXmlDoGrupoService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class SimulacaoController extends Controller
         return to_route('simulacoes.show', $simulacao)->with('status', 'Simulação iniciada. Acompanhe o progresso abaixo.');
     }
 
-    public function show(Request $request, Simulacao $simulacao): View
+    public function show(Request $request, Simulacao $simulacao, GerarXmlDoGrupoService $xmlDoGrupo): View
     {
         Gate::authorize('view', $simulacao);
 
@@ -71,6 +72,7 @@ class SimulacaoController extends Controller
 
         return view('simulacoes.show', [
             'simulacao'    => $simulacao,
+            'xmlDoGrupo'   => $simulacao->status->emAndamento() ? null : $xmlDoGrupo->disponibilidade($simulacao),
             'somenteErros' => $somenteErros,
             'itens'        => $simulacao->itens()
                 ->when($somenteErros, fn ($query) => $query->whereNotIn('estado', ['CALCULADO', 'CALCULO_SIMULADO']))
