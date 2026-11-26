@@ -60,6 +60,7 @@
         </div>
 
         <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+            <a href="{{ route('simulacoes.relatorio', $simulacao) }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Baixar relatório (PDF)</a>
             @if (! $simulacao->ehAnoDeLinhaDoTempo() && $simulacao->itens_processados > $simulacao->itens_com_erro)
                 <a href="{{ route($simulacao->linhaDoTempo ? 'simulacoes.linha-do-tempo.show' : 'simulacoes.linha-do-tempo.create', $simulacao) }}" class="rounded-md bg-emerald-600 px-4 py-2 font-semibold text-white shadow-sm hover:bg-emerald-700">
                     {{ $simulacao->linhaDoTempo ? 'Ver linha do tempo 2026→2033' : 'Gerar linha do tempo 2026→2033' }}
@@ -80,6 +81,9 @@
             @endif
         </div>
         @error('simulacao')
+            <div class="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{{ $message }}</div>
+        @enderror
+        @error('relatorio')
             <div class="mt-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{{ $message }}</div>
         @enderror
         @error('xml')
