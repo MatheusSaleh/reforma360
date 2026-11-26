@@ -4,7 +4,10 @@
             <h1 class="text-2xl font-semibold text-slate-900">Produtos e serviços</h1>
             <p class="mt-1 text-sm text-slate-600">Catálogo de {{ auth()->user()->empresa->razao_social }}.</p>
         </div>
-        <a href="{{ route('produtos.create') }}" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700">Novo produto</a>
+        <div class="flex gap-2">
+            <a href="{{ route('importacoes.create') }}" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Importar planilha</a>
+            <a href="{{ route('produtos.create') }}" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700">Novo produto</a>
+        </div>
     </div>
 
     <form method="GET" action="{{ route('produtos.index') }}" class="mt-6 flex gap-2" role="search">
@@ -22,7 +25,7 @@
             @endif
         </div>
     @else
-        <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="relative mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
             <table class="w-full text-left text-sm">
                 <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
                     <tr>

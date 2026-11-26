@@ -7,6 +7,8 @@ use App\Http\Controllers\DadosAbertos\BuscarNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\DetalheNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\MunicipiosController;
 use App\Http\Controllers\DadosAbertos\SituacoesTributariasController;
+use App\Http\Controllers\Importacao\ImportacaoController;
+use App\Http\Controllers\Importacao\ModeloPlanilhaController;
 use App\Http\Controllers\Simulacao\SimulacaoItemController;
 use App\Http\Controllers\Simulacao\SimularItemController;
 use Illuminate\Support\Facades\Route;
@@ -27,4 +29,9 @@ Route::prefix('dados-abertos')->name('dados-abertos.')->middleware('throttle:dad
 
 Route::middleware('auth')->group(function (): void {
     Route::resource('produtos', ProdutoController::class)->except('show');
+
+    Route::get('importacoes/modelo/{formato}', ModeloPlanilhaController::class)->name('importacoes.modelo');
+    Route::resource('importacoes', ImportacaoController::class)
+        ->only(['index', 'create', 'store', 'show'])
+        ->parameters(['importacoes' => 'importacao']);
 });

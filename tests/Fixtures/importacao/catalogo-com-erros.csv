@@ -1,0 +1,9 @@
+descricao;ncm;nbs;cst;c_class_trib;preco
+Arroz tipo 1;10063021;;200;200003;28,90
+;10063021;;200;200003;10,00
+NCM inexistente;99999999;;000;000001;5,00
+CST inexistente;10063021;;999;000001;5,00
+Classificação de outro CST;10063021;;000;200003;5,00
+Preço inválido;10063021;;000;000001;abc
+Sem NCM nem NBS;;;000;000001;5,00
+Café torrado;09012100;;000;000001;12,50
