@@ -37,6 +37,8 @@ Regras que valem para qualquer código que calcule, mostre ou importe dados trib
 ## Dados sensíveis
 
 - XML de NF-e/NFS-e e planilhas de clientes contêm dados fiscais e pessoais. Armazene em disco privado (`storage/app/private`), nunca em `public`.
+- Retenção: planilhas e NF-e são apagadas logo após a importação. O XML de **NFS-e** fica guardado `config('importacao.retencao_xml_dias')` dias (padrão 30) para gerar o DANFSe e é apagado pelo comando agendado `importacoes:apagar-arquivos-vencidos` (serviço `scheduler` do compose).
+- DANFSe é sempre o da nota original; valores simulados nunca entram em documento com aparência de oficial (use o XML do grupo validado ou o relatório).
 - Não logue payload completo de XML, CNPJ/CPF ou valores de cliente em `info`. Em erro, logue identificadores internos (id da importação, linha).
 - Fixtures de teste usam dados **fictícios**.
 

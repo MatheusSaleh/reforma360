@@ -8,8 +8,6 @@ use App\Enums\EstadoItemCalculo;
 use App\Enums\StatusSimulacao;
 use App\Integrations\Calculadora\Contracts\CalculadoraTributos;
 use App\Integrations\Calculadora\Data\ErroCalculo;
-use App\Integrations\Calculadora\Data\ItemOperacao;
-use App\Integrations\Calculadora\Data\Operacao;
 use App\Integrations\Calculadora\Data\ParcelaTributo;
 use App\Integrations\Calculadora\Data\ResultadoItem;
 use App\Integrations\Calculadora\Exceptions\CalculadoraIndisponivelException;
@@ -18,7 +16,6 @@ use App\Integrations\Calculadora\Exceptions\RespostaInesperadaException;
 use App\Models\Simulacao;
 use App\Models\SimulacaoItem;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * Simula um bloco de itens de uma simulação em lote com uma única chamada à calculadora
@@ -75,7 +72,7 @@ final readonly class SimularLoteService
     private function simular(Simulacao $simulacao, array $itens): array
     {
         try {
-            $resultado = $this->calculadora->calcular($this->operacao($simulacao, $itens));
+            $resultado = $this->calculadora->calcular(OperacaoDaSimulacao::montar($simulacao, $itens));
         } catch (PayloadInvalidoException $e) {
             return array_fill(0, count($itens), self::erro(EstadoItemCalculo::InconsistenciaEntrada, $e->erros, $e->getMessage()));
         } catch (RespostaInesperadaException $e) {
@@ -93,30 +90,6 @@ final readonly class SimularLoteService
         }
 
         return $dados;
-    }
-
-    /**
-     * @param  list<SimulacaoItem>  $itens
-     */
-    private function operacao(Simulacao $simulacao, array $itens): Operacao
-    {
-        $aliquotas = $simulacao->aliquotasNominais();
-
-        return new Operacao(
-            id: 'simulacao-'.$simulacao->id.'-'.Str::lower(Str::random(8)),
-            dhFatoGerador: $simulacao->data_fato_gerador->shiftTimezone('America/Sao_Paulo')->startOfDay(),
-            municipio: $simulacao->municipio,
-            uf: $simulacao->uf->value,
-            itens: array_map(fn (int $indice, SimulacaoItem $item): ItemOperacao => new ItemOperacao(
-                numero: $indice + 1,
-                cst: $item->cst,
-                cClassTrib: $item->c_class_trib,
-                baseCalculo: $item->base_calculo,
-                ncm: $item->ncm,
-                nbs: $item->nbs,
-                aliquotasNominais: $aliquotas,
-            ), array_keys($itens), $itens),
-        );
     }
 
     /**

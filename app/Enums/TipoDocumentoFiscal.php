@@ -18,4 +18,12 @@ enum TipoDocumentoFiscal: string
             self::Nfse => 'NFS-e',
         };
     }
+
+    /**
+     * A calculadora gera o XML do grupo IBS/CBS só para NF-e e NFC-e (não para NFS-e).
+     */
+    public function geraXmlDoGrupo(): bool
+    {
+        return $this !== self::Nfse;
+    }
 }

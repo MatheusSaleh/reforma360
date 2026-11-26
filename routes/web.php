@@ -7,8 +7,10 @@ use App\Http\Controllers\DadosAbertos\BuscarNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\DetalheNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\MunicipiosController;
 use App\Http\Controllers\DadosAbertos\SituacoesTributariasController;
+use App\Http\Controllers\Importacao\BaixarDanfseController;
 use App\Http\Controllers\Importacao\ImportacaoController;
 use App\Http\Controllers\Importacao\ModeloPlanilhaController;
+use App\Http\Controllers\Simulacao\BaixarXmlDoGrupoController;
 use App\Http\Controllers\Simulacao\SimulacaoController;
 use App\Http\Controllers\Simulacao\SimulacaoItemController;
 use App\Http\Controllers\Simulacao\SimularItemController;
@@ -35,6 +37,14 @@ Route::middleware('auth')->group(function (): void {
         ->only(['index', 'create', 'store', 'show'])
         ->parameters(['simulacoes' => 'simulacao'])
         ->where(['simulacao' => '[0-9]+']);
+
+    Route::get('simulacoes/{simulacao}/xml-ibscbs', BaixarXmlDoGrupoController::class)
+        ->middleware('throttle:simulacoes')
+        ->name('simulacoes.xml-ibscbs');
+
+    Route::get('importacoes/{importacao}/danfse', BaixarDanfseController::class)
+        ->middleware('throttle:simulacoes')
+        ->name('importacoes.danfse');
 
     Route::get('importacoes/modelo/{formato}', ModeloPlanilhaController::class)->name('importacoes.modelo');
     Route::resource('importacoes', ImportacaoController::class)

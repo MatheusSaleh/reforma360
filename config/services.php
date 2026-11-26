@@ -53,7 +53,8 @@ return [
     ],
 
     'danfse' => [
-        'url' => env('DANFSE_URL', 'http://danfse:8080/api'),
+        'url'     => env('DANFSE_URL', 'http://danfse:8080/api'),
+        'timeout' => (int) env('DANFSE_TIMEOUT', 20),
     ],
 
     'slack' => [

@@ -1,0 +1,8 @@
+{
+    "detail": "Erro na validação do XML: Erro na linha 1, coluna 9: cvc-elt.1.a: Cannot find the declaration of element 'IBSCBS'.",
+    "instance": "/api/calculadora/xml/validate",
+    "status": 422,
+    "title": "Erro de validação de XML",
+    "type": "http://calculadora-regular/errors/erro-xml",
+    "timestamp": "2026-11-26T20:28:41.585591964Z"
+}

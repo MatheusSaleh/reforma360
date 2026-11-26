@@ -22,6 +22,21 @@ final class CalculadoraIndisponivelException extends RuntimeException
         parent::__construct($message, 0, $previous);
     }
 
+    public static function danfseIndisponivel(?int $status = null, ?Throwable $previous = null): self
+    {
+        return new self('O gerador de DANFSe não respondeu.', null, $status, $previous);
+    }
+
+    /**
+     * Mensagem mostrada ao usuário.
+     */
+    public function mensagemParaUsuario(): string
+    {
+        return $this->getMessage() === 'O gerador de DANFSe não respondeu.'
+            ? 'O gerador de DANFSe está indisponível no momento. Tente novamente em instantes.'
+            : 'A calculadora da Receita está indisponível no momento. Tente novamente em instantes.';
+    }
+
     public static function semConexao(?string $operacaoId, Throwable $previous): self
     {
         return new self('A calculadora da Receita não respondeu.', $operacaoId, previous: $previous);

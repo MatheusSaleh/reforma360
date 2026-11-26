@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function (): void {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+| XMLs de NFS-e guardados para o DANFSe: apagados depois da retenção.
+*/
+Schedule::command('importacoes:apagar-arquivos-vencidos')->dailyAt('03:00')->withoutOverlapping();

@@ -40,4 +40,10 @@ return [
 
     'itens_por_chamada' => (int) env('SIMULACAO_ITENS_POR_CHAMADA', 50),
 
+    /*
+    | XML do grupo IBS/CBS: limite de itens de uma NF-e (det nItem de 1 a 990).
+    */
+
+    'maximo_itens_xml' => 990,
+
 ];
