@@ -1,0 +1,8 @@
+{
+    "detail": "NCM de código 99999999 não encontrada para a data 2027-03-10",
+    "instance": "/api/calculadora/dados-abertos/ncm",
+    "status": 404,
+    "title": "NCM não encontrada",
+    "type": "http://calculadora-regular/errors/ncm-nao-encontrada",
+    "timestamp": "2026-11-26T14:08:21.701778979Z"
+}

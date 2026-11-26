@@ -1,0 +1,40 @@
+[
+    {
+        "classificacoesTributarias": [
+            {
+                "codigo": "000001",
+                "descricao": "Situações tributadas integralmente pelo IBS e CBS."
+            },
+            {
+                "codigo": "000002",
+                "descricao": "Exploração de via"
+            },
+            {
+                "codigo": "000003",
+                "descricao": "Regime automotivo - projetos incentivados (art. 311)"
+            }
+        ],
+        "codigo": "000",
+        "descricao": "Tributação integral",
+        "id": 1
+    },
+    {
+        "classificacoesTributarias": [
+            {
+                "codigo": "200001",
+                "descricao": "Serviços de transporte de bens até as zonas de processamento de exportação e bens exportados a partir das zonas de processamento de exportação"
+            },
+            {
+                "codigo": "200002",
+                "descricao": "Fornecimento ou importação para produtor rural não contribuinte ou TAC"
+            },
+            {
+                "codigo": "200003",
+                "descricao": "Vendas de produtos destinados à alimentação humana (Anexo I)"
+            }
+        ],
+        "codigo": "200",
+        "descricao": "Alíquota reduzida",
+        "id": 4
+    }
+]

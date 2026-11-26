@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Integrations\Calculadora;
 
+use App\Enums\TipoNomenclatura;
 use App\Enums\Uf;
 use App\Integrations\Calculadora\Contracts\DadosAbertos;
 use App\Integrations\Calculadora\Data\ClassificacaoTributaria;
+use App\Integrations\Calculadora\Data\DetalheNomenclatura;
 use App\Integrations\Calculadora\Data\FundamentacaoLegal;
+use App\Integrations\Calculadora\Data\ItemNomenclatura;
 use App\Integrations\Calculadora\Data\Municipio;
+use App\Integrations\Calculadora\Data\SituacaoTributaria;
 use App\Integrations\Calculadora\Exceptions\CalculadoraIndisponivelException;
 use App\Integrations\Calculadora\Exceptions\RespostaInesperadaException;
 use Carbon\CarbonImmutable;
@@ -69,6 +73,46 @@ final readonly class DadosAbertosClient implements DadosAbertos
         }
 
         return null;
+    }
+
+    public function nomenclaturas(TipoNomenclatura $tipo, CarbonImmutable $data): array
+    {
+        [$caminho, $campoCodigo] = match ($tipo) {
+            TipoNomenclatura::Ncm => ['/ncm/vigentes', 'ncm'],
+            TipoNomenclatura::Nbs => ['/nbs/lista', 'codigo'],
+        };
+
+        $lista = Cache::remember(
+            "calculadora:nomenclaturas:{$tipo->value}:{$data->toDateString()}",
+            self::CACHE_SEGUNDOS,
+            fn (): array => $this->lista($this->get(self::BASE.$caminho, ['data' => $data->toDateString()])),
+        );
+
+        return array_map(fn (array $item): ItemNomenclatura => ItemNomenclatura::fromArray($item, $campoCodigo), $lista);
+    }
+
+    public function detalheNomenclatura(TipoNomenclatura $tipo, string $codigo, CarbonImmutable $data): ?DetalheNomenclatura
+    {
+        $dados = Cache::remember(
+            "calculadora:nomenclatura:{$tipo->value}:{$codigo}:{$data->toDateString()}",
+            self::CACHE_SEGUNDOS,
+            fn (): array => $this->objetoOuVazio(
+                $this->get(self::BASE."/{$tipo->value}", [$tipo->value => $codigo, 'data' => $data->toDateString()]),
+            ),
+        );
+
+        return $dados === [] ? null : DetalheNomenclatura::fromArray($codigo, $dados);
+    }
+
+    public function situacoesTributarias(CarbonImmutable $data): array
+    {
+        $lista = Cache::remember(
+            "calculadora:situacoes-tributarias:{$data->toDateString()}",
+            self::CACHE_SEGUNDOS,
+            fn (): array => $this->lista($this->get(self::BASE.'/situacoes-tributarias/cbs-ibs', ['data' => $data->toDateString()])),
+        );
+
+        return array_map(SituacaoTributaria::fromArray(...), $lista);
     }
 
     /**

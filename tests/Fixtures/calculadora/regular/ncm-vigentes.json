@@ -1,0 +1,58 @@
+[
+    {
+        "ncm": "09012100",
+        "descricao": "-- Não descafeinado"
+    },
+    {
+        "ncm": "10061010",
+        "descricao": "Para semeadura (sementeira)"
+    },
+    {
+        "ncm": "10061091",
+        "descricao": "Parboilizado"
+    },
+    {
+        "ncm": "10061092",
+        "descricao": "Não parboilizado"
+    },
+    {
+        "ncm": "10062010",
+        "descricao": "Parboilizado"
+    },
+    {
+        "ncm": "10062020",
+        "descricao": "Não parboilizado"
+    },
+    {
+        "ncm": "10063011",
+        "descricao": "Polido ou brunido"
+    },
+    {
+        "ncm": "10063019",
+        "descricao": "Outros"
+    },
+    {
+        "ncm": "10063021",
+        "descricao": "Polido ou brunido"
+    },
+    {
+        "ncm": "10063029",
+        "descricao": "Outros"
+    },
+    {
+        "ncm": "10064000",
+        "descricao": "- Arroz quebrado (Trinca de arroz*)"
+    },
+    {
+        "ncm": "21013000",
+        "descricao": "- Chicória torrada e outros sucedâneos torrados do café e respectivos extratos, essências e concentrados"
+    },
+    {
+        "ncm": "22029100",
+        "descricao": "-- Cerveja sem álcool"
+    },
+    {
+        "ncm": "22030000",
+        "descricao": "Cervejas de malte."
+    }
+]

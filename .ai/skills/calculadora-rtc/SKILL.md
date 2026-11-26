@@ -86,6 +86,12 @@ Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::
 | `classificacaoTributaria(cClassTrib, data)` | `GET /dados-abertos/classificacoes-tributarias/cbs-ibs/class-trib/{cClassTrib}?data=` | 404 → `null` (também cacheado) |
 | `fundamentacaoLegal(cClassTrib, data)` | `GET /dados-abertos/fundamentacoes-legais?data=` | lista com ~170 itens (um por cClassTrib), filtrada no app; quebras de linha vêm escapadas (`\\n`) |
 
+| `nomenclaturas(TipoNomenclatura, data)` | `GET /dados-abertos/ncm/vigentes?data=` / `GET /dados-abertos/nbs/lista?data=` | NCM: ~10,5 mil itens (~730 KB), descrição só do último nível (~3 mil são "Outros"), com traços de nível ("-- "); NBS: ~920 itens (#6) |
+| `detalheNomenclatura(tipo, codigo, data)` | `GET /dados-abertos/ncm?ncm=` / `GET /dados-abertos/nbs?nbs=` | hierarquia `capitulo/posicao/subposicao/item/subitem` + `tributadoPeloImpostoSeletivo` (depende da data: IS só a partir de 2027); 404 → `null` |
+| `situacoesTributarias(data)` | `GET /dados-abertos/situacoes-tributarias/cbs-ibs?data=` | 18 CSTs com `classificacoesTributarias` aninhadas (~20 KB) |
+
+- Busca para autocomplete: `App\Services\Catalogo\BuscaNomenclaturaService` (prefixo do código ou palavras da descrição, sem acento), com **índice normalizado em cache** (normalizar 10 mil NCMs custa ~60 ms; ler do cache ~6 ms). Endpoints do app: `/dados-abertos/nomenclaturas/{ncm|nbs}?q=`, `/dados-abertos/nomenclaturas/{tipo}/{codigo}`, `/dados-abertos/situacoes-tributarias` (throttle `dados-abertos`).
+- Front: componentes `<x-campo-nomenclatura tipo="ncm">` (combobox ARIA, debounce 300 ms) e `<x-campos-classificacao>` (datalist CST → cClassTrib); JS em `resources/js/autocomplete-nomenclatura.js` e `classificacoes.js`.
 - Alíquotas de referência (`/aliquota-uniao`, `/aliquota-uf?codigoUf=`, `/aliquota-municipio?codigoMunicipio=`) só existem para 2026.
 - Campos numéricos dos dados abertos (ex.: `percentualReducaoCbs: 60.0`) vêm como **número JSON** (float) — não leia esses campos para cálculo; use os valores do resultado da calculadora.
 

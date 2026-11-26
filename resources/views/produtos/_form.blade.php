@@ -3,10 +3,9 @@
     <div class="sm:col-span-2">
         <x-campo nome="descricao" rotulo="Descrição" :valor="$produto->descricao" required maxlength="255" />
     </div>
-    <x-campo nome="ncm" rotulo="NCM (mercadoria)" :valor="$produto->ncm" inputmode="numeric" ajuda="8 dígitos. Preencha o NCM ou o NBS." />
-    <x-campo nome="nbs" rotulo="NBS (serviço)" :valor="$produto->nbs" inputmode="numeric" ajuda="9 dígitos." />
-    <x-campo nome="cst" rotulo="CST" :valor="$produto->cst" inputmode="numeric" ajuda="3 dígitos. Ex.: 000, 200" required />
-    <x-campo nome="c_class_trib" rotulo="cClassTrib" :valor="$produto->c_class_trib" inputmode="numeric" ajuda="6 dígitos. Ex.: 000001, 200028" required />
+    <x-campo-nomenclatura tipo="ncm" rotulo="NCM (mercadoria)" :valor="$produto->ncm" placeholder="Código ou descrição" ajuda="Preencha o NCM ou o NBS." />
+    <x-campo-nomenclatura tipo="nbs" rotulo="NBS (serviço)" :valor="$produto->nbs" placeholder="Código ou descrição" />
+    <x-campos-classificacao :cst="$produto->cst" :c-class-trib="$produto->c_class_trib" />
     <x-campo nome="preco" rotulo="Preço (R$)" :valor="$produto->preco" inputmode="decimal" placeholder="1.200,00" required />
 </div>
 <div class="mt-6 flex items-center gap-3">
