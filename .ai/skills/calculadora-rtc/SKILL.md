@@ -74,10 +74,24 @@ Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::
 - Headers: `x-warning-dados-simulados` (presente quando simulado), `X-CALC-APP-VERSION`, `X-CALC-DB-VERSION`.
 - A partir de 2027 `aliquotasNominais` é obrigatório; antes, proibido.
 - Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`).
+- Em 2026, sem alíquotas, o item sai `CALCULADO` (usa as de referência); de 2027 em diante, com alíquotas, sai `CALCULO_SIMULADO`.
+
+## Dados abertos (implementado na #4)
+
+`Contracts\DadosAbertos` → `DadosAbertosClient` (cache de 1 dia), usando `CalculadoraRegularHttp` (config HTTP compartilhada com o client de cálculo):
+
+| Método | Endpoint | Observação |
+|--------|----------|------------|
+| `municipios(Uf)` | `GET /dados-abertos/ufs/municipios?siglaUf=RS` | `[{codigo, nome}]` |
+| `classificacaoTributaria(cClassTrib, data)` | `GET /dados-abertos/classificacoes-tributarias/cbs-ibs/class-trib/{cClassTrib}?data=` | 404 → `null` (também cacheado) |
+| `fundamentacaoLegal(cClassTrib, data)` | `GET /dados-abertos/fundamentacoes-legais?data=` | lista com ~170 itens (um por cClassTrib), filtrada no app; quebras de linha vêm escapadas (`\\n`) |
+
+- Alíquotas de referência (`/aliquota-uniao`, `/aliquota-uf?codigoUf=`, `/aliquota-municipio?codigoMunicipio=`) só existem para 2026.
+- Campos numéricos dos dados abertos (ex.: `percentualReducaoCbs: 60.0`) vêm como **número JSON** (float) — não leia esses campos para cálculo; use os valores do resultado da calculadora.
 
 ## Regras de domínio
 
-- `aliquotasNominais` é **entrada**: o app busca a alíquota de referência e aplica o cronograma do ano simulado (fonte única: config/tabela via `CronogramaTransicaoService`).
+- `aliquotasNominais` é **entrada** a partir de 2027 (não há alíquota de referência na calculadora depois de 2026). Ano de corte e sugestões em `config/simulacao.php`.
 - O resultado vem com `CALCULO_SIMULADO`; o DTO expõe isso e a UI/PDF/API mostram o aviso.
 - Valores e alíquotas: string decimal ↔ `decimal` cast. Nada de `float` no DTO (`(string)` ao ler o JSON quando vier número).
 - Linha do tempo: uma chamada por ano (pode ser batch), não extrapolação.

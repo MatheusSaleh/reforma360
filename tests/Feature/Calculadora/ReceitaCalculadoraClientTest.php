@@ -219,8 +219,11 @@ test('lança RespostaInesperadaException quando o contrato da resposta muda', fu
     expect(fn () => calculadora()->calcular(operacaoDeExemplo()))
         ->toThrow(RespostaInesperadaException::class);
 })->with([
-    'estado desconhecido'       => [['objetos' => [['nObj' => 1, 'estadoItem' => 'OUTRO']]]],
-    'item sem número'           => [['objetos' => [['estadoItem' => 'CALCULADO']]]],
+    'estado desconhecido' => [['objetos' => [['nObj' => 1, 'estadoItem' => 'OUTRO']]]],
+    'item sem número'     => [['objetos' => [['estadoItem' => 'CALCULADO']]]],
+    'valor não numérico'  => [['objetos' => [['nObj' => 1, 'estadoItem' => 'CALCULADO', 'tribCalc' => ['IS' => [
+        'CSTIS' => '000', 'cClassTribIS' => '000001', 'vBCIS' => 'abc', 'pIS' => '10.00', 'vIS' => '15.05',
+    ]]]]]],
     'valor numérico com fração' => [['objetos' => [['nObj' => 1, 'estadoItem' => 'CALCULADO', 'tribCalc' => ['IS' => [
         'CSTIS' => '000', 'cClassTribIS' => '000001', 'vBCIS' => 150.5, 'pIS' => '10.00', 'vIS' => '15.05',
     ]]]]]],

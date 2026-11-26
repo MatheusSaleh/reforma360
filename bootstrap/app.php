@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Integrations\Calculadora\Exceptions\CalculadoraIndisponivelException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,4 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (CalculadoraIndisponivelException $e, Request $request) {
+            $mensagem = 'A calculadora da Receita está indisponível no momento. Tente novamente em instantes.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $mensagem], 503);
+            }
+
+            return back()->withInput()->withErrors(['simulacao' => $mensagem]);
+        });
     })->create();

@@ -1,0 +1,22 @@
+[
+    {
+        "codigoClassificacaoTributaria": "000001",
+        "codigoSituacaoTributaria": "000",
+        "conjuntoTributo": "CBS e IBS",
+        "descricaoClassificacaoTributaria": "Situações tributadas integralmente pelo IBS e CBS.",
+        "descricaoSituacaoTributaria": "Tributação integral",
+        "referenciaNormativa": "LIVRO I \\n\\nDO IMPOSTO SOBRE BENS E SERVIÇOS (IBS) E DA CONTRIBUIÇÃO SOCIAL SOBRE BENS E SERVIÇOS (CBS) \\n\\nTÍTULO I \\n\\nDAS NORMAS GERAIS DO IBS E DA CBS \\n\\nCAPÍTULO I \\n\\nDISPOSIÇÕES PRELIMINARES",
+        "texto": "Regra Geral",
+        "textoCurto": "LC 214/2025"
+    },
+    {
+        "codigoClassificacaoTributaria": "200028",
+        "codigoSituacaoTributaria": "200",
+        "conjuntoTributo": "CBS e IBS",
+        "descricaoClassificacaoTributaria": "Fornecimento dos serviços de educação (Anexo II)",
+        "descricaoSituacaoTributaria": "Alíquota reduzida",
+        "referenciaNormativa": "LIVRO I \\n\\nDO IMPOSTO SOBRE BENS E SERVIÇOS (IBS) E DA CONTRIBUIÇÃO SOCIAL SOBRE BENS E SERVIÇOS (CBS) \\n\\nTÍTULO IV\\n\\nDOS REGIMES DIFERENCIADOS DO IBS E DA CBS\\n\\nCAPÍTULO III\\n\\nDA REDUÇÃO EM SESSENTA POR CENTO DAS ALÍQUOTAS DO IBS E DA CBS\\n\\nSeção II\\n\\nDos Serviços de Educação",
+        "texto": "Art. 129. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados no Anexo II desta Lei Complementar, com a especificação das respectivas classificações da Nomenclatura Brasileira de Serviços, Intangíveis e Outras Operações que Produzam Variações no Patrimônio (NBS).",
+        "textoCurto": "Art. 129"
+    }
+]

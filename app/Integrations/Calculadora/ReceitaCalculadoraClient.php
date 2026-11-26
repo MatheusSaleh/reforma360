@@ -10,13 +10,8 @@ use App\Integrations\Calculadora\Data\ResultadoOperacao;
 use App\Integrations\Calculadora\Exceptions\CalculadoraIndisponivelException;
 use App\Integrations\Calculadora\Exceptions\PayloadInvalidoException;
 use App\Integrations\Calculadora\Exceptions\RespostaInesperadaException;
-use Illuminate\Container\Attributes\Config;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
-use Throwable;
 
 /**
  * Client HTTP da calculadora do regime regular da Receita Federal.
@@ -29,22 +24,13 @@ final readonly class ReceitaCalculadoraClient implements CalculadoraTributos
     private const string ENDPOINT = 'calculadora/observabilidade/regime-geral';
 
     public function __construct(
-        #[Config('services.calculadora_regular.url')]
-        private string $baseUrl,
-        #[Config('services.calculadora_regular.timeout')]
-        private int $timeout = 15,
-        #[Config('services.calculadora_regular.connect_timeout')]
-        private int $connectTimeout = 3,
-        #[Config('services.calculadora_regular.retries')]
-        private int $tentativas = 3,
-        #[Config('services.calculadora_regular.retry_sleep_ms')]
-        private int $intervaloEntreTentativasMs = 200,
+        private CalculadoraRegularHttp $http,
     ) {}
 
     public function calcular(Operacao $operacao): ResultadoOperacao
     {
         try {
-            $response = $this->http()->post(self::ENDPOINT, $operacao->toPayload());
+            $response = $this->http->request()->post(self::ENDPOINT, $operacao->toPayload());
         } catch (ConnectionException $e) {
             throw CalculadoraIndisponivelException::semConexao($operacao->id, $e);
         }
@@ -58,22 +44,6 @@ final readonly class ReceitaCalculadoraClient implements CalculadoraTributos
         }
 
         return $this->resultado($response);
-    }
-
-    private function http(): PendingRequest
-    {
-        return Http::baseUrl($this->baseUrl)
-            ->acceptJson()
-            ->asJson()
-            ->connectTimeout($this->connectTimeout)
-            ->timeout($this->timeout)
-            ->retry(
-                $this->tentativas,
-                fn (int $tentativa): int => $this->intervaloEntreTentativasMs * $tentativa,
-                fn (Throwable $e): bool => $e instanceof ConnectionException
-                    || ($e instanceof RequestException && $e->response->serverError()),
-                throw: false,
-            );
     }
 
     private function resultado(Response $response): ResultadoOperacao

@@ -11,6 +11,14 @@ final readonly class TotalOperacao
 {
     use LeCamposResposta;
 
+    /**
+     * @param  numeric-string  $baseCalculoIbsCbs
+     * @param  numeric-string  $valorCbs
+     * @param  numeric-string  $valorIbs
+     * @param  numeric-string  $valorIbsEstadual
+     * @param  numeric-string  $valorIbsMunicipal
+     * @param  numeric-string|null  $valorImpostoSeletivo
+     */
     public function __construct(
         public string $baseCalculoIbsCbs,
         public string $valorCbs,
@@ -31,12 +39,12 @@ final readonly class TotalOperacao
         $impostoSeletivo = self::grupoOpcional($tributos, 'ISTot') ?? [];
 
         return new self(
-            baseCalculoIbsCbs: self::texto($ibsCbs, 'vBCIBSCBS'),
-            valorCbs: self::texto(self::grupo($ibsCbs, 'gCBS'), 'vCBS'),
-            valorIbs: self::texto($ibs, 'vIBS'),
-            valorIbsEstadual: self::texto(self::grupo($ibs, 'gIBSUF'), 'vIBSUF'),
-            valorIbsMunicipal: self::texto(self::grupo($ibs, 'gIBSMun'), 'vIBSMun'),
-            valorImpostoSeletivo: self::textoOpcional($impostoSeletivo, 'vIS'),
+            baseCalculoIbsCbs: self::decimal($ibsCbs, 'vBCIBSCBS'),
+            valorCbs: self::decimal(self::grupo($ibsCbs, 'gCBS'), 'vCBS'),
+            valorIbs: self::decimal($ibs, 'vIBS'),
+            valorIbsEstadual: self::decimal(self::grupo($ibs, 'gIBSUF'), 'vIBSUF'),
+            valorIbsMunicipal: self::decimal(self::grupo($ibs, 'gIBSMun'), 'vIBSMun'),
+            valorImpostoSeletivo: self::decimalOpcional($impostoSeletivo, 'vIS'),
         );
     }
 }
