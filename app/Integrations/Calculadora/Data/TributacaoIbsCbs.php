@@ -11,6 +11,10 @@ final readonly class TributacaoIbsCbs
 {
     use LeCamposResposta;
 
+    /**
+     * @param  numeric-string  $baseCalculo
+     * @param  numeric-string  $valorIbs
+     */
     public function __construct(
         public string $cst,
         public string $cClassTrib,
@@ -35,11 +39,11 @@ final readonly class TributacaoIbsCbs
         return new self(
             cst: self::texto($dados, 'CST'),
             cClassTrib: self::texto($dados, 'cClassTrib'),
-            baseCalculo: self::texto($grupo, 'vBC'),
+            baseCalculo: self::decimal($grupo, 'vBC'),
             cbs: ParcelaTributo::fromGrupo(self::grupo($grupo, 'gCBS'), 'pCBS', 'vCBS'),
             ibsEstadual: ParcelaTributo::fromGrupo(self::grupo($grupo, 'gIBSUF'), 'pIBSUF', 'vIBSUF'),
             ibsMunicipal: ParcelaTributo::fromGrupo(self::grupo($grupo, 'gIBSMun'), 'pIBSMun', 'vIBSMun'),
-            valorIbs: self::texto($grupo, 'vIBS'),
+            valorIbs: self::decimal($grupo, 'vIBS'),
             memoriaCbs: self::textoOpcional($memoria, 'cbs'),
             memoriaIbsEstadual: self::textoOpcional($memoria, 'ibsUF'),
             memoriaIbsMunicipal: self::textoOpcional($memoria, 'ibsMun'),

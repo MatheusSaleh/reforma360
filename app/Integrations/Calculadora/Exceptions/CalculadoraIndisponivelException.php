@@ -15,25 +15,25 @@ final class CalculadoraIndisponivelException extends RuntimeException
 {
     public function __construct(
         string $message,
-        public readonly string $operacaoId,
+        public readonly ?string $operacaoId = null,
         public readonly ?int $status = null,
         ?Throwable $previous = null,
     ) {
         parent::__construct($message, 0, $previous);
     }
 
-    public static function semConexao(string $operacaoId, Throwable $previous): self
+    public static function semConexao(?string $operacaoId, Throwable $previous): self
     {
         return new self('A calculadora da Receita não respondeu.', $operacaoId, previous: $previous);
     }
 
-    public static function erroDoServidor(string $operacaoId, int $status): self
+    public static function erroDoServidor(?string $operacaoId, int $status): self
     {
         return new self("A calculadora da Receita respondeu com erro {$status}.", $operacaoId, $status);
     }
 
     /**
-     * @return array{operacao_id: string, status: int|null}
+     * @return array{operacao_id: string|null, status: int|null}
      */
     public function context(): array
     {

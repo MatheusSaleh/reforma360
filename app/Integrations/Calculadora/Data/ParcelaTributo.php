@@ -12,6 +12,12 @@ final readonly class ParcelaTributo
 {
     use LeCamposResposta;
 
+    /**
+     * @param  numeric-string  $aliquota
+     * @param  numeric-string  $valor
+     * @param  numeric-string|null  $percentualReducao
+     * @param  numeric-string|null  $aliquotaEfetiva
+     */
     public function __construct(
         public string $aliquota,
         public string $valor,
@@ -27,10 +33,10 @@ final readonly class ParcelaTributo
         $reducao = self::grupoOpcional($grupo, 'gRed') ?? [];
 
         return new self(
-            aliquota: self::texto($grupo, $campoAliquota),
-            valor: self::texto($grupo, $campoValor),
-            percentualReducao: self::textoOpcional($reducao, 'pRedAliq'),
-            aliquotaEfetiva: self::textoOpcional($reducao, 'pAliqEfet'),
+            aliquota: self::decimal($grupo, $campoAliquota),
+            valor: self::decimal($grupo, $campoValor),
+            percentualReducao: self::decimalOpcional($reducao, 'pRedAliq'),
+            aliquotaEfetiva: self::decimalOpcional($reducao, 'pAliqEfet'),
         );
     }
 }

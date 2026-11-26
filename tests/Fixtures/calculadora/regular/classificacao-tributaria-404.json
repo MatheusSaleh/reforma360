@@ -1,0 +1,8 @@
+{
+    "detail": "Classificação tributária não encontrada para código 999999 e data 2027-03-10 (CBS e IBS)",
+    "instance": "/api/calculadora/dados-abertos/classificacoes-tributarias/cbs-ibs/class-trib/999999",
+    "status": 404,
+    "title": "Classificação tributária não encontrada",
+    "type": "http://calculadora-regular/errors/classificacao-tributaria-nao-encontrada",
+    "timestamp": "2026-11-26T13:08:11.503181541Z"
+}

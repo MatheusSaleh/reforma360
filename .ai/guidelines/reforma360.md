@@ -10,7 +10,8 @@ Regras que valem para qualquer código que calcule, mostre ou importe dados trib
 
 ## Alíquotas e transição 2026→2033
 
-- As alíquotas são **entrada** da API (`aliquotasNominais`). O app busca as alíquotas de referência e envia de acordo com o ano do cronograma de transição.
+- A calculadora só tem alíquotas de referência para **2026** (`/dados-abertos/aliquota-uniao` etc. dão 404 de 2027 em diante). A partir de 2027 as alíquotas são **entrada obrigatória** (`aliquotasNominais`) e o resultado sai `CALCULO_SIMULADO`; antes disso são proibidas.
+- O ano de corte fica em `config('simulacao.ano_inicio_aliquotas_nominais')` e as sugestões do formulário em `config('simulacao.aliquotas_nominais_sugeridas')` — são estimativas editáveis, nunca apresentadas como alíquota legal.
 - O cronograma (ano → percentuais de CBS/IBS e do sistema antigo) fica em um único lugar (config ou tabela) e é consultado por um Service; não espalhe `if ($ano === 2027)` pelo código.
 - A linha do tempo por item é calculada chamando a simulação por ano, não extrapolando um ano para os outros.
 

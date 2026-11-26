@@ -148,7 +148,7 @@ composer lint      # Pint (--test); `composer format` corrige
 
 ## Cuidados conhecidos
 
-- As alíquotas são **entrada** da API (`aliquotasNominais`). O app busca as alíquotas de referência e respeita o cronograma de transição.
+- A calculadora só tem alíquotas de referência para 2026. A partir de 2027 as alíquotas nominais são **entrada obrigatória** (`aliquotasNominais`): o simulador sugere estimativas editáveis (`config/simulacao.php`) e o resultado sai como `CALCULO_SIMULADO`.
 - O retorno da API marca os itens como `CALCULO_SIMULADO`.
 - O Simples Nacional não tem scripts Flyway próprios: o banco é gerado com os do regime regular e compartilhado pelas duas APIs (serviço `calculadora-db`).
 

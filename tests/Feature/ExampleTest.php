@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-test('a aplicação responde na rota inicial', function (): void {
-    $this->get('/')->assertSuccessful();
+test('a rota inicial leva ao simulador', function (): void {
+    $this->get('/')->assertRedirect('/simulacoes/item');
 });

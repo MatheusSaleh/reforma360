@@ -11,6 +11,11 @@ final readonly class ImpostoSeletivoCalculado
 {
     use LeCamposResposta;
 
+    /**
+     * @param  numeric-string  $baseCalculo
+     * @param  numeric-string  $aliquota
+     * @param  numeric-string  $valor
+     */
     public function __construct(
         public string $cst,
         public string $cClassTrib,
@@ -28,9 +33,9 @@ final readonly class ImpostoSeletivoCalculado
         return new self(
             cst: self::texto($dados, 'CSTIS'),
             cClassTrib: self::texto($dados, 'cClassTribIS'),
-            baseCalculo: self::texto($dados, 'vBCIS'),
-            aliquota: self::texto($dados, 'pIS'),
-            valor: self::texto($dados, 'vIS'),
+            baseCalculo: self::decimal($dados, 'vBCIS'),
+            aliquota: self::decimal($dados, 'pIS'),
+            valor: self::decimal($dados, 'vIS'),
             memoriaCalculo: self::textoOpcional($dados, 'memoriaCalculo'),
         );
     }

@@ -1,0 +1,27 @@
+{
+    "codigo": "200028",
+    "creditoOperacaoAntecedente": "Manutenção",
+    "dataAtualizacao": "2026-10-01",
+    "descricao": "Fornecimento dos serviços de educação (Anexo II)",
+    "descricaoTratamentoTributario": "Alíquota reduzida em 60%",
+    "exigeGrupoDesoneracao": false,
+    "incompativelComSuspensao": false,
+    "indicaApropriacaoCreditoAdquirenteCbs": true,
+    "indicaApropriacaoCreditoAdquirenteIbs": true,
+    "indicaCreditoPresumidoAdquirente": false,
+    "indicaCreditoPresumidoFornecedor": false,
+    "nomenclatura": "NBS",
+    "percentualReducaoCbs": 60.0,
+    "percentualReducaoIbsMun": 60.0,
+    "percentualReducaoIbsUf": 60.0,
+    "possuiPercentualReducao": true,
+    "tipoAliquota": "Padrão",
+    "tipoReceitaBrutaSimplesNacional": 1,
+    "tiposDfeClassificacao": [
+        {
+            "descricao": "Nota Fiscal de Serviços Eletrônica",
+            "sigla": "NFS-e",
+            "tipo": 91
+        }
+    ]
+}

@@ -40,6 +40,31 @@ trait LeCamposResposta
 
     /**
      * @param  array<array-key, mixed>  $dados
+     * @return numeric-string
+     */
+    private static function decimal(array $dados, string $campo): string
+    {
+        return self::decimalOpcional($dados, $campo)
+            ?? throw RespostaInesperadaException::campoAusente($campo);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $dados
+     * @return numeric-string|null
+     */
+    private static function decimalOpcional(array $dados, string $campo): ?string
+    {
+        $valor = self::textoOpcional($dados, $campo);
+
+        if ($valor !== null && ! is_numeric($valor)) {
+            throw RespostaInesperadaException::campoInvalido($campo);
+        }
+
+        return $valor;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $dados
      */
     private static function inteiro(array $dados, string $campo): int
     {
