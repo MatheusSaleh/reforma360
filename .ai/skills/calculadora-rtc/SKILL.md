@@ -20,7 +20,8 @@ Rodam em containers internos, **sem modificações** e sem porta pública. Nunca
 - Rede `calculadoras` (`internal: true`): só o `laravel.test` alcança os serviços, pelo nome (`http://calculadora-regular:8080`).
 - APIs Java: Spring Boot 4 / Java 25, perfil `offline`, context path `/api`. Imagem: `docker/calculadora-java/Dockerfile`.
 - Banco: SQLite único gerado pelo serviço `calculadora-db` (`flyway:migrate` com os scripts do regime regular) no volume `calculadora-db`, montado `:ro` nas duas APIs.
-- Health: `GET /api/versao/status` (Java) e `GET /health/ready` (DANFSe).
+- Health: `GET /api/calculadora/dados-abertos/versao` (regular), `GET /api/versao` (Simples), `GET /health/ready` (DANFSe). **Não** use `/api/versao/status`: consulta versão remota na internet.
+- O Simples escuta na 8082 no perfil offline; o compose fixa `SERVER_PORT=8080`.
 - Swagger em dev: `/api/swagger-ui.html` (acesse de dentro da rede: `sail exec laravel.test curl ...`).
 
 ## Endpoints conhecidos (regime regular — base `/api/calculadora`)
@@ -43,54 +44,36 @@ Exemplos de payload: `services/calculadora-rtc-regime-regular/docs/exemplos.md`.
 2. Faça uma chamada real em dev e salve request/response **anonimizados** em `tests/Fixtures/calculadora/<servico>/<caso>.json`.
 3. Modele DTOs a partir da fixture. Não invente nomes de campo.
 
-## Estrutura
+## Estrutura (implementada na #3)
 
 ```
 app/Integrations/Calculadora/
-  Contracts/RegimeRegular.php          interface usada pelo domínio
-  Contracts/SimplesNacional.php
-  Contracts/GeradorDanfse.php
-  RegimeRegularClient.php              implementação HTTP
-  SimplesNacionalClient.php
-  DanfseClient.php
-  Data/                                DTOs readonly (entrada e saída)
-  Exceptions/                          CalculadoraIndisponivelException, PayloadInvalidoException
+  Contracts/CalculadoraTributos.php    interface usada pelo domínio: calcular(Operacao): ResultadoOperacao
+  ReceitaCalculadoraClient.php         implementação HTTP (POST calculadora/observabilidade/regime-geral)
+  Data/                                DTOs readonly
+    Operacao, ItemOperacao, AliquotasNominais      entrada (toPayload)
+    ResultadoOperacao, ResultadoItem, TributacaoIbsCbs, ParcelaTributo,
+    ImpostoSeletivoCalculado, TotalOperacao, ErroCalculo   saída (fromArray)
+    Decimal                            valida decimal em string ("100.00")
+    LeCamposResposta                   leitura tipada da resposta (trait)
+  Exceptions/
+    CalculadoraIndisponivelException   conexão/timeout/5xx após retries — transitório
+    PayloadInvalidoException           4xx — operação inteira rejeitada, com list<ErroCalculo>
+    RespostaInesperadaException        contrato da resposta mudou
+app/Enums/EstadoItemCalculo.php        CALCULADO, CALCULO_SIMULADO, INCONSISTENCIA_ENTRADA, NAO_IMPLEMENTADO, FALHA_TECNICA
 ```
 
-Bind `Contract → Client` em `AppServiceProvider::register()`.
+Bind `CalculadoraTributos → ReceitaCalculadoraClient` em `AppServiceProvider::register()`. Timeout/retry em `config/services.php` (`calculadora_regular.*`), injetados com `#[Config]`.
 
-## Client (padrão)
+## Comportamento do endpoint de observabilidade (verificado na API real)
 
-```php
-final class RegimeRegularClient implements RegimeRegular
-{
-    public function simular(SimulacaoRequest $dados): SimulacaoResultado
-    {
-        $response = $this->http()->post('/<endpoint-do-openapi>', $dados->toPayload());
-
-        if ($response->clientError()) {
-            throw PayloadInvalidoException::fromResponse($response);
-        }
-
-        $response->throw();
-
-        return SimulacaoResultado::fromArray($response->json());
-    }
-
-    private function http(): PendingRequest
-    {
-        return Http::baseUrl(config('services.calculadora_regular.url'))
-            ->acceptJson()
-            ->connectTimeout(3)
-            ->timeout(15)
-            ->retry(3, 200, fn (Throwable $e) => $e instanceof ConnectionException, throw: false);
-    }
-}
-```
-
-- Retry só para conexão/5xx. 4xx → `PayloadInvalidoException`, sem retry.
-- `ConnectionException`/5xx persistente → `CalculadoraIndisponivelException` (jobs fazem `release()` com backoff).
-- Nenhum array cru sai do client: sempre DTO.
+- HTTP 200 mesmo com itens em erro: cada objeto tem `estadoItem` e, se falhou, `erros[]` (`code`, `title`, `pointer`, `detail`).
+- `total` **some** da resposta quando nenhum item é calculado (`ResultadoOperacao::$total` é nullable).
+- Valores e alíquotas vêm como **string** ("42.24"); a API também aceita string na entrada (Jackson → BigDecimal). Nunca use float.
+- Operação inválida (ex.: `itens` vazio) → 422 *problem detail* com `errors[]` no mesmo formato. JSON malformado → 400 sem `errors`.
+- Headers: `x-warning-dados-simulados` (presente quando simulado), `X-CALC-APP-VERSION`, `X-CALC-DB-VERSION`.
+- A partir de 2027 `aliquotasNominais` é obrigatório; antes, proibido.
+- Imposto Seletivo na entrada ainda não é modelado em `ItemOperacao` (a saída já lê o grupo `IS`).
 
 ## Regras de domínio
 
@@ -100,25 +83,19 @@ final class RegimeRegularClient implements RegimeRegular
 - Linha do tempo: uma chamada por ano (pode ser batch), não extrapolação.
 - Comparador: mesma lista de itens nas duas calculadoras; diferença calculada em `CompararRegimesService`.
 - Dados abertos (NCM, cClassTrib): cache longo (`Cache::remember`) ou tabela sincronizada por command agendado; autocomplete de NCM consulta o cache/tabela, não a API a cada tecla.
-- Atenção conhecida: o README do Simples aponta origem pouco clara dos scripts Flyway; pode ser preciso reaproveitar os do regime regular.
 
 ## Testes
 
+Veja `tests/Feature/Calculadora/ReceitaCalculadoraClientTest.php`. Fixtures reais em `tests/Fixtures/calculadora/regular/`, carregadas com `fixtureJson('calculadora/regular/...')` (helper em `tests/Pest.php`; `fixture()` já existe no Pest).
+
 ```php
-beforeEach(fn () => Http::preventStrayRequests());
-
-test('simula item no regime regular', function () {
-    Http::fake([
-        config('services.calculadora_regular.url').'/*' => Http::response(
-            json_decode(file_get_contents(base_path('tests/Fixtures/calculadora/regular/item-simples.json')), true),
-        ),
-    ]);
-
-    $resultado = app(RegimeRegular::class)->simular(SimulacaoRequestFactory::make());
-
-    expect($resultado->simulado)->toBeTrue();
-    Http::assertSentCount(1);
+beforeEach(function () {
+    Http::preventStrayRequests();
+    Sleep::fake(); // o retry usa Sleep
 });
+
+Http::fake([URL_OBSERVABILIDADE => Http::response(fixtureJson('calculadora/regular/observabilidade-resposta.json'))]);
+$resultado = app(CalculadoraTributos::class)->calcular($operacao);
 ```
 
-Cubra: sucesso, 4xx (payload inválido), 5xx/timeout (indisponível + retry), campos opcionais ausentes.
+Cubra: sucesso, erro por item, 4xx (sem retry), 5xx (retry + indisponível), falha de conexão, resposta com contrato diferente.
