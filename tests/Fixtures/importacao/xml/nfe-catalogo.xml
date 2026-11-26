@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+    <infNFe Id="NFe43270311111111000111550010000012341000012340" versao="4.00">
+      <ide>
+        <cUF>43</cUF>
+        <natOp>Venda de mercadoria</natOp>
+        <mod>55</mod>
+        <serie>1</serie>
+        <nNF>1234</nNF>
+        <dhEmi>2027-03-10T14:30:00-03:00</dhEmi>
+        <tpNF>1</tpNF>
+        <cMunFG>4314902</cMunFG>
+      </ide>
+      <emit>
+        <CNPJ>11111111000111</CNPJ>
+        <xNome>EMPRESA EMITENTE EXEMPLO LTDA</xNome>
+        <enderEmit><cMun>4314902</cMun><UF>RS</UF></enderEmit>
+      </emit>
+      <det nItem="1">
+        <prod>
+          <xProd>Arroz tipo 1 5 kg</xProd>
+          <NCM>10063021</NCM>
+          <qCom>2.0000</qCom>
+          <vUnCom>14.4567</vUnCom>
+          <vProd>28.91</vProd>
+        </prod>
+        <imposto>
+          <IBSCBS>
+            <CST>200</CST>
+            <cClassTrib>200003</cClassTrib>
+          </IBSCBS>
+        </imposto>
+      </det>
+      <det nItem="2">
+        <prod>
+          <xProd>Café torrado 500 g</xProd>
+          <NCM>09012100</NCM>
+          <qCom>3.0000</qCom>
+          <vUnCom>12.50</vUnCom>
+          <vProd>37.50</vProd>
+        </prod>
+        <imposto><ICMS><ICMS00><CST>00</CST></ICMS00></ICMS></imposto>
+      </det>
+      <det nItem="3">
+        <prod>
+          <xProd>Cerveja lata 350 ml</xProd>
+          <NCM>22030000</NCM>
+          <qCom>12.0000</qCom>
+          <vUnCom>4.50</vUnCom>
+          <vProd>54.00</vProd>
+        </prod>
+        <imposto><ICMS><ICMS00><CST>00</CST></ICMS00></ICMS></imposto>
+      </det>
+      <det nItem="4">
+        <prod>
+          <xProd>Produto com NCM inexistente</xProd>
+          <NCM>99999999</NCM>
+          <qCom>1.0000</qCom>
+          <vUnCom>10.00</vUnCom>
+          <vProd>10.00</vProd>
+        </prod>
+        <imposto>
+          <IBSCBS>
+            <CST>000</CST>
+            <cClassTrib>000001</cClassTrib>
+          </IBSCBS>
+        </imposto>
+      </det>
+      <total><ICMSTot><vProd>130.41</vProd><vNF>130.41</vNF></ICMSTot></total>
+    </infNFe>
+  </NFe>
+  <protNFe versao="4.00"><infProt><cStat>100</cStat></infProt></protNFe>
+</nfeProc>

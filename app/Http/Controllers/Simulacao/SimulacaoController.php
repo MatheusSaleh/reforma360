@@ -8,6 +8,7 @@ use App\Actions\Simulacao\IniciarSimulacaoEmLote;
 use App\Enums\Uf;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Simulacao\IniciarSimulacaoRequest;
+use App\Models\Importacao;
 use App\Models\Simulacao;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -30,9 +31,16 @@ class SimulacaoController extends Controller
     {
         Gate::authorize('create', Simulacao::class);
 
+        $importacao = $request->filled('importacao') ? Importacao::query()->findOrFail($request->integer('importacao')) : null;
+
+        if ($importacao !== null) {
+            Gate::authorize('view', $importacao);
+        }
+
         return view('simulacoes.create', [
             'ufs'           => Uf::cases(),
-            'totalProdutos' => $this->usuario($request)->empresa->produtos()->count(),
+            'importacao'    => $importacao,
+            'totalProdutos' => $importacao?->itens()->count() ?? $this->usuario($request)->empresa->produtos()->count(),
         ]);
     }
 
@@ -40,7 +48,13 @@ class SimulacaoController extends Controller
     {
         Gate::authorize('create', Simulacao::class);
 
-        $simulacao = $iniciar->handle($this->usuario($request), $request->parametros());
+        $importacao = $request->importacao();
+
+        if ($importacao !== null) {
+            Gate::authorize('view', $importacao);
+        }
+
+        $simulacao = $iniciar->handle($this->usuario($request), $request->parametros(), $importacao);
 
         return to_route('simulacoes.show', $simulacao)->with('status', 'Simulação iniciada. Acompanhe o progresso abaixo.');
     }

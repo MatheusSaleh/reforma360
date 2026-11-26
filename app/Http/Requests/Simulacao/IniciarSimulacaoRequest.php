@@ -6,6 +6,7 @@ namespace App\Http\Requests\Simulacao;
 
 use App\Http\Requests\Concerns\NormalizaEntradaFiscal;
 use App\Http\Requests\Concerns\ValidaParametrosOperacao;
+use App\Models\Importacao;
 use Illuminate\Foundation\Http\FormRequest;
 
 class IniciarSimulacaoRequest extends FormRequest
@@ -23,7 +24,18 @@ class IniciarSimulacaoRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->regrasDosParametros();
+        return [
+            ...$this->regrasDosParametros(),
+            'importacao_id' => ['nullable', 'integer'],
+        ];
+    }
+
+    /**
+     * Nota importada a simular (só os itens dela). A autorização fica no controller.
+     */
+    public function importacao(): ?Importacao
+    {
+        return $this->filled('importacao_id') ? Importacao::query()->findOrFail($this->integer('importacao_id')) : null;
     }
 
     /**

@@ -13,6 +13,8 @@ app/Importers/
   CatalogImporterResolver.php  escolhe a estratégia pelo FormatoImportacao (#[Tag('catalog-importers')])
   CsvImporter.php              detecta separador (; ou ,) e encoding (UTF-8 ou ISO-8859-1)
   XlsxImporter.php
+  NfeXmlImporter.php           NF-e/NFC-e (4.00, com ou sem IBSCBS) e NFS-e nacional — implementa ImportadorDeDocumentoFiscal (#9)
+  ImportadorDeDocumentoFiscal.php  CatalogImporter + documento(): DocumentoFiscal (tipo, número, data, UF, município)
   LeitorPlanilha.php           Laravel Excel: OnEachRow + WithChunkReading + WithHeadingRow + SkipsEmptyRows + StringValueBinder
   ColunasCatalogo.php          aliases do cabeçalho (slug) → colunas internas; obrigatórias
   Data/LinhaPlanilha.php       (linha, campos texto) — linha = número real na planilha (cabeçalho = 1)
@@ -33,6 +35,17 @@ interface CatalogImporter
     public function ler(string $caminho, Closure $aoLerLote): void;
 }
 ```
+
+## XML de nota fiscal (#9)
+
+- **Uma nota por arquivo** (`nfeProc`, `NFe`, `enviNFe` com 1 nota, `NFSe`). Namespaces: `http://www.portalfiscal.inf.br/nfe` e `http://www.sped.fazenda.gov.br/nfse`.
+- **Segurança:** recusa qualquer `<!DOCTYPE`/`<!ENTITY` antes do parse (nota não tem; é o vetor de XXE e "billion laughs") e carrega com `LIBXML_NONET`, **sem** `LIBXML_NOENT`. Tamanho limitado pelo upload (`config/importacao.php`).
+- **Campos por item:** NF-e `det/prod` → `xProd`, `NCM`, `vUnCom` (preço do catálogo, arredondado para 2 casas com `NormalizadorFiscal::arredondar`) e `vProd` (`valor_documento`, base de cálculo ao simular a nota); `imposto/IBSCBS/CST|cClassTrib` quando existir. NFS-e: um serviço (`cServ/xDescServ`, `cNBS`, `vServ`; `infDPS/IBSCBS/valores/trib/gIBSCBS`).
+- **Dados da operação:** NF-e `ide/nNF`, `ide/dhEmi`, `ide/cMunFG`; NFS-e `nNFSe`, `infDPS/dhEmi`, `cLocIncid` (fallback `cLocPrestacao`). UF derivada do código do município (`Uf::doMunicipio`). Gravados na `Importacao` (`tipo_documento`, `numero_documento`, `data_documento`, `uf`, `municipio`).
+- **Sem CST/cClassTrib** (leiaute antigo): `ClassificacaoPeloCatalogo` usa os de um produto da empresa com o mesmo NCM/NBS (o mais recente; produtos importados antes no mesmo arquivo também contam). Sem referência → erro do item com instrução. Vale também para planilhas com as duas colunas vazias.
+- **Itens importados** ficam em `importacao_produtos` (produto + linha + valor). "Simular esta nota" (`simulacoes.create?importacao=`) cria uma `Simulacao` com `importacao_id` só com esses itens e `base_calculo` = valor do item na nota.
+- Validação XSD da nota de entrada **não** é feita aqui: a #10 valida o grupo IBS/CBS gerado pela calculadora (`/xml/validate`). Notas reais no leiaute antigo não passariam no XSD novo.
+- Fixtures: `tests/Fixtures/importacao/xml/` — `oficial-*.xml` são os exemplos de teste da própria Receita (dados fictícios); `nfe-catalogo.xml` usa NCMs das fixtures de dados abertos; `malicioso-*.xml` cobrem XXE e billion laughs.
 
 O Laravel Excel lê em chunks via callbacks (não dá para expor um gerador), por isso a interface entrega **lotes por callback**. Novo formato (ex.: XML da #9) = nova classe + adicioná-la à tag `catalog-importers` no `AppServiceProvider`.
 

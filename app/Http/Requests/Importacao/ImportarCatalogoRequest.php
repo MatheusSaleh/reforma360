@@ -23,8 +23,8 @@ class ImportarCatalogoRequest extends FormRequest
             'arquivo' => [
                 'required',
                 'file',
-                'extensions:csv,txt,xlsx',
-                'mimes:csv,txt,xlsx',
+                'extensions:csv,txt,xlsx,xml',
+                'mimes:csv,txt,xlsx,xml',
                 'max:'.config()->integer('importacao.tamanho_maximo_kb'),
             ],
         ];
@@ -37,8 +37,8 @@ class ImportarCatalogoRequest extends FormRequest
     {
         return [
             'arquivo.required'   => 'Selecione a planilha.',
-            'arquivo.extensions' => 'Envie um arquivo .csv ou .xlsx.',
-            'arquivo.mimes'      => 'Envie um arquivo .csv ou .xlsx.',
+            'arquivo.extensions' => 'Envie um arquivo .csv, .xlsx ou .xml.',
+            'arquivo.mimes'      => 'Envie um arquivo .csv, .xlsx ou .xml.',
             'arquivo.max'        => 'O arquivo deve ter no máximo :max KB.',
         ];
     }

@@ -8,6 +8,13 @@
         <h1 class="text-2xl font-semibold text-slate-900">Simulação #{{ $simulacao->id }}</h1>
         @include('simulacoes._status', ['status' => $simulacao->status])
     </div>
+    @if ($simulacao->importacao)
+        <p class="mt-1 text-sm text-slate-600">
+            Itens da nota
+            <a href="{{ route('importacoes.show', $simulacao->importacao) }}" class="text-emerald-700 hover:underline">{{ $simulacao->importacao->tipo_documento?->label() }} nº {{ $simulacao->importacao->numero_documento }}</a>
+            ({{ $simulacao->importacao->nome_arquivo }}), com o valor de cada item na nota.
+        </p>
+    @endif
     <p class="mt-1 text-sm text-slate-600">
         Fato gerador em {{ $simulacao->data_fato_gerador->format('d/m/Y') }} · {{ $simulacao->uf->value }}, município {{ $simulacao->municipio }}
         @if ($simulacao->aliquota_cbs !== null)

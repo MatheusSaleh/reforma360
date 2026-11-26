@@ -6,6 +6,9 @@ namespace App\Models;
 
 use App\Enums\FormatoImportacao;
 use App\Enums\StatusImportacao;
+use App\Enums\TipoDocumentoFiscal;
+use App\Enums\Uf;
+use Carbon\CarbonImmutable;
 use Database\Factories\ImportacaoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -19,10 +22,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property StatusImportacao $status
  * @property FormatoImportacao $formato
+ * @property TipoDocumentoFiscal|null $tipo_documento
+ * @property CarbonImmutable|null $data_documento
+ * @property Uf|null $uf
  */
 #[Table('importacoes')]
 #[Fillable([
-    'user_id', 'nome_arquivo', 'caminho_arquivo', 'formato', 'status', 'total_linhas',
+    'user_id', 'nome_arquivo', 'caminho_arquivo', 'formato', 'tipo_documento', 'numero_documento', 'data_documento',
+    'uf', 'municipio', 'status', 'total_linhas',
     'linhas_importadas', 'linhas_com_erro', 'mensagem_erro', 'iniciada_em', 'concluida_em',
 ])]
 class Importacao extends Model
@@ -47,6 +54,19 @@ class Importacao extends Model
     }
 
     /**
+     * @return HasMany<ImportacaoProduto, $this>
+     */
+    public function itens(): HasMany
+    {
+        return $this->hasMany(ImportacaoProduto::class);
+    }
+
+    public function ehDocumentoFiscal(): bool
+    {
+        return $this->tipo_documento !== null;
+    }
+
+    /**
      * @return HasMany<ImportacaoErro, $this>
      */
     public function erros(): HasMany
@@ -60,10 +80,13 @@ class Importacao extends Model
     protected function casts(): array
     {
         return [
-            'status'       => StatusImportacao::class,
-            'formato'      => FormatoImportacao::class,
-            'iniciada_em'  => 'datetime',
-            'concluida_em' => 'datetime',
+            'status'         => StatusImportacao::class,
+            'formato'        => FormatoImportacao::class,
+            'tipo_documento' => TipoDocumentoFiscal::class,
+            'data_documento' => 'immutable_date',
+            'uf'             => Uf::class,
+            'iniciada_em'    => 'datetime',
+            'concluida_em'   => 'datetime',
         ];
     }
 }
