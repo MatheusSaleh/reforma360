@@ -121,7 +121,7 @@ DANFSE_URL=http://danfse:8080/api
 
 O `compose.yaml` sobe junto com o `sail up`:
 
-- **`horizon`**: processa as filas (`simulacoes`, `importacoes`, `default`). Painel em [`/horizon`](http://localhost/horizon) (em produção, só para os e-mails de `HORIZON_ADMINS`).
+- **`horizon`**: processa as filas (`simulacoes`, `importacoes`, `default`). Painel em [`/horizon`](http://localhost/horizon) (em produção, só para administradores).
 - **`scheduler`**: tarefas agendadas (`routes/console.php`), como apagar os XMLs de NFS-e guardados além da retenção (`IMPORTACAO_RETENCAO_XML_DIAS`, padrão 30 dias).
 - **`reverb`**: WebSocket do progresso em tempo real, na porta `8080` do host (`FORWARD_REVERB_PORT`). O Laravel fala com ele pela rede do Docker (`REVERB_HOST=reverb`); o navegador, por `VITE_REVERB_HOST=localhost`.
 
@@ -132,6 +132,15 @@ Depois de mudar código de jobs ou eventos, reinicie os workers:
 ```
 
 E-mails vão para `storage/logs/laravel.log` em desenvolvimento (`MAIL_MAILER=log`).
+
+### Painel admin
+
+Painel Filament em [`/admin`](http://localhost/admin) para administradores da plataforma: empresas, usuários, jobs com falha e métricas de uso. Para dar acesso a um usuário (vale também para o `/horizon` em produção):
+
+```bash
+./vendor/bin/sail artisan reforma360:tornar-admin email@exemplo.com          # promove
+./vendor/bin/sail artisan reforma360:tornar-admin email@exemplo.com --remover
+```
 
 ### 5. Testes e qualidade
 

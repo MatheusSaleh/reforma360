@@ -24,6 +24,9 @@
                     </a>
                     <a href="{{ route('produtos.index') }}" class="text-slate-600 hover:text-slate-900">Produtos</a>
                     <a href="{{ route('importacoes.index') }}" class="text-slate-600 hover:text-slate-900">Importações</a>
+                    @if (auth()->user()->is_admin)
+                        <a href="{{ url('/admin') }}" class="text-slate-600 hover:text-slate-900">Admin</a>
+                    @endif
                     <span class="hidden text-slate-400 sm:inline">{{ auth()->user()->empresa->razao_social }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
