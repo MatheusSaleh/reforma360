@@ -182,3 +182,28 @@ test('a documentação da API está publicada em /docs', function (): void {
         ->assertSee('API do Reforma360')
         ->assertSee('/api/v1/simulacoes/item');
 });
+
+test('a API devolve o resultado do IS com alíquota ad rem e sem percentual', function (): void {
+    $cerveja = fixtureJson('calculadora/regular/observabilidade-resposta.json')['objetos'][1];
+    $cerveja['nObj'] = 1;
+    $cerveja['tribCalc']['IS']['pISEspec'] = '1.25';
+    unset($cerveja['tribCalc']['IS']['pIS']);
+    Http::fake([
+        '*/calculadora/observabilidade/regime-geral'                      => Http::response(['objetos' => [$cerveja]]),
+        '*/dados-abertos/ncm?ncm=22030000*'                               => Http::response(fixtureJson('calculadora/regular/ncm-22030000.json')),
+        '*/dados-abertos/classificacoes-tributarias/cbs-ibs/class-trib/*' => Http::response([], 404),
+        '*/dados-abertos/fundamentacoes-legais*'                          => Http::response([]),
+    ]);
+    Sanctum::actingAs($this->usuario, ['simulacoes']);
+
+    $this->postJson('/api/v1/simulacoes/item', itemParaApi([
+        'nbs'                => '', 'ncm' => '22030000', 'cst' => '000', 'c_class_trib' => '000001', 'valor' => '150.00',
+        'is_aliquota_ad_rem' => '1.25', 'is_quantidade' => '12', 'is_unidade' => 'LT',
+    ]))->assertSuccessful()
+        ->assertJsonPath('data.calculo_simulado', true)
+        ->assertJsonPath('data.imposto_seletivo.aliquota', null)
+        ->assertJsonPath('data.imposto_seletivo.aliquota_ad_rem', '1.25')
+        ->assertJsonPath('data.imposto_seletivo.unidade', 'LT')
+        ->assertJsonPath('data.imposto_seletivo.quantidade', '12')
+        ->assertJsonPath('data.imposto_seletivo.valor', '15.00');
+});

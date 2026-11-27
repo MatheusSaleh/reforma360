@@ -117,7 +117,7 @@ test('inclui a comparação com o Simples e a linha do tempo quando existem', fu
     Simulacao::factory()->for($this->usuario->empresa)->create([
         'linha_do_tempo_id'  => $linha->id, 'status' => StatusSimulacao::Concluida, 'data_fato_gerador' => '2033-03-10',
         'aliquota_cbs'       => '8.8', 'aliquota_ibs_estadual' => '8.85', 'aliquota_ibs_municipal' => '8.85',
-        'total_base_calculo' => '3000.00', 'total_cbs' => '264.00', 'total_ibs' => '531.00',
+        'total_base_calculo' => '3000.00', 'total_cbs' => '264.00', 'total_ibs' => '531.00', 'total_imposto_seletivo' => '15.00',
     ]);
 
     $html = htmlDoRelatorio($simulacao);
@@ -130,8 +130,10 @@ test('inclui a comparação com o Simples e a linha do tempo quando existem', fu
         ->toContain('Linha do tempo 2026 → 2033')
         ->toContain('alíquotas plenas <strong>estimadas</strong>')
         ->toContain('CBS 8,8% · IBS 17,7%')
-        ->toContain('R$ 795,00')
-        ->toContain('26,5%');
+        ->toContain('<th class="num">IS</th>')
+        ->toContain('R$ 15,00')
+        ->toContain('R$ 810,00')
+        ->toContain('27%');
 });
 
 test('sem linha do tempo concluída nem comparação, as seções não aparecem', function (): void {

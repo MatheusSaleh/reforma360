@@ -549,6 +549,78 @@ Must be one of:
     <br>
 <p>Alíquota nominal do IBS municipal em %. Obrigatória de 2027 em diante. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100. Example: <code>0.05</code></p>
         </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_valorem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_valorem"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo (a partir de 2027, só para NCMs tributados): alíquota ad valorem estimada em %. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_rem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_rem"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo: alíquota ad rem estimada, em R$ por unidade do IS. Exige is_unidade e is_quantidade. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_unidade</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_unidade"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>Unidade do IS (ex.: LT, VN, KG). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^[A-Z0-9]+$/. :Attribute deve ter no máximo 6 caracteres.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_quantidade</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_quantidade"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>Quantidade total do item na unidade do IS. This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_cst</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_cst"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>CST do IS (3 dígitos). Padrão 000. :Attribute deve ter 3 dígitos.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_c_class_trib</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_c_class_trib"                data-endpoint="POSTapi-v1-simulacoes-item"
+               value=""
+               data-component="body">
+    <br>
+<p>cClassTrib do IS (6 dígitos). Padrão 000001. :Attribute deve ter 6 dígitos.</p>
+        </div>
         </form>
 
                 <h1 id="produtos">Produtos</h1>
@@ -641,6 +713,12 @@ print_r(json_decode((string) $body));</code></pre></div>
             &quot;cst&quot;: &quot;000&quot;,
             &quot;c_class_trib&quot;: &quot;000001&quot;,
             &quot;preco&quot;: &quot;62492.19&quot;,
+            &quot;is_cst&quot;: null,
+            &quot;is_c_class_trib&quot;: null,
+            &quot;is_unidade&quot;: null,
+            &quot;is_quantidade&quot;: null,
+            &quot;is_aliquota_ad_valorem&quot;: null,
+            &quot;is_aliquota_ad_rem&quot;: null,
             &quot;criado_em&quot;: null,
             &quot;atualizado_em&quot;: null
         },
@@ -653,6 +731,12 @@ print_r(json_decode((string) $body));</code></pre></div>
             &quot;cst&quot;: &quot;000&quot;,
             &quot;c_class_trib&quot;: &quot;000001&quot;,
             &quot;preco&quot;: &quot;8317.58&quot;,
+            &quot;is_cst&quot;: null,
+            &quot;is_c_class_trib&quot;: null,
+            &quot;is_unidade&quot;: null,
+            &quot;is_quantidade&quot;: null,
+            &quot;is_aliquota_ad_valorem&quot;: null,
+            &quot;is_aliquota_ad_rem&quot;: null,
             &quot;criado_em&quot;: null,
             &quot;atualizado_em&quot;: null
         }
@@ -889,6 +973,12 @@ print_r(json_decode((string) $body));</code></pre></div>
         &quot;cst&quot;: &quot;000&quot;,
         &quot;c_class_trib&quot;: &quot;000001&quot;,
         &quot;preco&quot;: &quot;62492.19&quot;,
+        &quot;is_cst&quot;: null,
+        &quot;is_c_class_trib&quot;: null,
+        &quot;is_unidade&quot;: null,
+        &quot;is_quantidade&quot;: null,
+        &quot;is_aliquota_ad_valorem&quot;: null,
+        &quot;is_aliquota_ad_rem&quot;: null,
         &quot;criado_em&quot;: null,
         &quot;atualizado_em&quot;: null
     }
@@ -1109,6 +1199,12 @@ print_r(json_decode((string) $body));</code></pre></div>
         &quot;cst&quot;: &quot;000&quot;,
         &quot;c_class_trib&quot;: &quot;000001&quot;,
         &quot;preco&quot;: &quot;45117.64&quot;,
+        &quot;is_cst&quot;: null,
+        &quot;is_c_class_trib&quot;: null,
+        &quot;is_unidade&quot;: null,
+        &quot;is_quantidade&quot;: null,
+        &quot;is_aliquota_ad_valorem&quot;: null,
+        &quot;is_aliquota_ad_rem&quot;: null,
         &quot;criado_em&quot;: null,
         &quot;atualizado_em&quot;: null
     }
@@ -1285,6 +1381,78 @@ You can check the Dev Tools console for debugging information.</code></pre>
     <br>
 <p>Preço em reais, texto decimal com até 2 casas. :Attribute deve ser no máximo 9999999999999.99. Example: <code>1200</code></p>
         </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_valorem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_valorem"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo (a partir de 2027, só para NCMs tributados): alíquota ad valorem estimada em %. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_rem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_rem"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo: alíquota ad rem estimada, em R$ por unidade do IS. Exige is_unidade e is_quantidade. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_unidade</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_unidade"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>Unidade do IS (ex.: LT, VN, KG). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^[A-Z0-9]+$/. :Attribute deve ter no máximo 6 caracteres.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_quantidade</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_quantidade"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>Quantidade na unidade do IS (no produto, por unidade vendida; ex.: 0.35 LT por lata). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_cst</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_cst"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>CST do IS (3 dígitos). Padrão 000. :Attribute deve ter 3 dígitos.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_c_class_trib</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_c_class_trib"                data-endpoint="POSTapi-v1-produtos"
+               value=""
+               data-component="body">
+    <br>
+<p>cClassTrib do IS (6 dígitos). Padrão 000001. :Attribute deve ter 6 dígitos.</p>
+        </div>
         </form>
 
                     <h2 id="produtos-PUTapi-v1-produtos--id-">Alterar produto</h2>
@@ -1382,6 +1550,12 @@ print_r(json_decode((string) $body));</code></pre></div>
         &quot;cst&quot;: &quot;000&quot;,
         &quot;c_class_trib&quot;: &quot;000001&quot;,
         &quot;preco&quot;: &quot;45117.64&quot;,
+        &quot;is_cst&quot;: null,
+        &quot;is_c_class_trib&quot;: null,
+        &quot;is_unidade&quot;: null,
+        &quot;is_quantidade&quot;: null,
+        &quot;is_aliquota_ad_valorem&quot;: null,
+        &quot;is_aliquota_ad_rem&quot;: null,
         &quot;criado_em&quot;: null,
         &quot;atualizado_em&quot;: null
     }
@@ -1572,6 +1746,78 @@ You can check the Dev Tools console for debugging information.</code></pre>
                data-component="body">
     <br>
 <p>Preço em reais, texto decimal com até 2 casas. :Attribute deve ser no máximo 9999999999999.99. Example: <code>1200</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_valorem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_valorem"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo (a partir de 2027, só para NCMs tributados): alíquota ad valorem estimada em %. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_aliquota_ad_rem</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_aliquota_ad_rem"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>Imposto Seletivo: alíquota ad rem estimada, em R$ por unidade do IS. Exige is_unidade e is_quantidade. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_unidade</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_unidade"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>Unidade do IS (ex.: LT, VN, KG). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^[A-Z0-9]+$/. :Attribute deve ter no máximo 6 caracteres.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_quantidade</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="is_quantidade"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>Quantidade na unidade do IS (no produto, por unidade vendida; ex.: 0.35 LT por lata). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^\d+(?:.\d+)?$/D. :Attribute deve ser no máximo 99999999999.9999.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_cst</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_cst"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>CST do IS (3 dígitos). Padrão 000. :Attribute deve ter 3 dígitos.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_c_class_trib</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="is_c_class_trib"                data-endpoint="PUTapi-v1-produtos--id-"
+               value=""
+               data-component="body">
+    <br>
+<p>cClassTrib do IS (6 dígitos). Padrão 000001. :Attribute deve ter 6 dígitos.</p>
         </div>
         </form>
 

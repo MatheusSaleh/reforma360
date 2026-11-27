@@ -13,8 +13,10 @@ use App\Importers\ImportadorDeDocumentoFiscal;
 use App\Integrations\Calculadora\Contracts\DadosAbertos;
 use App\Integrations\Calculadora\Exceptions\CalculadoraIndisponivelException;
 use App\Models\Importacao;
+use App\Rules\Catalogo\RegrasImpostoSeletivo;
 use App\Rules\Catalogo\RegrasProduto;
 use App\Services\Catalogo\ReferenciasFiscais;
+use App\Services\Simulacao\Data\DadosImpostoSeletivo;
 use App\Support\NormalizadorFiscal;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -156,15 +158,26 @@ final readonly class ImportarCatalogoService
                 continue;
             }
 
-            $dadosDoProduto = array_diff_key($campos, ['valor_documento' => true]);
+            $dadosDoProduto = array_diff_key($campos, array_fill_keys(['valor_documento', 'is_quantidade_documento', ...DadosImpostoSeletivo::CAMPOS], true));
+            $impostoSeletivo = DadosImpostoSeletivo::deCampos($campos);
+
+            // Só mexe no IS do produto quando o arquivo traz os campos do IS (colunas ou grupo IS da nota).
+            if ($impostoSeletivo !== null) {
+                $dadosDoProduto = [...$dadosDoProduto, ...$impostoSeletivo->campos()];
+            }
+
             $produto = $importacao->empresa->produtos()->updateOrCreate(['descricao' => $campos['descricao']], $dadosDoProduto);
             $catalogo->lembrar($campos['ncm'], $campos['nbs'], (string) $campos['cst'], (string) $campos['c_class_trib']);
 
             $itens[] = [
-                'importacao_id' => $importacao->id,
-                'produto_id'    => $produto->id,
-                'linha'         => $linha->linha,
-                'valor'         => $campos['valor_documento'],
+                'importacao_id'          => $importacao->id,
+                'produto_id'             => $produto->id,
+                'linha'                  => $linha->linha,
+                'valor'                  => $campos['valor_documento'],
+                'dados_imposto_seletivo' => $importacao->tipo_documento === null || $impostoSeletivo === null ? null : json_encode([
+                    ...$impostoSeletivo->campos(),
+                    'is_quantidade' => $campos['is_quantidade_documento'] ?? null,
+                ], JSON_THROW_ON_ERROR),
             ];
             $importadas++;
         }
@@ -187,7 +200,7 @@ final readonly class ImportarCatalogoService
     }
 
     /**
-     * @param  array{descricao: string|null, ncm: string|null, nbs: string|null, cst: string|null, c_class_trib: string|null, preco: string|null, valor_documento: string|null}  $campos
+     * @param  array<string, string|null>  $campos
      * @return list<array{campo: string|null, mensagem: string}>
      */
     private function validar(array $campos, ReferenciasFiscais $referencias): array
@@ -197,9 +210,13 @@ final readonly class ImportarCatalogoService
 
         $validador = Validator::make(
             $campos,
-            [...RegrasProduto::regras(), ...$regraDoValor],
+            [
+                ...RegrasProduto::regras(),
+                ...$regraDoValor,
+                'is_quantidade_documento' => ['nullable', 'numeric', 'decimal:0,4', 'gt:0', 'max:99999999999.9999'],
+            ],
             [...RegrasProduto::mensagens(), 'valor_documento.decimal' => 'O valor do item deve ter no máximo 2 casas decimais.'],
-            ['valor_documento' => 'valor do item'],
+            ['valor_documento' => 'valor do item', 'is_quantidade_documento' => 'quantidade do IS na nota', ...RegrasImpostoSeletivo::atributos()],
         );
 
         if ($validador->fails()) {
@@ -251,7 +268,7 @@ final readonly class ImportarCatalogoService
      * Planilhas perdem zeros à esquerda (CST 000 vira 0; NCM 01012100 vira 1012100).
      *
      * @param  array<string, string|null>  $campos
-     * @return array{descricao: string|null, ncm: string|null, nbs: string|null, cst: string|null, c_class_trib: string|null, preco: string|null, valor_documento: string|null}
+     * @return array<string, string|null>
      */
     private static function normalizar(array $campos): array
     {
@@ -267,6 +284,9 @@ final readonly class ImportarCatalogoService
             'preco'        => $preco,
             // Valor da linha no documento (na planilha, o próprio preço).
             'valor_documento' => isset($campos['valor_documento']) ? NormalizadorFiscal::decimal($campos['valor_documento']) : $preco,
+            // Campos do IS só quando o arquivo os traz: ausentes, o IS do produto fica como está.
+            ...(array_intersect_key($campos, array_flip(DadosImpostoSeletivo::CAMPOS)) === [] ? [] : RegrasImpostoSeletivo::normalizar($campos)),
+            ...(isset($campos['is_quantidade_documento']) ? ['is_quantidade_documento' => NormalizadorFiscal::decimal($campos['is_quantidade_documento'])] : []),
         ];
     }
 

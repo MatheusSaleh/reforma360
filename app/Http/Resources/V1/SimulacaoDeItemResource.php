@@ -41,8 +41,12 @@ class SimulacaoDeItemResource extends JsonResource
             'ibs_municipal'     => $parcela($ibsCbs->ibsMunicipal),
             'valor_ibs'         => $ibsCbs->valorIbs,
             'imposto_seletivo'  => $simulacao->impostoSeletivo === null ? null : [
-                'aliquota' => $simulacao->impostoSeletivo->aliquota,
-                'valor'    => $simulacao->impostoSeletivo->valor,
+                'aliquota'        => $simulacao->impostoSeletivo->aliquota,
+                'valor'           => $simulacao->impostoSeletivo->valor,
+                'aliquota_ad_rem' => $simulacao->impostoSeletivo->aliquotaAdRem,
+                'base_calculo'    => $simulacao->impostoSeletivo->baseCalculo,
+                'quantidade'      => $simulacao->impostoSeletivo->quantidade,
+                'unidade'         => $simulacao->impostoSeletivo->unidade,
             ],
             'total_tributos' => $simulacao->totalTributos,
             'classificacao'  => $simulacao->classificacao === null ? null : [
@@ -55,9 +59,10 @@ class SimulacaoDeItemResource extends JsonResource
                 'texto'      => $simulacao->fundamentacao->texto,
             ],
             'memoria_calculo' => array_filter([
-                'cbs'           => $ibsCbs->memoriaCbs,
-                'ibs_estadual'  => $ibsCbs->memoriaIbsEstadual,
-                'ibs_municipal' => $ibsCbs->memoriaIbsMunicipal,
+                'cbs'              => $ibsCbs->memoriaCbs,
+                'ibs_estadual'     => $ibsCbs->memoriaIbsEstadual,
+                'ibs_municipal'    => $ibsCbs->memoriaIbsMunicipal,
+                'imposto_seletivo' => $simulacao->impostoSeletivo?->memoriaCalculo,
             ]),
             'versao_base_dados' => $simulacao->versaoBaseDados,
             'aviso'             => AvisoDeSimulacao::TEXTO,

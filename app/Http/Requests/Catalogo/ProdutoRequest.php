@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Catalogo;
 
 use App\Http\Requests\Concerns\NormalizaEntradaFiscal;
+use App\Rules\Catalogo\RegrasImpostoSeletivo;
 use App\Rules\Catalogo\RegrasProduto;
+use App\Services\Simulacao\Data\DadosImpostoSeletivo;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -37,6 +39,14 @@ class ProdutoRequest extends FormRequest
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return RegrasImpostoSeletivo::atributos();
+    }
+
+    /**
      * @return array<string, array{description: string, example: mixed}>
      */
     public function bodyParameters(): array
@@ -48,11 +58,12 @@ class ProdutoRequest extends FormRequest
             'cst'          => ['description' => 'CST do IBS/CBS (3 dígitos).', 'example' => '200'],
             'c_class_trib' => ['description' => 'Código de classificação tributária (6 dígitos).', 'example' => '200028'],
             'preco'        => ['description' => 'Preço em reais, texto decimal com até 2 casas.', 'example' => '1200.00'],
+            ...RegrasImpostoSeletivo::documentacao(),
         ];
     }
 
     /**
-     * @return array{descricao: string, ncm: string|null, nbs: string|null, cst: string, c_class_trib: string, preco: string}
+     * @return array<string, string|null>
      */
     public function dadosDoProduto(): array
     {
@@ -63,11 +74,15 @@ class ProdutoRequest extends FormRequest
             'cst'          => $this->string('cst')->toString(),
             'c_class_trib' => $this->string('c_class_trib')->toString(),
             'preco'        => $this->string('preco')->toString(),
+            ...($this->filled('nbs') || $this->hasAny(DadosImpostoSeletivo::CAMPOS)
+                ? RegrasImpostoSeletivo::paraGravar($this->filled('nbs') ? [] : $this->validated())
+                : []),
         ];
     }
 
     protected function prepareForValidation(): void
     {
         $this->normalizarEntradaFiscal(['ncm', 'nbs', 'cst', 'c_class_trib'], ['preco']);
+        $this->merge(array_intersect_key(RegrasImpostoSeletivo::normalizar($this->all()), $this->all()));
     }
 }

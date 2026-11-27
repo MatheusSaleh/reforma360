@@ -33,11 +33,12 @@
                 <div><dt class="inline font-mono">c_class_trib</dt> <dd class="inline text-slate-600">— 6 dígitos, do CST informado</dd></div>
                 <div><dt class="inline font-mono">preco</dt> <dd class="inline text-slate-600">— ex.: 1.200,00</dd></div>
             </dl>
+            <p class="mt-3 text-xs text-slate-500">A planilha modelo inclui colunas opcionais do Imposto Seletivo. Informe a quantidade de IS por unidade vendida.</p>
             <p class="mt-3 text-xs text-slate-500">CSV com separador ";" ou ",", em UTF-8 ou no formato salvo pelo Excel. Os códigos são conferidos com as tabelas vigentes da Receita.</p>
 
             <h2 class="mt-5 font-semibold text-slate-900">Nota fiscal (XML)</h2>
             <p class="mt-1">Uma nota por arquivo. Depois de importar, você pode <strong>simular só os itens da nota</strong>, com o local da operação já preenchido.</p>
-            <p class="mt-1 text-xs text-slate-500">Notas sem o grupo IBS/CBS (leiaute antigo) usam o CST e o cClassTrib de um produto do catálogo com o mesmo NCM/NBS.</p>
+            <p class="mt-1 text-xs text-slate-500">Notas sem o grupo IBS/CBS (leiaute antigo) usam o CST e o cClassTrib de um produto do catálogo com o mesmo NCM/NBS. Quando a NF-e inclui o grupo IS, as alíquotas e a quantidade são importadas.</p>
         </aside>
     </div>
 </x-layouts.app>

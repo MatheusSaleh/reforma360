@@ -20,6 +20,9 @@ final readonly class DetalheNomenclatura
         public string $codigo,
         public array $niveis,
         public bool $tributadoPeloImpostoSeletivo,
+        public bool $temAliquotaAdValorem = false,
+        public bool $temAliquotaAdRem = false,
+        public ?string $unidadeImpostoSeletivo = null,
     ) {}
 
     /**
@@ -41,6 +44,9 @@ final readonly class DetalheNomenclatura
             codigo: $codigo,
             niveis: $niveis,
             tributadoPeloImpostoSeletivo: ($dados['tributadoPeloImpostoSeletivo'] ?? false) === true,
+            temAliquotaAdValorem: ($dados['temAliquotaAdValorem'] ?? false) === true,
+            temAliquotaAdRem: ($dados['temAliquotaAdRem'] ?? false) === true,
+            unidadeImpostoSeletivo: self::textoOpcional($dados, 'unidade'),
         );
     }
 }

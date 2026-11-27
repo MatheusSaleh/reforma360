@@ -118,3 +118,28 @@ test('limita as requisições por token', function (): void {
         ->assertHeader('Retry-After')
         ->assertJsonPath('message', 'Limite de requisições atingido. Tente de novo em instantes.');
 });
+
+test('cadastra, consulta e preserva as estimativas do IS quando um cliente antigo edita o produto', function (): void {
+    Sanctum::actingAs($this->usuario, ['produtos:ler', 'produtos:escrever']);
+    $produto = ['descricao' => 'Cerveja', 'ncm' => '22030000', 'cst' => '000', 'c_class_trib' => '000001', 'preco' => '4.50'];
+
+    $id = $this->postJson('/api/v1/produtos', [
+        ...$produto, 'is_aliquota_ad_valorem' => '10,25', 'is_aliquota_ad_rem' => '0,1234', 'is_unidade' => 'lt', 'is_quantidade' => '0,35',
+    ])->assertCreated()
+        ->assertJsonPath('data.is_aliquota_ad_valorem', '10.2500')
+        ->assertJsonPath('data.is_aliquota_ad_rem', '0.1234')
+        ->assertJsonPath('data.is_quantidade', '0.3500')
+        ->assertJsonPath('data.is_unidade', 'LT')
+        ->assertJsonPath('data.is_cst', '000')
+        ->assertJsonPath('data.is_c_class_trib', '000001')
+        ->json('data.id');
+
+    $this->putJson("/api/v1/produtos/{$id}", [...$produto, 'preco' => '5.00'])
+        ->assertSuccessful()
+        ->assertJsonPath('data.is_aliquota_ad_rem', '0.1234');
+
+    $this->putJson("/api/v1/produtos/{$id}", [...$produto, 'is_aliquota_ad_valorem' => null, 'is_aliquota_ad_rem' => null])
+        ->assertSuccessful()
+        ->assertJsonPath('data.is_aliquota_ad_valorem', null)
+        ->assertJsonPath('data.is_aliquota_ad_rem', null);
+});

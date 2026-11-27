@@ -1,7 +1,7 @@
 @props(['colunas', 'series', 'titulo', 'unidade' => 'R$'])
 {{--
     Colunas empilhadas (2 séries) em SVG gerado no servidor. Paleta validada (dataviz):
-    série 1 azul #257de0, série 2 laranja #f47230; 2px de superfície entre segmentos;
+    série 1 azul #257de0, série 2 laranja #f47230, série 3 roxa #7c3aed; 2px de superfície entre segmentos;
     topo arredondado (4px), base reta; tooltip nativo por coluna; tabela ao lado.
 --}}
 @php
@@ -14,7 +14,7 @@
     $larguraColuna = 24;
     $passo = 64;
     $largura = $margemEsquerda + count($colunas) * $passo + 8;
-    $cores = ['#257de0', '#f47230'];
+    $cores = ['#257de0', '#f47230', '#7c3aed'];
     $grafico = GraficoColunas::montar($colunas, $altura);
     $base = $topo + $altura;
     $tick = fn (string $valor) => $unidade === 'R$'

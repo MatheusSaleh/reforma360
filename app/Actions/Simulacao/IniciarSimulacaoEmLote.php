@@ -11,6 +11,7 @@ use App\Models\ImportacaoProduto;
 use App\Models\Produto;
 use App\Models\Simulacao;
 use App\Models\User;
+use App\Services\Simulacao\Data\DadosImpostoSeletivo;
 use App\Services\Simulacao\Data\ParametrosSimulacao;
 use App\Services\Simulacao\SimularItemService;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ final readonly class IniciarSimulacaoEmLote
             if ($importacao !== null) {
                 $importacao->itens()->with('produto')->orderBy('id')->chunkById(500, function ($itens) use ($simulacao): void {
                     $simulacao->itens()->insert($itens->map(
-                        fn (ImportacaoProduto $item): array => self::itemDaSimulacao($simulacao, $item->produto, $item->valor),
+                        fn (ImportacaoProduto $item): array => self::itemDaSimulacao($simulacao, $item->produto, $item->valor, DadosImpostoSeletivo::deCampos($item->dados_imposto_seletivo ?? [])),
                     )->all());
                 });
             } else {
@@ -85,8 +86,12 @@ final readonly class IniciarSimulacaoEmLote
     /**
      * @return array<string, mixed>
      */
-    private static function itemDaSimulacao(Simulacao $simulacao, Produto $produto, string $baseCalculo): array
+    private static function itemDaSimulacao(Simulacao $simulacao, Produto $produto, string $baseCalculo, ?DadosImpostoSeletivo $impostoSeletivo = null): array
     {
+        // Na nota, prioriza o grupo IS da própria linha. No catálogo, usa os dados por unidade vendida.
+        $camposIs = ($impostoSeletivo ?? $produto->impostoSeletivo())?->campos()
+            ?? array_fill_keys(Produto::CAMPOS_IMPOSTO_SELETIVO, null);
+
         return [
             'simulacao_id' => $simulacao->id,
             'produto_id'   => $produto->id,
@@ -96,8 +101,9 @@ final readonly class IniciarSimulacaoEmLote
             'cst'          => $produto->cst,
             'c_class_trib' => $produto->c_class_trib,
             'base_calculo' => $baseCalculo,
-            'created_at'   => now(),
-            'updated_at'   => now(),
+            ...$camposIs,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

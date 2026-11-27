@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\Simulacao\ImpostoSeletivoDoItem;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
@@ -121,6 +122,8 @@ test('valida o formulário', function (array $dados, string $campo): void {
 })->with([
     'sem NCM nem NBS'          => [['nbs' => ''], 'ncm'],
     'NCM e NBS juntos'         => [['ncm' => '10063021'], 'ncm'],
+    'IS ad rem sem unidade'    => [['is_aliquota_ad_rem' => '1,25', 'is_quantidade' => '1'], 'is_unidade'],
+    'IS com alíquota inválida' => [['is_aliquota_ad_valorem' => '-0'], 'is_aliquota_ad_valorem'],
     'NCM curto'                => [['nbs' => '', 'ncm' => '1006'], 'ncm'],
     'CST com 2 dígitos'        => [['cst' => '20'], 'cst'],
     'cClassTrib vazio'         => [['c_class_trib' => ''], 'c_class_trib'],
@@ -210,4 +213,57 @@ test('responde 404 para UF inexistente e 503 quando a calculadora está fora', f
     $this->getJson(route('dados-abertos.municipios', ['uf' => 'RS']))
         ->assertStatus(503)
         ->assertJsonPath('message', 'A calculadora da Receita está indisponível no momento. Tente novamente em instantes.');
+});
+
+test('envia o grupo do IS para cerveja em 2027 e mostra o valor calculado', function (): void {
+    $cerveja = fixtureJson('calculadora/regular/observabilidade-resposta.json')['objetos'][1];
+    fakeCalculadora(['objetos' => [['nObj' => 1] + $cerveja]]);
+    Http::fake(['*/dados-abertos/ncm?ncm=22030000&data=2027-03-10' => Http::response(fixtureJson('calculadora/regular/ncm-22030000.json'))]);
+
+    $this->get(route('simulacoes.item.resultado', dadosDoFormulario([
+        'nbs'   => '', 'ncm' => '2203.00.00', 'cst' => '000', 'c_class_trib' => '000001',
+        'valor' => '150,00', 'is_aliquota_ad_valorem' => '10,00', 'is_quantidade' => '12', 'is_unidade' => 'lt',
+    ])))->assertSuccessful()
+        ->assertSee('CALCULO_SIMULADO')
+        ->assertSee('R$ 165,00')
+        ->assertSeeInOrder(['Imposto Seletivo', '10,00%', 'R$ 15,00'])
+        ->assertSee('R$ 29,68');
+
+    Http::assertSent(function (Request $request): bool {
+        if (! str_ends_with($request->url(), '/regime-geral')) {
+            return false;
+        }
+
+        $item = $request['itens'][0];
+
+        return ! isset($item['baseCalculo'])
+            && $item['impostoSeletivo'] === ['cst' => '000', 'cClassTrib' => '000001', 'baseCalculo' => '150.00', 'quantidade' => '12', 'unidade' => 'LT']
+            && $item['aliquotasNominais']['impostoSeletivo'] === ['adValorem' => '10.00'];
+    });
+});
+
+test('pede a alíquota do IS quando a calculadora acusa REG-013', function (): void {
+    $erro = fixtureJson('calculadora/regular/observabilidade-resposta-todos-com-erro.json');
+    $erro['objetos'][0]['erros'][0]['code'] = 'REG-013';
+    $erro['objetos'][0]['erros'][0]['pointer'] = '#/itens/0/impostoSeletivo';
+    fakeCalculadora($erro);
+
+    $this->from(route('simulacoes.item.create'))->get(route('simulacoes.item.resultado', dadosDoFormulario([
+        'nbs' => '', 'ncm' => '22030000', 'cst' => '000', 'c_class_trib' => '000001',
+    ])))->assertRedirect(route('simulacoes.item.create'))
+        ->assertSessionHasErrors(['is_aliquota_ad_valorem' => ImpostoSeletivoDoItem::MENSAGEM_SEM_DADOS]);
+});
+
+test('mantém a base da operação e omite o IS quando o NCM não é tributado', function (): void {
+    fakeCalculadora();
+    Http::fake(['*/dados-abertos/ncm?ncm=10063021*' => Http::response(fixtureJson('calculadora/regular/ncm-10063021.json'))]);
+
+    $this->get(route('simulacoes.item.resultado', dadosDoFormulario([
+        'nbs' => '', 'ncm' => '10063021', 'cst' => '200', 'c_class_trib' => '200003', 'is_aliquota_ad_valorem' => '10',
+    ])))->assertSuccessful();
+
+    Http::assertSent(fn (Request $request): bool => str_ends_with($request->url(), '/regime-geral')
+        && $request['itens'][0]['baseCalculo'] === '1200.00'
+        && ! isset($request['itens'][0]['impostoSeletivo'])
+        && ! isset($request['itens'][0]['aliquotasNominais']['impostoSeletivo']));
 });

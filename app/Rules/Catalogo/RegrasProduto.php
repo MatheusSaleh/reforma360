@@ -21,6 +21,7 @@ final class RegrasProduto
             'cst'          => ['bail', 'required', 'digits:3'],
             'c_class_trib' => ['bail', 'required', 'digits:6'],
             'preco'        => ['bail', 'required', 'numeric', 'decimal:0,2', 'gt:0', 'max:9999999999999.99'],
+            ...RegrasImpostoSeletivo::regras(),
         ];
     }
 
@@ -35,6 +36,7 @@ final class RegrasProduto
             'ncm.prohibits'        => 'Informe apenas o NCM ou apenas o NBS.',
             'preco.decimal'        => 'O preço deve ter no máximo 2 casas decimais.',
             'preco.gt'             => 'O preço deve ser maior que zero.',
+            ...RegrasImpostoSeletivo::mensagens(),
         ];
     }
 }

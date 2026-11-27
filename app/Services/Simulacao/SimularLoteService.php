@@ -25,6 +25,7 @@ final readonly class SimularLoteService
 {
     public function __construct(
         private CalculadoraTributos $calculadora,
+        private OperacaoDaSimulacao $operacao,
     ) {}
 
     /**
@@ -72,7 +73,7 @@ final readonly class SimularLoteService
     private function simular(Simulacao $simulacao, array $itens): array
     {
         try {
-            $resultado = $this->calculadora->calcular(OperacaoDaSimulacao::montar($simulacao, $itens));
+            $resultado = $this->calculadora->calcular($this->operacao->montar($simulacao, $itens));
         } catch (PayloadInvalidoException $e) {
             return array_fill(0, count($itens), self::erro(EstadoItemCalculo::InconsistenciaEntrada, $e->erros, $e->getMessage()));
         } catch (RespostaInesperadaException $e) {
@@ -128,10 +129,14 @@ final readonly class SimularLoteService
                     'ibs_municipal' => $ibsCbs->memoriaIbsMunicipal,
                 ]),
                 'imposto_seletivo' => $item->impostoSeletivo === null ? null : [
-                    'aliquota' => $item->impostoSeletivo->aliquota,
-                    'base'     => $item->impostoSeletivo->baseCalculo,
-                    'valor'    => $item->impostoSeletivo->valor,
+                    'aliquota'        => $item->impostoSeletivo->aliquota,
+                    'aliquota_ad_rem' => $item->impostoSeletivo->aliquotaAdRem,
+                    'quantidade'      => $item->impostoSeletivo->quantidade,
+                    'unidade'         => $item->impostoSeletivo->unidade,
+                    'base'            => $item->impostoSeletivo->baseCalculo,
+                    'valor'           => $item->impostoSeletivo->valor,
                 ],
+                'base_ibs_cbs' => $ibsCbs->baseCalculo,
             ],
         ];
     }
@@ -155,7 +160,7 @@ final readonly class SimularLoteService
      */
     private static function erro(EstadoItemCalculo $estado, array $erros, string $mensagemPadrao): array
     {
-        $lista = array_map(fn (ErroCalculo $erro): array => ['codigo' => $erro->codigo, 'mensagem' => $erro->detalhe], $erros);
+        $lista = array_map(fn (ErroCalculo $erro): array => ['codigo' => $erro->codigo, 'mensagem' => ImpostoSeletivoDoItem::mensagem($erro)], $erros);
 
         return [
             'estado'                 => $estado->value,

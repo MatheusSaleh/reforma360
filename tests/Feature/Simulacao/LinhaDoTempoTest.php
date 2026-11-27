@@ -149,7 +149,7 @@ test('simula os 8 anos de ponta a ponta e avisa uma única vez', function () use
     $this->actingAs($this->usuario)->get(route('simulacoes.linha-do-tempo.show', $origem))
         ->assertSuccessful()
         ->assertSee('<svg', escape: false)
-        ->assertSee('Total da simulação — CBS e IBS por ano')
+        ->assertSee('Total da simulação — Tributos por ano')
         ->assertSeeInOrder(['2026', 'referência da Receita', 'R$ 8,64', '2027', 'CBS 8,7%', 'IBS 0,1%', 'R$ 84,48'])
         ->assertSee('CBS 8,8% · IBS 17,7%')
         ->assertDontSee('data-progresso-simulacao', escape: false);
@@ -172,7 +172,7 @@ test('mostra a linha do tempo de um item escolhido', function (): void {
 
     $this->actingAs($this->usuario)->get(route('simulacoes.linha-do-tempo.show', [$origem, 'item' => $curso->id]))
         ->assertSuccessful()
-        ->assertSee('Curso — CBS e IBS por ano')
+        ->assertSee('Curso — Tributos por ano')
         ->assertSeeInOrder(['2026', 'R$ 1.200,00', 'R$ 4,32', 'R$ 0,48', 'R$ 4,80', '0,40%'])
         ->assertSee('Dados do Imposto Seletivo devem ser informados');
 });
@@ -248,4 +248,39 @@ test('não acessa a linha do tempo de outra empresa', function () use ($plenas):
     $this->actingAs($this->usuario)->get(route('simulacoes.linha-do-tempo.create', $alheia))->assertNotFound();
     $this->actingAs($this->usuario)->post(route('simulacoes.linha-do-tempo.store', $alheia), $plenas)->assertNotFound();
     $this->actingAs($this->usuario)->get(route('simulacoes.linha-do-tempo.show', $alheia))->assertNotFound();
+});
+
+test('simula o IS apenas nas vigências aplicáveis e mostra o valor na linha do tempo do item', function () use ($plenas): void {
+    $origem = simulacaoDeOrigem();
+    $item = $origem->itens()->where('descricao', 'Curso')->sole();
+    $item->update([
+        'descricao'    => 'Cerveja', 'ncm' => '22030000', 'nbs' => null, 'cst' => '000', 'c_class_trib' => '000001',
+        'base_calculo' => '150.00', 'is_aliquota_ad_valorem' => '10.00',
+    ]);
+    $cerveja = fixtureJson('calculadora/regular/observabilidade-resposta.json')['objetos'][1];
+    $semIs = fixtureJson('calculadora/regular/observabilidade-resposta-2026-servico-educacao.json')['objetos'][0];
+
+    Http::fake([
+        '*/dados-abertos/ncm?ncm=22030000&data=*'    => Http::response(fixtureJson('calculadora/regular/ncm-22030000.json')),
+        '*/calculadora/observabilidade/regime-geral' => fn (Request $request) => Http::response([
+            'objetos' => array_map(fn (array $i) => ['nObj' => $i['numero']] + (isset($i['impostoSeletivo']) ? $cerveja : $semIs), $request['itens']),
+        ]),
+    ]);
+
+    $this->actingAs($this->usuario)->post(route('simulacoes.linha-do-tempo.store', $origem), $plenas)->assertRedirect();
+
+    $simulacoes = LinhaDoTempo::query()->sole()->simulacoesDosAnos()->get()->keyBy(fn (Simulacao $simulacao) => $simulacao->data_fato_gerador->year);
+    expect($simulacoes[2026]->itens()->where('origem_id', $item->id)->sole()->valor_imposto_seletivo)->toBeNull()
+        ->and($simulacoes[2027]->total_imposto_seletivo)->toBe('15.00')
+        ->and($simulacoes[2027]->itens()->where('origem_id', $item->id)->sole()->total_tributos)->toBe('29.68');
+
+    Http::assertSent(fn (Request $r): bool => str_ends_with($r->url(), '/regime-geral') && str_starts_with($r['dhFatoGerador'], '2027')
+        && $r['itens'][0]['impostoSeletivo']['baseCalculo'] === '150.00'
+        && $r['itens'][0]['aliquotasNominais']['impostoSeletivo']['adValorem'] === '10.0000');
+    Http::assertNotSent(fn (Request $r): bool => str_ends_with($r->url(), '/regime-geral')
+        && str_starts_with($r['dhFatoGerador'], '2026') && isset($r['itens'][0]['impostoSeletivo']));
+
+    $this->get(route('simulacoes.linha-do-tempo.show', [$origem, 'item' => $item->id]))
+        ->assertSuccessful()
+        ->assertSeeInOrder(['2027', 'R$ 14,52', 'R$ 0,16', 'R$ 15,00', 'R$ 29,68']);
 });

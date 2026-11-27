@@ -104,8 +104,9 @@ final readonly class IniciarLinhaDoTempo
                 'cst'          => $item->cst,
                 'c_class_trib' => $item->c_class_trib,
                 'base_calculo' => $item->base_calculo,
-                'created_at'   => $agora,
-                'updated_at'   => $agora,
+                ...$item->only(SimulacaoItem::CAMPOS_IMPOSTO_SELETIVO),
+                'created_at' => $agora,
+                'updated_at' => $agora,
             ])->all());
         });
 
