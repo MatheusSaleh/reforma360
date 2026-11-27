@@ -65,6 +65,21 @@ class SimularItemRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, array{description: string, example: mixed}>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'ncm'          => ['description' => 'NCM da mercadoria (8 dígitos). Informe NCM ou NBS.', 'example' => null],
+            'nbs'          => ['description' => 'NBS do serviço (9 dígitos). Informe NCM ou NBS.', 'example' => '122011200'],
+            'cst'          => ['description' => 'CST do IBS/CBS (3 dígitos).', 'example' => '200'],
+            'c_class_trib' => ['description' => 'Código de classificação tributária (6 dígitos).', 'example' => '200028'],
+            'valor'        => ['description' => 'Valor da operação em reais, texto decimal com até 2 casas.', 'example' => '1200.00'],
+            ...$this->documentacaoDosParametros(),
+        ];
+    }
+
     public function dados(): DadosSimulacaoItem
     {
         $parametros = $this->parametros();

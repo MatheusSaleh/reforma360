@@ -1,0 +1,46 @@
+{
+    "data": {
+        "calculo_simulado": true,
+        "data_fato_gerador": "2027-03-10",
+        "cst": "200",
+        "c_class_trib": "200028",
+        "base_calculo": "1200.00",
+        "cbs": {
+            "aliquota": "8.80",
+            "percentual_reducao": "60.00",
+            "aliquota_efetiva": "3.52",
+            "valor": "42.24"
+        },
+        "ibs_estadual": {
+            "aliquota": "0.05",
+            "percentual_reducao": "60.00",
+            "aliquota_efetiva": "0.02",
+            "valor": "0.24"
+        },
+        "ibs_municipal": {
+            "aliquota": "0.05",
+            "percentual_reducao": "60.00",
+            "aliquota_efetiva": "0.02",
+            "valor": "0.24"
+        },
+        "valor_ibs": "0.48",
+        "imposto_seletivo": null,
+        "total_tributos": "42.72",
+        "classificacao": {
+            "codigo": "200028",
+            "descricao": "Fornecimento dos serviços de educação (Anexo II)",
+            "tratamento": "Alíquota reduzida em 60%"
+        },
+        "fundamentacao_legal": {
+            "referencia": "Art. 129",
+            "texto": "Art. 129. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados no Anexo II desta Lei Complementar, [...]"
+        },
+        "memoria_calculo": {
+            "cbs": "Operação de consumo com enquadramento legal em Art. 129, tributada conforme Alíquota reduzida em 60%. A base de cálculo utilizada é de R$ 1.200,00, com alíquota de 8,80%, sendo que esse regime define uma redução de 60,00% na alíquota.",
+            "ibs_estadual": "[...]",
+            "ibs_municipal": "[...]"
+        },
+        "versao_base_dados": "V0073",
+        "aviso": "Simulação feita com a calculadora oficial da Receita Federal. Não substitui a orientação de um contador."
+    }
+}

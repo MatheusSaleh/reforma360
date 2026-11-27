@@ -37,6 +37,21 @@ class ProdutoRequest extends FormRequest
     }
 
     /**
+     * @return array<string, array{description: string, example: mixed}>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'descricao'    => ['description' => 'Descrição do produto ou serviço.', 'example' => 'Mensalidade escolar'],
+            'ncm'          => ['description' => 'NCM da mercadoria (8 dígitos). Informe NCM ou NBS.', 'example' => null],
+            'nbs'          => ['description' => 'NBS do serviço (9 dígitos). Informe NCM ou NBS.', 'example' => '122011200'],
+            'cst'          => ['description' => 'CST do IBS/CBS (3 dígitos).', 'example' => '200'],
+            'c_class_trib' => ['description' => 'Código de classificação tributária (6 dígitos).', 'example' => '200028'],
+            'preco'        => ['description' => 'Preço em reais, texto decimal com até 2 casas.', 'example' => '1200.00'],
+        ];
+    }
+
+    /**
      * @return array{descricao: string, ncm: string|null, nbs: string|null, cst: string, c_class_trib: string, preco: string}
      */
     public function dadosDoProduto(): array

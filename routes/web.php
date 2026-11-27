@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Catalogo\ProdutoController;
+use App\Http\Controllers\Conta\TokenDeApiController;
 use App\Http\Controllers\DadosAbertos\BuscarNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\DetalheNomenclaturaController;
 use App\Http\Controllers\DadosAbertos\MunicipiosController;
@@ -62,6 +63,12 @@ Route::middleware('auth')->group(function (): void {
         ->name('importacoes.danfse');
 
     Route::get('importacoes/modelo/{formato}', ModeloPlanilhaController::class)->name('importacoes.modelo');
+    Route::resource('conta/tokens', TokenDeApiController::class)
+        ->only(['index', 'store', 'destroy'])
+        ->names('conta.tokens')
+        ->parameters(['tokens' => 'token'])
+        ->whereNumber('token');
+
     Route::resource('importacoes', ImportacaoController::class)
         ->only(['index', 'create', 'store', 'show'])
         ->parameters(['importacoes' => 'importacao']);

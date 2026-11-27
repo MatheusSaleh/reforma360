@@ -16,5 +16,7 @@
     "of": "de",
     "results": "resultados",
     "Pagination Navigation": "Navegação entre páginas",
-    "Go to page :page": "Ir para a página :page"
+    "Go to page :page": "Ir para a página :page",
+    "(and :count more error)": "(e mais :count erro)",
+    "(and :count more errors)": "(e mais :count erros)"
 }

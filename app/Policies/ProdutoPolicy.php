@@ -26,6 +26,11 @@ class ProdutoPolicy
         return true;
     }
 
+    public function view(User $user, Produto $produto): Response
+    {
+        return $this->mesmaEmpresa($user, $produto->empresa_id);
+    }
+
     public function update(User $user, Produto $produto): Response
     {
         return $this->mesmaEmpresa($user, $produto->empresa_id);

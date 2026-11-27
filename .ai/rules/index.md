@@ -11,7 +11,7 @@ Antes de planejar ou editar, encontre as linhas cujos globs cobrem o caminho do 
 | app/Integrations/**, config/services.php | .ai/rules/integrations.md |
 | app/Importers/**, app/Jobs/Import*/** | .ai/rules/importers.md |
 | app/Jobs/**, app/Events/**, app/Listeners/**, config/horizon.php, config/reverb.php | .ai/rules/jobs.md |
-| routes/api.php, app/Http/Controllers/Api/**, app/Http/Resources/** | .ai/rules/api.md |
+| routes/api.php, app/Http/Controllers/Api/**, app/Http/Resources/**, config/api.php, config/scribe.php | .ai/rules/api.md |
 | app/Filament/**, app/Providers/Filament/** | .ai/rules/filament.md |
 | app/Models/**, app/Policies/**, app/Http/Controllers/**, app/Actions/Fortify/** | .ai/rules/tenancy.md |
 | resources/views/relatorios/**, app/Services/Simulacao/RelatorioSimulacaoService.php | .ai/rules/relatorios.md |

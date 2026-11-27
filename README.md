@@ -22,7 +22,7 @@ O Reforma360 permite cadastrar ou importar produtos e serviços, simular a incid
 - Comparador Simples × regime regular de IBS/CBS
 - Relatório em PDF
 - Painel admin com Filament
-- API pública com Sanctum
+- API pública com Sanctum e documentação com Scribe
 - Testes com Pest e CI no GitHub Actions
 
 ## Arquitetura
@@ -141,6 +141,21 @@ Painel Filament em [`/admin`](http://localhost/admin) para administradores da pl
 ./vendor/bin/sail artisan reforma360:tornar-admin email@exemplo.com          # promove
 ./vendor/bin/sail artisan reforma360:tornar-admin email@exemplo.com --remover
 ```
+
+### API pública
+
+API REST em `/api/v1` para integrar ERPs e outros sistemas: simular um item na hora, gerenciar o catálogo e simular o catálogo inteiro em lote. Documentação em [`/docs`](http://localhost/docs) (com Postman e OpenAPI).
+
+1. No app, abra **API** (`/conta/tokens`), dê um nome ao token e escolha as permissões (`produtos:ler`, `produtos:escrever`, `simulacoes`). O token aparece uma única vez.
+2. Envie no cabeçalho `Authorization: Bearer <token>`:
+
+```bash
+curl -X POST http://localhost/api/v1/simulacoes/item \
+  -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" -H "Content-Type: application/json" \
+  -d '{"nbs":"122011200","cst":"200","c_class_trib":"200028","valor":"1200.00","uf":"RS","municipio":"4314902","data":"2027-03-10","aliquota_cbs":"8.8","aliquota_ibs_estadual":"0.05","aliquota_ibs_municipal":"0.05"}'
+```
+
+Limites por token em `API_LIMITE_POR_MINUTO` (padrão 60) e `API_LIMITE_SIMULACOES_POR_MINUTO` (padrão 20). Depois de mudar endpoints, regenere a documentação com `./vendor/bin/sail artisan scribe:generate`.
 
 ### 5. Testes e qualidade
 

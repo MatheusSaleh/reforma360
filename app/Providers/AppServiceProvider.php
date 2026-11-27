@@ -44,5 +44,11 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('simulacoes', fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip()));
         RateLimiter::for('dados-abertos', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
+
+        // API pública: limite por token (ou IP sem token). Simulações têm limite próprio, mais baixo.
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(config()->integer('api.limite_por_minuto'))
+            ->by('api:'.($request->user()?->currentAccessToken()?->getKey() ?? $request->ip())));
+        RateLimiter::for('api-simulacoes', fn (Request $request): Limit => Limit::perMinute(config()->integer('api.limite_simulacoes_por_minuto'))
+            ->by('api-simulacoes:'.($request->user()?->currentAccessToken()?->getKey() ?? $request->ip())));
     }
 }

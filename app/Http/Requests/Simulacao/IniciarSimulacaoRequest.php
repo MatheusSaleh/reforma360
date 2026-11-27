@@ -31,6 +31,17 @@ class IniciarSimulacaoRequest extends FormRequest
     }
 
     /**
+     * @return array<string, array{description: string, example: mixed}>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            ...$this->documentacaoDosParametros(),
+            'importacao_id' => ['description' => 'Simula só os itens desta nota importada. Sem ele, simula o catálogo inteiro.', 'example' => null],
+        ];
+    }
+
+    /**
      * Nota importada a simular (só os itens dela). A autorização fica no controller.
      */
     public function importacao(): ?Importacao

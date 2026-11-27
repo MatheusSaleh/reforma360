@@ -1,0 +1,263 @@
+name: 'Simulação de item'
+description: 'Simula CBS e IBS de um produto (NCM) ou serviço (NBS) na hora. Permissão: `simulacoes`.'
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/simulacoes/item
+    metadata:
+      custom: []
+      groupName: 'Simulação de item'
+      groupDescription: 'Simula CBS e IBS de um produto (NCM) ou serviço (NBS) na hora. Permissão: `simulacoes`.'
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Simular um item'
+      description: |-
+        Calcula CBS, IBS estadual e IBS municipal de um item com a calculadora oficial da Receita Federal e devolve o resultado na resposta.
+
+        Informe **NCM** (mercadoria) **ou** **NBS** (serviço). De 2027 em diante, as três alíquotas nominais são obrigatórias e o resultado vem com `calculo_simulado: true`.
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {SEU_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      ncm:
+        custom: []
+        name: ncm
+        description: 'NCM da mercadoria (8 dígitos). Informe NCM ou NBS. This field is required when <code>nbs</code> is not present. :Attribute deve ter 8 dígitos.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      nbs:
+        custom: []
+        name: nbs
+        description: 'NBS do serviço (9 dígitos). Informe NCM ou NBS. This field is required when <code>ncm</code> is not present. :Attribute deve ter 9 dígitos.'
+        required: false
+        example: '122011200'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      cst:
+        custom: []
+        name: cst
+        description: 'CST do IBS/CBS (3 dígitos). :Attribute deve ter 3 dígitos.'
+        required: true
+        example: '200'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      c_class_trib:
+        custom: []
+        name: c_class_trib
+        description: 'Código de classificação tributária (6 dígitos). :Attribute deve ter 6 dígitos.'
+        required: true
+        example: '200028'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      valor:
+        custom: []
+        name: valor
+        description: 'Valor da operação em reais, texto decimal com até 2 casas. :Attribute deve ser no máximo 9999999999999.99.'
+        required: true
+        example: 1200.0
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      uf:
+        custom: []
+        name: uf
+        description: 'UF da operação (sigla).'
+        required: true
+        example: RS
+        type: string
+        enumValues:
+          - RO
+          - AC
+          - AM
+          - RR
+          - PA
+          - AP
+          - TO
+          - MA
+          - PI
+          - CE
+          - RN
+          - PB
+          - PE
+          - AL
+          - SE
+          - BA
+          - MG
+          - ES
+          - RJ
+          - SP
+          - PR
+          - SC
+          - RS
+          - MS
+          - MT
+          - GO
+          - DF
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      municipio:
+        custom: []
+        name: municipio
+        description: 'Código IBGE do município (7 dígitos), da UF informada. :Attribute deve ter 7 dígitos.'
+        required: true
+        example: '4314902'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      data:
+        custom: []
+        name: data
+        description: 'Data do fato gerador (AAAA-MM-DD), entre 2026 e 2033. Must be a valid date in the format <code>Y-m-d</code>. :Attribute deve ser uma data igual ou posterior a <code>2026-01-01</code>. :Attribute deve ser uma data igual ou anterior a <code>2033-12-31</code>.'
+        required: true
+        example: '2027-03-10'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      aliquota_cbs:
+        custom: []
+        name: aliquota_cbs
+        description: 'Alíquota nominal da CBS em %, texto decimal. Obrigatória de 2027 em diante e proibida em 2026. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 8.8
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      aliquota_ibs_estadual:
+        custom: []
+        name: aliquota_ibs_estadual
+        description: 'Alíquota nominal do IBS estadual em %. Obrigatória de 2027 em diante. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 0.05
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      aliquota_ibs_municipal:
+        custom: []
+        name: aliquota_ibs_municipal
+        description: 'Alíquota nominal do IBS municipal em %. Obrigatória de 2027 em diante. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 0.05
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      nbs: '122011200'
+      cst: '200'
+      c_class_trib: '200028'
+      valor: 1200.0
+      uf: RS
+      municipio: '4314902'
+      data: '2027-03-10'
+      aliquota_cbs: 8.8
+      aliquota_ibs_estadual: 0.05
+      aliquota_ibs_municipal: 0.05
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |
+          {
+              "data": {
+                  "calculo_simulado": true,
+                  "data_fato_gerador": "2027-03-10",
+                  "cst": "200",
+                  "c_class_trib": "200028",
+                  "base_calculo": "1200.00",
+                  "cbs": {
+                      "aliquota": "8.80",
+                      "percentual_reducao": "60.00",
+                      "aliquota_efetiva": "3.52",
+                      "valor": "42.24"
+                  },
+                  "ibs_estadual": {
+                      "aliquota": "0.05",
+                      "percentual_reducao": "60.00",
+                      "aliquota_efetiva": "0.02",
+                      "valor": "0.24"
+                  },
+                  "ibs_municipal": {
+                      "aliquota": "0.05",
+                      "percentual_reducao": "60.00",
+                      "aliquota_efetiva": "0.02",
+                      "valor": "0.24"
+                  },
+                  "valor_ibs": "0.48",
+                  "imposto_seletivo": null,
+                  "total_tributos": "42.72",
+                  "classificacao": {
+                      "codigo": "200028",
+                      "descricao": "Fornecimento dos serviços de educação (Anexo II)",
+                      "tratamento": "Alíquota reduzida em 60%"
+                  },
+                  "fundamentacao_legal": {
+                      "referencia": "Art. 129",
+                      "texto": "Art. 129. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS e da CBS incidentes sobre o fornecimento dos serviços de educação relacionados no Anexo II desta Lei Complementar, [...]"
+                  },
+                  "memoria_calculo": {
+                      "cbs": "Operação de consumo com enquadramento legal em Art. 129, tributada conforme Alíquota reduzida em 60%. A base de cálculo utilizada é de R$ 1.200,00, com alíquota de 8,80%, sendo que esse regime define uma redução de 60,00% na alíquota.",
+                      "ibs_estadual": "[...]",
+                      "ibs_municipal": "[...]"
+                  },
+                  "versao_base_dados": "V0073",
+                  "aviso": "Simulação feita com a calculadora oficial da Receita Federal. Não substitui a orientação de um contador."
+              }
+          }
+        headers: []
+        description: 'Item simulado'
+      -
+        custom: []
+        status: 422
+        content: '{"message":"Informe o NCM (mercadoria) ou o NBS (servi\u00e7o).","errors":{"ncm":["Informe o NCM (mercadoria) ou o NBS (servi\u00e7o)."]}}'
+        headers: []
+        description: 'Dados inválidos'
+      -
+        custom: []
+        status: 503
+        content: '{"message":"A calculadora da Receita est\u00e1 indispon\u00edvel no momento. Tente novamente em instantes."}'
+        headers: []
+        description: 'Calculadora indisponível'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
