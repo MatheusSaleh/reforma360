@@ -10,18 +10,23 @@
 
 Simulador da Reforma Tributária do Consumo (CBS/IBS — LC 214/2025) para pequenas empresas e contadores, construído em **Laravel** sobre a [Calculadora de Tributos open source da Receita Federal](https://github.com/ReceitaFederal).
 
-> ⚠️ Projeto em fase inicial (planejamento). As tarefas estão nas [issues](../../issues).
 > Os resultados são **simulações** e não substituem a orientação de um contador.
 
 ## Visão geral
 
-O Reforma360 permite cadastrar ou importar produtos e serviços, simular a incidência de CBS e IBS por item, visualizar a transição 2026→2033 e comparar o Simples Nacional com a opção pelo regime regular de IBS/CBS.
+O Reforma360 permite cadastrar ou importar produtos e serviços, simular CBS, IBS e, quando aplicável, o Imposto Seletivo, visualizar a transição de 2026 a 2033 e comparar o Simples Nacional com a opção pelo regime regular de IBS/CBS.
+
+### Demonstração
+
+O GIF mostra a simulação de um serviço de educação, do preenchimento do formulário ao detalhamento de CBS e IBS. A gravação usa dados fictícios e uma resposta de exemplo da calculadora.
+
+![Simulação de um serviço de educação no Reforma360, com preenchimento do formulário e detalhamento de CBS e IBS](docs/assets/demonstracao.gif)
 
 ### Entrada de dados
 
-1. **Cadastro manual** de produtos/serviços (descrição, NCM/NBS, preço), com autocomplete de NCM via `/dados-abertos` da calculadora.
+1. **Cadastro manual** de produtos e serviços com descrição, preço e busca por NCM ou NBS nos dados abertos da calculadora.
 2. **Importação de planilha CSV/XLSX**, com validação linha a linha.
-3. **Upload de XML de NF-e/NFS-e**: extrai os itens, simula IBS/CBS, valida o grupo contra o XSD da Receita e gera o DANFSe em PDF.
+3. **Importação de XML de NF-e, NFC-e e NFS-e** para extrair os itens do documento. Para NF-e e NFC-e, o app gera o XML do grupo IBS/CBS a partir da simulação e o valida contra o XSD da Receita. O DANFSe em PDF é gerado a partir da NFS-e original.
 
 ### Funcionalidades
 
@@ -35,15 +40,47 @@ O Reforma360 permite cadastrar ou importar produtos e serviços, simular a incid
 
 ## Arquitetura
 
-```
-Laravel (app + API + Horizon + Reverb)
-   ├── MySQL / Redis
-   ├── calculadora-regime-regular   (Java/Spring Boot, container interno)
-   ├── calculadora-simples-nacional (Java/Spring Boot, container interno)
-   └── danfse                       (Go, container interno)
+```mermaid
+flowchart LR
+    Browser["Navegador"]
+    ERP["ERP / cliente da API"]
+
+    subgraph Reforma360
+        App["Laravel · Blade, Filament e API REST"]
+        Worker["Horizon · jobs Laravel"]
+        Reverb["Reverb · progresso em canal privado"]
+        Redis[("Redis · filas e cache")]
+        MySQL[("MySQL · catálogo, simulações e lotes")]
+    end
+
+    subgraph Internos ["Serviços internos da Receita Federal"]
+        direction TB
+        Regular["Calculadora do regime regular"]
+        Simples["Calculadora do Simples Nacional"]
+        DANFSe["Gerador de DANFSe"]
+    end
+
+    Browser -->|"HTTP(S)"| App
+    ERP -->|"HTTP(S) + token Sanctum"| App
+    App -->|despacha jobs| Redis
+    Redis -->|entrega jobs| Worker
+    App --> MySQL
+    Worker --> MySQL
+    Worker -->|publica progresso| Reverb
+    Reverb -->|WebSocket| Browser
+    App -->|"HTTP · cálculo, dados abertos e XML"| Regular
+    App -->|"HTTP · cálculo do Simples"| Simples
+    App -->|"HTTP · PDF da NFS-e"| DANFSe
+    Worker -.->|requer acesso HTTP para cálculo e importação| Regular
 ```
 
-As calculadoras da Receita rodam **sem modificações**, como serviços internos sem acesso público. Toda a lógica de produto fica no Laravel. Os importadores seguem o Strategy pattern (`CsvImporter`, `XlsxImporter`, `NfeXmlImporter` atrás da interface `CatalogImporter`).
+O Laravel concentra o catálogo, a orquestração dos cálculos e a apresentação dos resultados. As integrações HTTP ficam em `App\Integrations\Calculadora`. Os serviços da Receita rodam com o código upstream, sem portas publicadas no host.
+
+### Decisões de arquitetura
+
+- [ADR 0001 — Processar simulações em filas com lotes do Laravel](docs/adr/0001-simulacoes-em-lote.md)
+- [ADR 0002 — Consumir as calculadoras da Receita como serviços internos sem fork](docs/adr/0002-calculadoras-sem-fork.md)
+- [ADR 0003 — Usar Strategy para os importadores de catálogo](docs/adr/0003-importadores-strategy.md)
 
 | Serviço | Repositório upstream | Stack |
 |---|---|---|
@@ -80,19 +117,19 @@ O `compose.yaml` sobe, junto com o Laravel:
 | Serviço | O que faz | Healthcheck |
 |---|---|---|
 | `calculadora-db` | Execução única: gera/atualiza o SQLite com `flyway:migrate` (scripts do regime regular) no volume `calculadora-db` | termina com código 0 |
-| `calculadora-regular` | API do regime regular (Java 25) | `GET /api/versao/status` |
-| `calculadora-simples` | API do Simples Nacional (Java 25) | `GET /api/versao/status` |
+| `calculadora-regular` | API do regime regular (Java 25) | `GET /api/calculadora/dados-abertos/versao` |
+| `calculadora-simples` | API do Simples Nacional (Java 25) | `GET /api/versao` |
 | `danfse` | Gerador de DANFSe (Go) | `GET /health/ready` |
 
-- As duas APIs Java usam o **mesmo banco**, montado como somente leitura. O Simples não traz scripts Flyway próprios; o README dele manda usar os do regime regular.
-- As calculadoras ficam na rede interna `calculadoras` (`internal: true`), **sem porta publicada no host** e sem saída para a internet. Só o container do Laravel participa dessa rede.
+- As duas APIs Java usam o **mesmo banco**, montado como somente leitura. A documentação do Simples orienta usar os scripts Flyway do regime regular.
+- As calculadoras ficam na rede interna `calculadoras` (`internal: true`), **sem porta publicada no host**. No Compose versionado, `laravel.test` participa dessa rede. Para processar jobs que consultam a calculadora, o serviço `horizon` também precisa participar das redes `sail` e `calculadoras`.
 - A imagem das APIs Java é construída por [`docker/calculadora-java/Dockerfile`](docker/calculadora-java/Dockerfile) a partir do código upstream; o DANFSe usa o Dockerfile do próprio repositório.
 
 O primeiro `sail up` demora (build Maven/Go e geração do banco). Para conferir de dentro da rede:
 
 ```bash
 ./vendor/bin/sail ps
-./vendor/bin/sail exec laravel.test curl -s http://calculadora-regular:8080/api/versao/status
+./vendor/bin/sail exec -u sail laravel.test curl -fsS http://calculadora-regular:8080/api/calculadora/dados-abertos/versao
 ```
 
 Depois de atualizar o upstream (`./scripts/calculadoras-clone.sh`), reconstrua as imagens e rode as migrações do banco:
