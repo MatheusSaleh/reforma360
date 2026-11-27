@@ -10,7 +10,7 @@ Reforma360 é um simulador da Reforma Tributária do Consumo (CBS/IBS — LC 214
 - Ambiente local: Laravel Sail (`compose.yaml`) — PHP 8.5, MySQL 8.4, Redis. Testes em SQLite `:memory:` (`phpunit.xml`)
 - MySQL · Redis · Fortify (login, registro, redefinição de senha) · Blade + Tailwind 4 · Laravel Excel (importação CSV/XLSX) · XML de NF-e/NFC-e/NFS-e (DOM nativo) · laravel-dompdf (relatório em PDF)
 - Filas Redis com **Horizon** (serviço `horizon` do compose; filas `simulacoes`, `importacoes`, `default`) e tempo real com **Reverb** (serviço `reverb`, canais privados em `routes/channels.php`)
-- Previstos: Sanctum (API pública) · Filament (painel admin)
+- Filament 5 (painel admin em `/admin`, só `is_admin`) · Previsto: Sanctum (API pública)
 - Traduções em `lang/pt_BR/` (parcial: chave ausente cai no inglês); locale padrão `pt_BR`
 - Serviços internos (Docker, **sem modificações**, sem acesso público):
   - `calculadora-regime-regular` (Java/Spring Boot)

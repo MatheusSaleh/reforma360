@@ -265,15 +265,4 @@ return [
         '.env',
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Acesso ao painel fora do ambiente local
-    |--------------------------------------------------------------------------
-    |
-    | E-mails (separados por vírgula) que podem abrir /horizon em produção.
-    |
-    */
-
-    'admins' => array_filter(array_map('trim', explode(',', (string) env('HORIZON_ADMINS', '')))),
-
 ];
