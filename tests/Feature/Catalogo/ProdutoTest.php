@@ -173,6 +173,6 @@ test('o formulário usa o autocomplete de NCM/NBS e as sugestões de classifica�
         ->assertSee(route('dados-abertos.nomenclaturas.busca', 'ncm'), escape: false)
         ->assertSee(route('dados-abertos.nomenclaturas.busca', 'nbs'), escape: false)
         ->assertSee('role="combobox"', escape: false)
-        ->assertSee('list="opcoes-c-class-trib"', escape: false)
+        ->assertSee('id="c_class_trib-opcoes" class="lista-opcoes" role="listbox"', escape: false)
         ->assertSee(route('dados-abertos.situacoes-tributarias'), escape: false);
 });

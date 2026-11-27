@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Services\Simulacao\ImpostoSeletivoDoItem;
+use Dom\HTMLDocument;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
@@ -57,10 +58,59 @@ test('exibe o formulário com as alíquotas sugeridas', function (): void {
     $this->get(route('simulacoes.item.create'))
         ->assertSuccessful()
         ->assertSee('Simular um item')
-        ->assertSee('name="aliquota_cbs" value="8.8"', escape: false)
+        ->assertSee('data-moeda', escape: false)
+        ->assertSee('Digite 1000 para R$ 10,00.')
+        ->assertSee('name="aliquota_cbs"', escape: false)
+        ->assertSee('value="8.8"', escape: false)
         ->assertSee('estimativas editáveis');
 
     Http::assertNothingSent();
+});
+
+test('todos os campos do simulador apontam para uma dica explicativa', function (): void {
+    $resposta = $this->get(route('simulacoes.item.create'))->assertSuccessful();
+    $html = HTMLDocument::createFromString((string) $resposta->getContent(), LIBXML_NOERROR);
+    $campos = $html->querySelectorAll('form[method="GET"] :is(input, select)');
+
+    expect($campos->length)->toBe(19);
+
+    foreach ($campos as $campo) {
+        $descricoes = explode(' ', $campo->getAttribute('aria-describedby') ?? '');
+        $dicas = array_filter($descricoes, fn (string $id): bool => $html->getElementById($id)?->getAttribute('role') === 'tooltip');
+
+        expect($dicas)->toHaveCount(1);
+        expect(mb_trim($html->getElementById(reset($dicas))?->textContent ?? ''))->not->toBeEmpty();
+    }
+
+    Http::assertNothingSent();
+});
+
+test('renderiza os campos de classificação com opções próprias e preserva os códigos informados', function (): void {
+    $this->withSession(['_old_input' => ['cst' => '000', 'c_class_trib' => '000001']])
+        ->get(route('simulacoes.item.create'))
+        ->assertSuccessful()
+        ->assertSee('name="cst" value="000"', escape: false)
+        ->assertSee('name="c_class_trib" value="000001"', escape: false)
+        ->assertSee('inputmode="numeric" data-digitos="3"', escape: false)
+        ->assertSee('inputmode="numeric" data-digitos="6"', escape: false)
+        ->assertSee('id="cst-opcoes" class="lista-opcoes" role="listbox"', escape: false)
+        ->assertSee('id="c_class_trib-opcoes" class="lista-opcoes" role="listbox"', escape: false)
+        ->assertSee('data-explicacoes-cst=', escape: false)
+        ->assertSee('"000":"Aplica as al', escape: false)
+        ->assertSee('"830":"Exclui valores', escape: false)
+        ->assertDontSee('<datalist', escape: false);
+
+    Http::assertNothingSent();
+});
+
+test('exibe a busca de UF e município com os estados ordenados pelo nome', function (): void {
+    $this->withSession(['_old_input' => ['uf' => 'SP', 'municipio' => '3550308']])
+        ->get(route('simulacoes.item.create'))
+        ->assertSuccessful()
+        ->assertSee('aria-controls="campo-uf-opcoes"', escape: false)
+        ->assertSee('aria-controls="campo-municipio-opcoes"', escape: false)
+        ->assertSee('data-selecionado="3550308"', escape: false)
+        ->assertSeeInOrder(['Acre · AC', 'Alagoas · AL', 'Amapá · AP', 'Amazonas · AM', 'Bahia · BA', 'Pará · PA', 'Paraíba · PB', 'Paraná · PR', 'São Paulo · SP', 'Sergipe · SE', 'Tocantins · TO']);
 });
 
 test('simula o item e mostra alíquotas, redução, memória de cálculo e fundamentação', function (): void {

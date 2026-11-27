@@ -7,3 +7,145 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer components {
+    .campo-com-tooltip {
+        @apply relative;
+    }
+
+    .tooltip-campo {
+        @apply invisible absolute start-0 bottom-full z-40 mb-2 w-full max-w-xs rounded-lg bg-slate-900 px-3 py-2 text-xs leading-relaxed text-white shadow-lg;
+    }
+
+    .tooltip-campo::after {
+        @apply absolute inset-x-0 top-full h-2;
+        content: '';
+    }
+
+    .campo-com-tooltip:not([data-tooltip-dispensado], :has(> [aria-expanded='true'])) {
+        &:has(> :focus-visible) > .tooltip-campo {
+            @apply visible;
+        }
+
+        @media (hover: hover) {
+            &:hover > .tooltip-campo {
+                @apply visible;
+                transition: visibility 0s 220ms;
+            }
+        }
+    }
+
+    .campo-dropdown {
+        @apply w-full min-w-0 max-w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs;
+        @apply transition-colors hover:border-slate-400 focus:border-emerald-500 focus:outline-2 focus:outline-emerald-600 focus:outline-offset-1;
+    }
+
+    .campo-dropdown[aria-invalid='true']:not(:focus) {
+        @apply border-red-400;
+    }
+
+    .campo-dropdown:disabled {
+        @apply cursor-not-allowed bg-slate-50 text-slate-600 hover:border-slate-300;
+    }
+
+    select.campo-dropdown {
+        @apply cursor-pointer;
+        color-scheme: light;
+    }
+
+    .campo-dropdown-controle {
+        @apply relative min-w-0;
+    }
+
+    .campo-dropdown-controle:has(.campo-dropdown-abrir:not([hidden])) .campo-dropdown {
+        @apply pr-12;
+    }
+
+    .campo-dropdown-abrir {
+        @apply absolute inset-y-1 end-1 w-9 cursor-pointer rounded-md border-s border-slate-200 text-slate-600;
+        @apply hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-800;
+    }
+
+    .campo-dropdown-abrir::after {
+        @apply absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-2/3 rotate-45 border-e-2 border-b-2;
+        content: '';
+    }
+
+    .campo-dropdown-abrir:disabled {
+        @apply cursor-not-allowed border-slate-200 bg-transparent text-slate-400;
+    }
+
+    .campo-dropdown[aria-expanded='true'] + .campo-dropdown-abrir {
+        @apply bg-emerald-50 text-emerald-800;
+    }
+
+    .campo-dropdown[aria-expanded='true'] + .campo-dropdown-abrir::after {
+        @apply -translate-y-1/3 rotate-225;
+    }
+
+    .lista-opcoes {
+        @apply absolute inset-x-0 top-full z-30 mt-2 max-h-64 overflow-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1.5 text-sm shadow-lg shadow-slate-900/10;
+    }
+
+    .lista-opcoes [data-indice] {
+        @apply flex min-h-10 cursor-pointer items-start gap-3 rounded-lg px-2.5 py-2 text-slate-700 wrap-anywhere;
+    }
+
+    .lista-opcoes [data-indice]:hover,
+    .lista-opcoes [aria-selected='true'] {
+        @apply bg-emerald-50 text-emerald-950;
+    }
+
+    .lista-opcoes [aria-selected='true'] {
+        @apply ring-1 ring-emerald-600 ring-inset;
+    }
+
+    .lista-opcoes-codigo {
+        @apply shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-semibold text-slate-700;
+    }
+
+    .lista-opcoes-explicacao {
+        @apply mt-0.5 block text-xs leading-relaxed text-slate-600;
+    }
+
+    .lista-opcoes [data-indice]:is(:hover, [aria-selected='true']) .lista-opcoes-codigo {
+        @apply bg-emerald-100 text-emerald-900;
+    }
+
+    .lista-opcoes-mensagem {
+        @apply px-2.5 py-2 text-slate-600;
+    }
+
+    @supports (appearance: base-select) {
+        select.campo-dropdown,
+        select.campo-dropdown::picker(select) {
+            appearance: base-select;
+        }
+
+        select.campo-dropdown::picker(select) {
+            @apply mt-2 max-h-64 overflow-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1.5 text-sm text-slate-700 shadow-lg shadow-slate-900/10;
+            inline-size: anchor-size(width);
+            max-inline-size: calc(100vw - 2rem);
+        }
+
+        select.campo-dropdown::picker-icon {
+            @apply ms-2 text-slate-600;
+        }
+
+        select.campo-dropdown:open::picker-icon {
+            @apply rotate-180 text-emerald-800;
+        }
+
+        select.campo-dropdown option {
+            @apply min-h-10 cursor-pointer rounded-lg px-2.5 py-2 whitespace-normal wrap-anywhere;
+        }
+
+        select.campo-dropdown option:checked {
+            @apply bg-emerald-50 font-semibold text-emerald-900;
+        }
+
+        select.campo-dropdown option:is(:hover, :focus-visible) {
+            @apply bg-emerald-100 text-emerald-950;
+        }
+    }
+}

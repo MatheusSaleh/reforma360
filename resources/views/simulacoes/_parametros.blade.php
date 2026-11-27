@@ -2,36 +2,29 @@
     $valor = fn (string $campo, ?string $padrao = null) => old($campo, request()->query($campo, $padrao));
     $sugeridas = config('simulacao.aliquotas_nominais_sugeridas');
     $anoAliquotas = config('simulacao.ano_inicio_aliquotas_nominais');
-    $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500';
+    $estados = collect($ufs)->sortBy(fn (\App\Enums\Uf $uf) => \Illuminate\Support\Str::ascii($uf->label()));
 @endphp
 {{-- Parâmetros da operação (UF, município, data e alíquotas): simulador de um item e simulação em lote. --}}
     <fieldset class="grid gap-4 sm:grid-cols-3">
         <legend class="mb-2 text-sm font-semibold text-slate-900">Operação</legend>
 
-        <label class="block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">UF</span>
-            <select name="uf" class="{{ $input }}" data-uf>
-                <option value="">Selecione</option>
-                @foreach ($ufs as $uf)
-                    <option value="{{ $uf->value }}" @selected($valor('uf') === $uf->value)>{{ $uf->value }}</option>
-                @endforeach
-            </select>
-            @error('uf')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-        </label>
+        <x-seletor-pesquisavel id="campo-uf" rotulo="UF" name="uf" data-uf
+            tooltip="Unidade Federativa. Selecione o estado ou o Distrito Federal correspondente ao município da operação.">
+            <option value="">Selecione</option>
+            @foreach ($estados as $uf)
+                <option value="{{ $uf->value }}" @selected($valor('uf') === $uf->value)>{{ $uf->label() }} · {{ $uf->value }}</option>
+            @endforeach
+        </x-seletor-pesquisavel>
 
-        <label class="block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">Município</span>
-            <select name="municipio" class="{{ $input }}" data-municipio data-selecionado="{{ $valor('municipio') }}" data-url="{{ route('dados-abertos.municipios', ['uf' => '__UF__']) }}">
-                <option value="">Selecione a UF primeiro</option>
-            </select>
-            @error('municipio')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-        </label>
+        <x-seletor-pesquisavel id="campo-municipio" rotulo="Município" name="municipio" data-municipio
+            tooltip="Município associado ao local da operação na simulação. A lista mostra os municípios da UF selecionada."
+            :data-selecionado="$valor('municipio')" :data-url="route('dados-abertos.municipios', ['uf' => '__UF__'])">
+            <option value="">Selecione a UF primeiro</option>
+        </x-seletor-pesquisavel>
 
-        <label class="block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">Data do fato gerador</span>
-            <input type="date" name="data" value="{{ $valor('data', now()->toDateString()) }}" min="{{ config('simulacao.data_minima') }}" max="{{ config('simulacao.data_maxima') }}" class="{{ $input }}">
-            @error('data')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-        </label>
+        <x-campo nome="data" rotulo="Data do fato gerador" tipo="date" :valor="$valor('data', now()->toDateString())"
+            :min="config('simulacao.data_minima')" :max="config('simulacao.data_maxima')"
+            tooltip="Data em que ocorre o fato que dá origem ao tributo. Ela define as regras de transição usadas na simulação." />
     </fieldset>
 
     <fieldset class="grid gap-4 sm:grid-cols-3">
@@ -42,14 +35,10 @@
         </p>
 
         @foreach ([
-            ['aliquota_cbs', 'CBS', 'cbs'],
-            ['aliquota_ibs_estadual', 'IBS estadual', 'ibs_estadual'],
-            ['aliquota_ibs_municipal', 'IBS municipal', 'ibs_municipal'],
-        ] as [$campo, $rotulo, $chave])
-            <label class="block">
-                <span class="mb-1 block text-sm font-medium text-slate-700">{{ $rotulo }}</span>
-                <input type="text" inputmode="decimal" name="{{ $campo }}" value="{{ $valor($campo, $sugeridas[$chave]) }}" class="{{ $input }}">
-                @error($campo)<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-            </label>
+            ['aliquota_cbs', 'CBS', 'cbs', 'Percentual federal da Contribuição sobre Bens e Serviços, antes de eventuais reduções.'],
+            ['aliquota_ibs_estadual', 'IBS estadual', 'ibs_estadual', 'Percentual estadual do Imposto sobre Bens e Serviços, antes de eventuais reduções.'],
+            ['aliquota_ibs_municipal', 'IBS municipal', 'ibs_municipal', 'Percentual municipal do Imposto sobre Bens e Serviços, antes de eventuais reduções.'],
+        ] as [$campo, $rotulo, $chave, $tooltip])
+            <x-campo :nome="$campo" :rotulo="$rotulo" :valor="$valor($campo, $sugeridas[$chave])" :tooltip="$tooltip" inputmode="decimal" />
         @endforeach
     </fieldset>

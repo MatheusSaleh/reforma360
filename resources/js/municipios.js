@@ -9,6 +9,9 @@ export function iniciarSeletorDeMunicipio() {
         return;
     }
 
+    const ordem = new Intl.Collator('pt-BR');
+    let requisicao;
+
     const opcao = (valor, texto) => {
         const elemento = document.createElement('option');
         elemento.value = valor;
@@ -17,15 +20,21 @@ export function iniciarSeletorDeMunicipio() {
     };
 
     async function carregar() {
-        municipio.replaceChildren(opcao('', uf.value ? 'Carregando...' : 'Selecione a UF primeiro'));
+        requisicao?.abort();
+        const estado = uf.value;
+        municipio.replaceChildren(opcao('', estado ? 'Carregando...' : 'Selecione a UF primeiro'));
 
-        if (!uf.value) {
+        if (!estado) {
             return;
         }
 
+        requisicao = new AbortController();
+        const { signal } = requisicao;
+
         try {
-            const resposta = await fetch(municipio.dataset.url.replace('__UF__', uf.value), {
+            const resposta = await fetch(municipio.dataset.url.replace('__UF__', estado), {
                 headers: { Accept: 'application/json' },
+                signal,
             });
 
             if (!resposta.ok) {
@@ -33,10 +42,23 @@ export function iniciarSeletorDeMunicipio() {
             }
 
             const lista = await resposta.json();
-            municipio.replaceChildren(opcao('', 'Selecione'), ...lista.map((m) => opcao(m.codigo, m.nome)));
+            if (signal.aborted) {
+                return;
+            }
+
+            lista.sort((a, b) => ordem.compare(a.nome, b.nome));
+            municipio.replaceChildren(
+                opcao('', lista.length ? 'Selecione' : 'Nenhum município encontrado'),
+                ...lista.map((m) => opcao(m.codigo, m.nome)),
+            );
             municipio.value = municipio.dataset.selecionado || '';
+            if (municipio.selectedIndex === -1) {
+                municipio.selectedIndex = 0;
+            }
         } catch {
-            municipio.replaceChildren(opcao('', 'Não foi possível carregar os municípios'));
+            if (!signal.aborted) {
+                municipio.replaceChildren(opcao('', 'Não foi possível carregar os municípios'));
+            }
         }
     }
 

@@ -42,15 +42,14 @@
         </div>
 
         <form method="GET" action="{{ route('simulacoes.linha-do-tempo.show', $simulacao) }}" class="mt-6 flex flex-wrap items-end gap-2">
-            <label class="block">
-                <span class="mb-1 block text-sm font-medium text-slate-700">Ver</span>
-                <select name="item" class="w-72 max-w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm" onchange="this.form.submit()">
+            <div class="w-72 max-w-full">
+                <x-seletor-pesquisavel id="campo-item" rotulo="Ver" name="item" onchange="this.form.submit()">
                     <option value="">Total da simulação</option>
                     @foreach ($itens as $opcao)
                         <option value="{{ $opcao->id }}" @selected($item?->id === $opcao->id)>{{ $opcao->descricao }}</option>
                     @endforeach
-                </select>
-            </label>
+                </x-seletor-pesquisavel>
+            </div>
             <noscript><button type="submit" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm">Ver</button></noscript>
         </form>
 

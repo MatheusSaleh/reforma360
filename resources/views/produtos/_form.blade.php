@@ -6,7 +6,8 @@
     <x-campo-nomenclatura tipo="ncm" rotulo="NCM (mercadoria)" :valor="$produto->ncm" placeholder="Código ou descrição" ajuda="Preencha o NCM ou o NBS." />
     <x-campo-nomenclatura tipo="nbs" rotulo="NBS (serviço)" :valor="$produto->nbs" placeholder="Código ou descrição" />
     <x-campos-classificacao :cst="$produto->cst" :c-class-trib="$produto->c_class_trib" />
-    <x-campo nome="preco" rotulo="Preço (R$)" :valor="$produto->preco" inputmode="decimal" placeholder="1.200,00" required />
+    <x-campo nome="preco" rotulo="Preço (R$)" :valor="$produto->preco" inputmode="decimal" placeholder="1.200,00"
+        data-moeda required />
 </div>
 @php
     $camposIs = $produto->impostoSeletivo()?->campos() ?? [];

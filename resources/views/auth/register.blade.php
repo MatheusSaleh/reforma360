@@ -6,7 +6,7 @@
             <fieldset class="space-y-4">
                 <legend class="text-sm font-semibold text-slate-900">Empresa</legend>
                 <x-campo nome="razao_social" rotulo="Razão social" required autofocus />
-                <x-campo nome="cnpj" rotulo="CNPJ (opcional)" inputmode="numeric" placeholder="00.000.000/0000-00" />
+                <x-campo nome="cnpj" rotulo="CNPJ (opcional)" inputmode="numeric" data-digitos="14" placeholder="14 dígitos" />
             </fieldset>
             <fieldset class="space-y-4">
                 <legend class="text-sm font-semibold text-slate-900">Seus dados</legend>

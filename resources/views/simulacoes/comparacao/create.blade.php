@@ -21,18 +21,14 @@
         <div class="mt-6 grid gap-6 lg:grid-cols-3">
             <form method="POST" action="{{ route('simulacoes.comparacao.store', $simulacao) }}" class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2" novalidate>
                 @csrf
-                <label class="block">
-                    <span class="mb-1 block text-sm font-medium text-slate-700">Atividade no Simples Nacional</span>
-                    <select name="atividade" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                        <option value="">Selecione</option>
-                        @foreach ($atividades as $atividade)
-                            <option value="{{ $atividade->codigo }}" @selected(old('atividade', $atual?->atividade ?? '01') === $atividade->codigo)>
-                                {{ $atividade->codigo }} · {{ $atividade->descricao }} (Anexo {{ $atividade->anexo }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('atividade')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-                </label>
+                <x-seletor-pesquisavel id="campo-atividade" rotulo="Atividade no Simples Nacional" name="atividade">
+                    <option value="">Selecione</option>
+                    @foreach ($atividades as $atividade)
+                        <option value="{{ $atividade->codigo }}" @selected(old('atividade', $atual?->atividade ?? '01') === $atividade->codigo)>
+                            {{ $atividade->codigo }} · {{ $atividade->descricao }} (Anexo {{ $atividade->anexo }})
+                        </option>
+                    @endforeach
+                </x-seletor-pesquisavel>
 
                 <fieldset class="grid gap-4 sm:grid-cols-2">
                     <legend class="mb-1 text-sm font-semibold text-slate-900">Alíquotas efetivas no Simples (%)</legend>
@@ -44,7 +40,7 @@
                     <x-campo nome="aliquota_ibs_simples" rotulo="IBS no Simples" :valor="$atual?->aliquota_ibs_simples" inputmode="decimal" placeholder="Ex.: 0,50" />
                 </fieldset>
 
-                <x-campo nome="compras" rotulo="Compras com crédito no período (opcional, R$)" :valor="$atual?->compras" inputmode="decimal" placeholder="Ex.: 2.000,00"
+                <x-campo nome="compras" rotulo="Compras com crédito no período (opcional, R$)" :valor="$atual?->compras" inputmode="decimal" data-moeda placeholder="Ex.: 2.000,00"
                     ajuda="No regime regular, a empresa toma crédito do IBS e da CBS das compras. Informe o valor das compras do mesmo período para estimar esse crédito." />
 
                 <x-botao>{{ $atual ? 'Refazer a comparação' : 'Comparar' }}</x-botao>

@@ -4,7 +4,6 @@
     $valor = fn (string $campo, ?string $padrao = null) => old($campo, request()->query($campo, $padrao));
     $sugeridas = config('simulacao.aliquotas_nominais_sugeridas');
     $anoAliquotas = config('simulacao.ano_inicio_aliquotas_nominais');
-    $input = 'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500';
 @endphp
 
 <x-layouts.app titulo="Simular um item">
@@ -23,11 +22,9 @@
             <x-campo-nomenclatura tipo="nbs" rotulo="NBS (serviço)" :valor="$valor('nbs')" placeholder="Código ou descrição" />
             <x-campos-classificacao :cst="$valor('cst')" :c-class-trib="$valor('c_class_trib')" />
 
-            <label class="block">
-                <span class="mb-1 block text-sm font-medium text-slate-700">Valor (base de cálculo sem IS)</span>
-                <input type="text" inputmode="decimal" name="valor" value="{{ $valor('valor') }}" placeholder="1.200,00" class="{{ $input }}">
-                @error('valor')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
-            </label>
+            <x-campo nome="valor" rotulo="Valor (base de cálculo sem IS)" :valor="$valor('valor')"
+                inputmode="decimal" placeholder="1.200,00" data-moeda
+                tooltip="Valor em reais usado como base da simulação. Informe a base do item antes de acrescentar o Imposto Seletivo." />
         </fieldset>
 
         @include('simulacoes._parametros', ['ufs' => $ufs])

@@ -1,24 +1,59 @@
-/**
- * Sugestões de CST e cClassTrib (datalist) a partir dos dados abertos.
- * Sem JS, os campos continuam funcionando como texto.
- */
+import { criarListaOpcoes } from './lista-opcoes';
 
-function opcao(valor, rotulo) {
-    const elemento = document.createElement('option');
-    elemento.value = valor;
-    elemento.label = rotulo;
-    elemento.textContent = rotulo;
-    return elemento;
+function iniciarCampo(input, sugestoes) {
+    const controle = input.parentElement;
+    const botao = controle.querySelector('button');
+    const lista = controle.querySelector('[role="listbox"]');
+    const dropdown = criarListaOpcoes(input, lista, ({ codigo }) => {
+        input.value = codigo;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const mostrar = ({ reabrindo = false, direcao = 0 } = {}) => {
+        const termo = input.value.trim();
+        const opcoes = sugestoes();
+        const filtradas = opcoes.filter(({ codigo }) => codigo.startsWith(termo));
+        const codigoCompleto = filtradas.some(({ codigo }) => codigo === termo);
+        dropdown.mostrar(reabrindo && codigoCompleto ? opcoes : filtradas, direcao);
+    };
+
+    input.addEventListener('input', () => mostrar());
+    input.addEventListener('click', () => {
+        if (!dropdown.aberta()) {
+            mostrar({ reabrindo: true });
+        }
+    });
+
+    input.addEventListener('keydown', (evento) => {
+        if (!evento.defaultPrevented && !evento.isComposing && ['ArrowDown', 'ArrowUp'].includes(evento.key)) {
+            evento.preventDefault();
+            mostrar({ reabrindo: true, direcao: evento.key === 'ArrowDown' ? 1 : -1 });
+        }
+    });
+
+    botao.addEventListener('mousedown', (evento) => evento.preventDefault());
+    botao.addEventListener('click', () => {
+        input.focus();
+        if (dropdown.aberta()) {
+            dropdown.fechar();
+        } else {
+            dropdown.mostrar(sugestoes());
+        }
+    });
+
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+    input.setAttribute('aria-controls', lista.id);
+    botao.hidden = false;
 }
 
 async function iniciar(raiz) {
-    const cst = raiz.querySelector('[data-cst]');
-    const cClassTrib = raiz.querySelector('[data-c-class-trib]');
+    const cst = raiz.querySelector('[name="cst"]');
+    const cClassTrib = raiz.querySelector('[name="c_class_trib"]');
     const descricao = raiz.querySelector('[data-c-class-trib-descricao]');
-    const listaCst = document.getElementById(cst.getAttribute('list'));
-    const listaClassificacoes = document.getElementById(cClassTrib.getAttribute('list'));
 
-    let situacoes = [];
+    let situacoes;
 
     try {
         const resposta = await fetch(raiz.dataset.url, { headers: { Accept: 'application/json' } });
@@ -32,29 +67,24 @@ async function iniciar(raiz) {
         return;
     }
 
-    listaCst.replaceChildren(...situacoes.map((s) => opcao(s.codigo, `${s.codigo} · ${s.descricao}`)));
+    const explicacoes = JSON.parse(raiz.dataset.explicacoesCst);
+    const sugestoesCst = situacoes.map(({ codigo, descricao }) => ({ codigo, descricao, explicacao: explicacoes[codigo] }));
+    const classificacoes = situacoes.flatMap((situacao) => situacao.classificacoes);
 
-    function classificacoesDoCst() {
-        const escolhido = situacoes.find((s) => s.codigo === cst.value.trim());
-        return escolhido ? escolhido.classificacoes : situacoes.flatMap((s) => s.classificacoes);
-    }
-
-    function atualizarClassificacoes() {
-        listaClassificacoes.replaceChildren(
-            ...classificacoesDoCst().map((c) => opcao(c.codigo, `${c.codigo} · ${c.descricao}`)),
-        );
-        atualizarDescricao();
-    }
+    iniciarCampo(cst, () => sugestoesCst);
+    iniciarCampo(cClassTrib, () => {
+        const escolhido = situacoes.find((situacao) => situacao.codigo === cst.value.trim());
+        return escolhido ? escolhido.classificacoes : classificacoes;
+    });
 
     function atualizarDescricao() {
-        const codigo = cClassTrib.value.trim();
-        const encontrada = situacoes.flatMap((s) => s.classificacoes).find((c) => c.codigo === codigo);
-        descricao.textContent = encontrada ? encontrada.descricao : '';
+        const encontrada = classificacoes.find(({ codigo }) => codigo === cClassTrib.value.trim());
+        descricao.textContent = encontrada?.descricao ?? '';
     }
 
-    cst.addEventListener('input', atualizarClassificacoes);
     cClassTrib.addEventListener('input', atualizarDescricao);
-    atualizarClassificacoes();
+    cClassTrib.addEventListener('change', atualizarDescricao);
+    atualizarDescricao();
 }
 
 export function iniciarClassificacoes() {

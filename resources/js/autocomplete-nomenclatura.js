@@ -1,3 +1,5 @@
+import { criarListaOpcoes } from './lista-opcoes';
+
 /**
  * Autocomplete de NCM/NBS: busca com debounce nos dados abertos da calculadora e,
  * ao escolher um código, mostra a hierarquia (capítulo › posição › ...) abaixo do campo.
@@ -38,95 +40,31 @@ function iniciarCampo(raiz) {
         }
     }
 
-    let opcoes = [];
-    let ativa = -1;
     let requisicao = null;
     let requisicaoDetalhe = null;
 
-    const aberta = () => !lista.hidden;
-
-    function fechar() {
-        lista.hidden = true;
-        input.setAttribute('aria-expanded', 'false');
-        input.removeAttribute('aria-activedescendant');
-        ativa = -1;
-    }
-
-    function marcarAtiva(indice) {
-        const itens = lista.querySelectorAll('[role="option"]');
-        itens.forEach((item, i) => item.setAttribute('aria-selected', String(i === indice)));
-        ativa = indice;
-
-        if (indice >= 0 && itens[indice]) {
-            input.setAttribute('aria-activedescendant', itens[indice].id);
-            itens[indice].scrollIntoView({ block: 'nearest' });
-        } else {
-            input.removeAttribute('aria-activedescendant');
-        }
-    }
-
-    function mensagem(texto) {
-        const item = document.createElement('li');
-        item.className = 'px-3 py-2 text-slate-500';
-        item.textContent = texto;
-        lista.replaceChildren(item);
-        lista.hidden = false;
-        input.setAttribute('aria-expanded', 'true');
-    }
-
-    function renderizar() {
-        if (opcoes.length === 0) {
-            mensagem('Nenhum código encontrado.');
-            return;
-        }
-
-        lista.replaceChildren(...opcoes.map((opcao, i) => {
-            const item = document.createElement('li');
-            item.id = `${lista.id}-${i}`;
-            item.setAttribute('role', 'option');
-            item.setAttribute('aria-selected', 'false');
-            item.className = 'cursor-pointer px-3 py-2 hover:bg-emerald-50 aria-selected:bg-emerald-100';
-
-            const codigo = document.createElement('span');
-            codigo.className = 'mr-2 font-mono font-semibold text-slate-900';
-            codigo.textContent = formatarCodigo(tipo, opcao.codigo);
-
-            const descricao = document.createElement('span');
-            descricao.className = 'text-slate-700';
-            descricao.textContent = opcao.descricao;
-
-            item.append(codigo, descricao);
-            item.addEventListener('mousedown', (evento) => {
-                evento.preventDefault();
-                escolher(i);
-            });
-
-            return item;
-        }));
-
-        lista.hidden = false;
-        input.setAttribute('aria-expanded', 'true');
-        marcarAtiva(-1);
-    }
+    const dropdown = criarListaOpcoes(input, lista, escolher, (codigo) => formatarCodigo(tipo, codigo));
 
     async function buscar(termo) {
-        requisicao?.abort();
         requisicao = new AbortController();
+        const { signal } = requisicao;
 
         try {
             const url = new URL(raiz.dataset.urlBusca, window.location.origin);
             url.searchParams.set('q', termo);
-            const resposta = await fetch(url, { headers: { Accept: 'application/json' }, signal: requisicao.signal });
+            const resposta = await fetch(url, { headers: { Accept: 'application/json' }, signal });
 
             if (!resposta.ok) {
                 throw new Error(String(resposta.status));
             }
 
-            opcoes = await resposta.json();
-            renderizar();
+            const opcoes = await resposta.json();
+            if (!signal.aborted && document.activeElement === input) {
+                dropdown.mostrar(opcoes);
+            }
         } catch (erro) {
-            if (erro.name !== 'AbortError') {
-                mensagem('Não foi possível buscar agora. Digite o código manualmente.');
+            if (erro.name !== 'AbortError' && !signal.aborted && document.activeElement === input) {
+                dropdown.mensagem('Não foi possível buscar agora. Digite o código manualmente.');
             }
         }
     }
@@ -188,16 +126,9 @@ function iniciarCampo(raiz) {
         }
     }
 
-    function escolher(indice) {
-        const opcao = opcoes[indice];
-
-        if (!opcao) {
-            return;
-        }
-
-        input.value = opcao.codigo;
-        fechar();
-        carregarDetalhe(opcao.codigo);
+    function escolher({ codigo }) {
+        input.value = codigo;
+        carregarDetalhe(codigo);
         input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
@@ -206,45 +137,29 @@ function iniciarCampo(raiz) {
         const somenteDigitos = termo.replace(/\D/g, '');
 
         if (/^[\d.\-\s]+$/.test(termo) && somenteDigitos.length === digitos) {
-            fechar();
+            dropdown.fechar();
             carregarDetalhe(somenteDigitos);
             return;
         }
 
         if (termo.length < MINIMO_CARACTERES) {
-            requisicao?.abort();
-            fechar();
+            dropdown.fechar();
             return;
         }
 
-        buscar(termo);
+        if (document.activeElement === input) {
+            buscar(termo);
+        }
     }, ATRASO_MS);
 
     input.addEventListener('input', () => {
         limparDetalhe();
+        requisicao?.abort();
+        dropdown.fechar();
         aoDigitar();
     });
 
-    input.addEventListener('keydown', (evento) => {
-        if (!aberta() || opcoes.length === 0) {
-            return;
-        }
-
-        if (evento.key === 'ArrowDown') {
-            evento.preventDefault();
-            marcarAtiva((ativa + 1) % opcoes.length);
-        } else if (evento.key === 'ArrowUp') {
-            evento.preventDefault();
-            marcarAtiva(ativa <= 0 ? opcoes.length - 1 : ativa - 1);
-        } else if (evento.key === 'Enter' && ativa >= 0) {
-            evento.preventDefault();
-            escolher(ativa);
-        } else if (evento.key === 'Escape') {
-            fechar();
-        }
-    });
-
-    input.addEventListener('blur', () => setTimeout(fechar, 150));
+    input.addEventListener('blur', () => requisicao?.abort());
 
     const atualizarDetalhe = () => carregarDetalhe(input.value.replace(/\D/g, ''));
     dataSimulacao?.addEventListener('change', atualizarDetalhe);
