@@ -75,7 +75,7 @@ final readonly class IniciarLinhaDoTempo
     {
         $aliquotas = $this->cronograma->aliquotasDoAno($ano, $plenas);
         $dataOrigem = $origem->data_fato_gerador;
-        $data = CarbonImmutable::create($ano, $dataOrigem->month, 1)?->startOfDay() ?? CarbonImmutable::create($ano);
+        $data = CarbonImmutable::createFromDate($ano, $dataOrigem->month, 1)->startOfDay();
         $data = $data->day(min($dataOrigem->day, $data->daysInMonth));
 
         $simulacao = $origem->empresa->simulacoes()->create([

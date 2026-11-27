@@ -1,5 +1,13 @@
 # Reforma360
 
+[![CI](https://github.com/MatheusSaleh/reforma360/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MatheusSaleh/reforma360/actions/workflows/ci.yml)
+![PHP](https://img.shields.io/badge/PHP-8.4%20%7C%208.5-777BB4?logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
+![Larastan](https://img.shields.io/badge/Larastan-n%C3%ADvel%208-2563EB)
+![Pint](https://img.shields.io/badge/code%20style-Pint-F59E0B)
+![Testes](https://img.shields.io/badge/testes-Pest-10B981)
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)](#licença)
+
 Simulador da Reforma Tributária do Consumo (CBS/IBS — LC 214/2025) para pequenas empresas e contadores, construído em **Laravel** sobre a [Calculadora de Tributos open source da Receita Federal](https://github.com/ReceitaFederal).
 
 > ⚠️ Projeto em fase inicial (planejamento). As tarefas estão nas [issues](../../issues).
@@ -161,9 +169,11 @@ Limites por token em `API_LIMITE_POR_MINUTO` (padrão 60) e `API_LIMITE_SIMULACO
 
 ```bash
 composer test      # Pest (SQLite em memória)
-composer analyse   # Larastan nível 7
+composer analyse   # Larastan nível 8
 composer lint      # Pint (--test); `composer format` corrige
 ```
+
+A CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) roda em todo PR e push na `main`: Pest em PHP 8.4 e 8.5 (cobertura mínima de 90% no 8.5, com o total no resumo da execução), Larastan nível 8 e Pint.
 
 ## Fluxo de trabalho
 

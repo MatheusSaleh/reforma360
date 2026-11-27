@@ -9,6 +9,7 @@ use App\Models\Simulacao;
 use App\Services\Simulacao\RelatorioSimulacaoService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Gate;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,7 +28,7 @@ class BaixarRelatorioPdfController extends Controller
         // "Página X de Y": o total só existe depois de renderizar (o CSS do dompdf não o calcula).
         $dompdf = $pdf->getDomPDF();
         $dompdf->render();
-        $fonte = $dompdf->getFontMetrics()->getFont('DejaVu Sans');
+        $fonte = $dompdf->getFontMetrics()->getFont('DejaVu Sans') ?? throw new RuntimeException('Fonte DejaVu Sans não encontrada no dompdf.');
         $dompdf->getCanvas()->page_text(500, 812, 'Página {PAGE_NUM} de {PAGE_COUNT}', $fonte, 7, [0.4, 0.4, 0.4]);
 
         return response((string) $dompdf->output(), 200, [

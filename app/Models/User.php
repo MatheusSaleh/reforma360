@@ -16,11 +16,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'empresa_id'])]
-#[Hidden(['password', 'remember_token'])]
 /**
  * @property bool $is_admin
+ * @property-read Empresa $empresa
  */
+#[Fillable(['name', 'email', 'password', 'empresa_id'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */

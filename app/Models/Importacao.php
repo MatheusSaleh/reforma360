@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property CarbonImmutable|null $data_documento
  * @property Uf|null $uf
  * @property Carbon|null $concluida_em
+ * @property-read Empresa $empresa
  */
 #[Table('importacoes')]
 #[Fillable([
