@@ -71,6 +71,23 @@ trait ValidaParametrosOperacao
         ];
     }
 
+    /**
+     * Descrição dos parâmetros para a documentação da API (Scribe).
+     *
+     * @return array<string, array{description: string, example: mixed}>
+     */
+    protected function documentacaoDosParametros(): array
+    {
+        return [
+            'uf'                     => ['description' => 'UF da operação (sigla).', 'example' => 'RS'],
+            'municipio'              => ['description' => 'Código IBGE do município (7 dígitos), da UF informada.', 'example' => '4314902'],
+            'data'                   => ['description' => 'Data do fato gerador (AAAA-MM-DD), entre 2026 e 2033.', 'example' => '2027-03-10'],
+            'aliquota_cbs'           => ['description' => 'Alíquota nominal da CBS em %, texto decimal. Obrigatória de 2027 em diante e proibida em 2026.', 'example' => '8.8'],
+            'aliquota_ibs_estadual'  => ['description' => 'Alíquota nominal do IBS estadual em %. Obrigatória de 2027 em diante.', 'example' => '0.05'],
+            'aliquota_ibs_municipal' => ['description' => 'Alíquota nominal do IBS municipal em %. Obrigatória de 2027 em diante.', 'example' => '0.05'],
+        ];
+    }
+
     public function parametros(): ParametrosSimulacao
     {
         return new ParametrosSimulacao(

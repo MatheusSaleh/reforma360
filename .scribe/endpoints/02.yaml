@@ -1,0 +1,400 @@
+name: 'Simulação do catálogo'
+description: 'Simula todos os produtos da empresa (ou os itens de uma nota importada) em segundo plano. Permissão: `simulacoes`.'
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/simulacoes
+    metadata:
+      custom: []
+      groupName: 'Simulação do catálogo'
+      groupDescription: 'Simula todos os produtos da empresa (ou os itens de uma nota importada) em segundo plano. Permissão: `simulacoes`.'
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listar simulações'
+      description: 'Simulações do catálogo da empresa, da mais recente para a mais antiga.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {SEU_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      por_pagina:
+        custom: []
+        name: por_pagina
+        description: 'Itens por página (1 a 100).'
+        required: false
+        example: 25
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: Página.
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      por_pagina: 25
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[{"id":null,"status":"pendente","status_descricao":"Na fila","em_andamento":true,"data_fato_gerador":"2027-03-10","uf":"RS","municipio":4314902,"aliquotas_nominais":{"cbs":"8.8","ibs_estadual":"0.05","ibs_municipal":"0.05"},"calculo_simulado":true,"importacao_id":null,"itens":{"total":null,"processados":0,"com_erro":0},"totais":{"base_calculo":null,"cbs":null,"ibs":null,"imposto_seletivo":null,"tributos":null},"criada_em":null,"concluida_em":null,"aviso":"Simula\u00e7\u00e3o feita com a calculadora oficial da Receita Federal. N\u00e3o substitui a orienta\u00e7\u00e3o de um contador."},{"id":null,"status":"pendente","status_descricao":"Na fila","em_andamento":true,"data_fato_gerador":"2027-03-10","uf":"RS","municipio":4314902,"aliquotas_nominais":{"cbs":"8.8","ibs_estadual":"0.05","ibs_municipal":"0.05"},"calculo_simulado":true,"importacao_id":null,"itens":{"total":null,"processados":0,"com_erro":0},"totais":{"base_calculo":null,"cbs":null,"ibs":null,"imposto_seletivo":null,"tributos":null},"criada_em":null,"concluida_em":null,"aviso":"Simula\u00e7\u00e3o feita com a calculadora oficial da Receita Federal. N\u00e3o substitui a orienta\u00e7\u00e3o de um contador."}],"links":{"first":"\/?page=1","last":"\/?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":1,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"\/?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"\/","per_page":25,"to":2,"total":2}}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/simulacoes
+    metadata:
+      custom: []
+      groupName: 'Simulação do catálogo'
+      groupDescription: 'Simula todos os produtos da empresa (ou os itens de uma nota importada) em segundo plano. Permissão: `simulacoes`.'
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Iniciar simulação do catálogo'
+      description: |-
+        Enfileira a simulação de todos os produtos da empresa — ou só dos itens de uma nota importada, com `importacao_id` — e responde `202` na hora.
+
+        Acompanhe o andamento em `GET /api/v1/simulacoes/{id}` (campo `status`) e leia o resultado de cada item em `GET /api/v1/simulacoes/{id}/itens`.
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {SEU_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      uf:
+        custom: []
+        name: uf
+        description: 'UF da operação (sigla).'
+        required: true
+        example: RS
+        type: string
+        enumValues:
+          - RO
+          - AC
+          - AM
+          - RR
+          - PA
+          - AP
+          - TO
+          - MA
+          - PI
+          - CE
+          - RN
+          - PB
+          - PE
+          - AL
+          - SE
+          - BA
+          - MG
+          - ES
+          - RJ
+          - SP
+          - PR
+          - SC
+          - RS
+          - MS
+          - MT
+          - GO
+          - DF
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      municipio:
+        custom: []
+        name: municipio
+        description: 'Código IBGE do município (7 dígitos), da UF informada. :Attribute deve ter 7 dígitos.'
+        required: true
+        example: '4314902'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      data:
+        custom: []
+        name: data
+        description: 'Data do fato gerador (AAAA-MM-DD), entre 2026 e 2033. Must be a valid date in the format <code>Y-m-d</code>. :Attribute deve ser uma data igual ou posterior a <code>2026-01-01</code>. :Attribute deve ser uma data igual ou anterior a <code>2033-12-31</code>.'
+        required: true
+        example: '2027-03-10'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      aliquota_cbs:
+        custom: []
+        name: aliquota_cbs
+        description: 'Alíquota nominal da CBS em %, texto decimal. Obrigatória de 2027 em diante e proibida em 2026. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 8.8
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      aliquota_ibs_estadual:
+        custom: []
+        name: aliquota_ibs_estadual
+        description: 'Alíquota nominal do IBS estadual em %. Obrigatória de 2027 em diante. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 0.05
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      aliquota_ibs_municipal:
+        custom: []
+        name: aliquota_ibs_municipal
+        description: 'Alíquota nominal do IBS municipal em %. Obrigatória de 2027 em diante. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: 0.05
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      importacao_id:
+        custom: []
+        name: importacao_id
+        description: 'Simula só os itens desta nota importada. Sem ele, simula o catálogo inteiro.'
+        required: false
+        example: null
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      uf: RS
+      municipio: '4314902'
+      data: '2027-03-10'
+      aliquota_cbs: 8.8
+      aliquota_ibs_estadual: 0.05
+      aliquota_ibs_municipal: 0.05
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 202
+        content: '{"data":{"id":null,"status":"pendente","status_descricao":"Na fila","em_andamento":true,"data_fato_gerador":"2027-03-10","uf":"RS","municipio":4314902,"aliquotas_nominais":{"cbs":"8.8","ibs_estadual":"0.05","ibs_municipal":"0.05"},"calculo_simulado":true,"importacao_id":null,"itens":{"total":null,"processados":0,"com_erro":0},"totais":{"base_calculo":null,"cbs":null,"ibs":null,"imposto_seletivo":null,"tributos":null},"criada_em":null,"concluida_em":null,"aviso":"Simula\u00e7\u00e3o feita com a calculadora oficial da Receita Federal. N\u00e3o substitui a orienta\u00e7\u00e3o de um contador."}}'
+        headers: []
+        description: 'Simulação enfileirada'
+      -
+        custom: []
+        status: 422
+        content: '{"message":"Cadastre ou importe produtos antes de simular o cat\u00e1logo.","errors":{"simulacao":["Cadastre ou importe produtos antes de simular o cat\u00e1logo."]}}'
+        headers: []
+        description: 'Sem produtos ou dados inválidos'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/simulacoes/{simulacao_id}'
+    metadata:
+      custom: []
+      groupName: 'Simulação do catálogo'
+      groupDescription: 'Simula todos os produtos da empresa (ou os itens de uma nota importada) em segundo plano. Permissão: `simulacoes`.'
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Consultar simulação'
+      description: 'Status, progresso e totais da simulação.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {SEU_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      simulacao_id:
+        custom: []
+        name: simulacao_id
+        description: 'The ID of the simulacao.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      simulacao:
+        custom: []
+        name: simulacao
+        description: 'ID da simulação.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      simulacao_id: 1
+      simulacao: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":{"id":null,"status":"pendente","status_descricao":"Na fila","em_andamento":true,"data_fato_gerador":"2027-03-10","uf":"RS","municipio":4314902,"aliquotas_nominais":{"cbs":"8.8","ibs_estadual":"0.05","ibs_municipal":"0.05"},"calculo_simulado":true,"importacao_id":null,"itens":{"total":null,"processados":0,"com_erro":0},"totais":{"base_calculo":null,"cbs":null,"ibs":null,"imposto_seletivo":null,"tributos":null},"criada_em":null,"concluida_em":null,"aviso":"Simula\u00e7\u00e3o feita com a calculadora oficial da Receita Federal. N\u00e3o substitui a orienta\u00e7\u00e3o de um contador."}}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: '{"message":"Not Found"}'
+        headers: []
+        description: 'Simulação inexistente ou de outra empresa'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/simulacoes/{simulacao_id}/itens'
+    metadata:
+      custom: []
+      groupName: 'Simulação do catálogo'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Resultado por item'
+      description: 'Resultado de cada item da simulação, em ordem alfabética. Itens não calculados trazem o motivo em `erros`.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {SEU_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      simulacao_id:
+        custom: []
+        name: simulacao_id
+        description: 'The ID of the simulacao.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      simulacao:
+        custom: []
+        name: simulacao
+        description: 'ID da simulação.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      simulacao_id: 1
+      simulacao: 1
+    queryParameters:
+      erros:
+        custom: []
+        name: erros
+        description: 'Só os itens que não puderam ser calculados.'
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      por_pagina:
+        custom: []
+        name: por_pagina
+        description: 'Itens por página (1 a 100).'
+        required: false
+        example: 25
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: Página.
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      erros: false
+      por_pagina: 25
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[{"id":null,"produto_id":null,"descricao":"aut adipisci quidem","ncm":null,"nbs":"122011200","cst":"200","c_class_trib":"200028","base_calculo":"1200.00","estado":null,"calculado":false,"percentual_reducao":null,"valor_cbs":null,"valor_ibs":null,"valor_imposto_seletivo":null,"total_tributos":null,"erros":[]},{"id":null,"produto_id":null,"descricao":"incidunt iure odit","ncm":null,"nbs":"122011200","cst":"200","c_class_trib":"200028","base_calculo":"1200.00","estado":null,"calculado":false,"percentual_reducao":null,"valor_cbs":null,"valor_ibs":null,"valor_imposto_seletivo":null,"total_tributos":null,"erros":[]}],"links":{"first":"\/?page=1","last":"\/?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":1,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"\/?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"\/","per_page":25,"to":2,"total":2},"aviso":"Simula\u00e7\u00e3o feita com a calculadora oficial da Receita Federal. N\u00e3o substitui a orienta\u00e7\u00e3o de um contador."}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
