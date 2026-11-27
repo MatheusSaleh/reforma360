@@ -43,6 +43,7 @@ final readonly class SimularItemService
     public function __construct(
         private CalculadoraTributos $calculadora,
         private DadosAbertos $dadosAbertos,
+        private ImpostoSeletivoDoItem $impostoSeletivo,
         #[Config('simulacao.ano_inicio_aliquotas_nominais')]
         private int $anoInicioAliquotasNominais,
     ) {}
@@ -113,6 +114,7 @@ final readonly class SimularItemService
                     ncm: $dados->ncm,
                     nbs: $dados->nbs,
                     aliquotasNominais: $aliquotas,
+                    impostoSeletivo: $this->impostoSeletivo->grupo($dados->ncm, $dados->data, $dados->valor, $dados->impostoSeletivo, $aliquotas),
                 ),
             ],
         );
@@ -126,7 +128,7 @@ final readonly class SimularItemService
         $mensagens = [];
 
         foreach ($erros as $erro) {
-            $mensagens[$this->campoDoFormulario($erro)][] = $erro->detalhe;
+            $mensagens[$this->campoDoFormulario($erro)][] = ImpostoSeletivoDoItem::mensagem($erro);
         }
 
         return ValidationException::withMessages($mensagens === [] ? ['simulacao' => $mensagemPadrao] : $mensagens);
@@ -134,7 +136,21 @@ final readonly class SimularItemService
 
     private function campoDoFormulario(ErroCalculo $erro): string
     {
-        $campoDaApi = Str::afterLast((string) $erro->campo, '/');
+        $camposIs = [
+            'impostoSeletivo' => 'is_aliquota_ad_valorem',
+            'adValorem'       => 'is_aliquota_ad_valorem',
+            'adRem'           => 'is_aliquota_ad_rem',
+            'unidade'         => 'is_unidade',
+            'quantidade'      => 'is_quantidade',
+            'cst'             => 'is_cst',
+            'cClassTrib'      => 'is_c_class_trib',
+        ];
+        $pointer = (string) $erro->campo;
+        $campoDaApi = Str::afterLast($pointer, '/');
+
+        if (str_contains($pointer, '/impostoSeletivo')) {
+            return $camposIs[$campoDaApi] ?? 'simulacao';
+        }
 
         return self::CAMPOS_DO_FORMULARIO[$campoDaApi] ?? 'simulacao';
     }

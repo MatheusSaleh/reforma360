@@ -75,7 +75,7 @@
         <tr>
             <td><div class="rotulo">Itens simulados</div><div class="valor">{{ $s->itens_processados - $s->itens_com_erro }} de {{ $s->total_itens }}</div></td>
             <td><div class="rotulo">Base de cálculo</div><div class="valor">{{ $moeda($s->total_base_calculo) }}</div></td>
-            <td><div class="rotulo">CBS · IBS</div><div class="valor" style="font-size: 10pt;">{{ $moeda($s->total_cbs) }} · {{ $moeda($s->total_ibs) }}</div></td>
+            <td><div class="rotulo">CBS · IBS · IS</div><div class="valor" style="font-size: 10pt;">{{ $moeda($s->total_cbs) }} · {{ $moeda($s->total_ibs) }} · {{ $moeda($s->total_imposto_seletivo) }}</div></td>
             <td><div class="rotulo">Total de tributos</div><div class="valor">{{ $moeda($s->total_tributos) }}</div></td>
         </tr>
     </table>
@@ -132,7 +132,7 @@
                     <div class="muted">{{ bccomp($diferenca, '0', 2) === 0 ? 'mesmo valor' : (bccomp($diferenca, '0', 2) > 0 ? 'a menos no Simples' : 'a menos no regime regular') }}</div></td>
             </tr>
         </table>
-        <p class="muted">Compara só IBS e CBS dos itens calculados nos dois regimes; o crédito é estimado (compras × alíquotas nominais do ano). A escolha do regime envolve outros tributos (ICMS, ISS, IRPJ, CSLL, contribuição previdenciária).</p>
+        <p class="muted">Compara CBS, IBS e IS dos itens calculados nos dois regimes. O crédito estimado (compras × alíquotas nominais do ano) incide sobre CBS e IBS. A escolha do regime envolve outros tributos (ICMS, ISS, IRPJ, CSLL, contribuição previdenciária).</p>
     @endif
 
     @if ($relatorio->linhaDoTempo)
@@ -144,7 +144,7 @@
         <p class="muted">Cronograma da transição (EC 132/2023 e LC 214/2025) sobre alíquotas plenas <strong>estimadas</strong>: CBS {{ $pct($plenas->cbs) }}, IBS {{ $pct($plenas->ibsEstadual) }} + {{ $pct($plenas->ibsMunicipal) }}.</p>
         <table>
             <thead>
-                <tr><th>Ano</th><th class="num">Alíquotas nominais</th><th class="num">CBS</th><th class="num">IBS</th><th class="num">Total</th><th class="num">Carga</th></tr>
+                <tr><th>Ano</th><th class="num">Alíquotas nominais</th><th class="num">CBS</th><th class="num">IBS</th><th class="num">IS</th><th class="num">Total</th><th class="num">Carga</th></tr>
             </thead>
             <tbody>
                 @foreach ($relatorio->anos as $ano)
@@ -153,6 +153,7 @@
                         <td class="num">{{ $ano->aliquotas ? 'CBS '.$pct($ano->aliquotas->cbs).' · IBS '.$pct((string) $ano->aliquotaIbsTotal()) : 'referência da Receita' }}</td>
                         <td class="num">{{ $moeda($ano->cbs) }}</td>
                         <td class="num">{{ $moeda($ano->ibs) }}</td>
+                        <td class="num">{{ $moeda($ano->impostoSeletivo) }}</td>
                         <td class="num">{{ $moeda($ano->total) }}</td>
                         <td class="num">{{ $pct($ano->carga) }}</td>
                     </tr>
@@ -176,6 +177,7 @@
                 <th class="num">Redução</th>
                 <th class="num">CBS</th>
                 <th class="num">IBS</th>
+                <th class="num">IS</th>
                 <th class="num">Total</th>
             </tr>
         </thead>
@@ -196,6 +198,7 @@
                     <td class="num">{{ $item->percentual_reducao !== null && bccomp($item->percentual_reducao, '0', 4) > 0 ? $pct($item->percentual_reducao) : '—' }}</td>
                     <td class="num">{{ $moeda($item->valor_cbs) }}</td>
                     <td class="num">{{ $moeda($item->valor_ibs) }}</td>
+                    <td class="num">{{ $moeda($item->valor_imposto_seletivo) }}</td>
                     <td class="num">{{ $moeda($item->total_tributos) }}</td>
                 </tr>
             @endforeach

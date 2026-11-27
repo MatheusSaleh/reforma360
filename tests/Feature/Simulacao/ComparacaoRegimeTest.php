@@ -234,3 +234,24 @@ test('o client do Simples lê o resultado por item e a recusa da operação', fu
     expect(fn () => app(CalculadoraSimples::class)->calcular($operacao))
         ->toThrow(PayloadInvalidoException::class);
 });
+
+test('repassa o IS ao Simples e abate o crédito somente dos débitos de CBS e IBS', function () use ($parametros): void {
+    fakeSimples();
+    $simulacao = simulacaoParaComparar();
+    $item = $simulacao->itens()->where('descricao', 'Notebook')->sole();
+    $item->update(['descricao' => 'Cerveja tributada', 'ncm' => '22030000', 'valor_imposto_seletivo' => '15.00']);
+
+    $this->actingAs($this->usuario)->post(route('simulacoes.comparacao.store', $simulacao), [...$parametros, 'compras' => '10000'])
+        ->assertRedirect(route('simulacoes.comparacao.show', $simulacao));
+
+    $comparacao = ComparacaoRegime::query()->sole();
+    expect($comparacao->valor_imposto_seletivo)->toBe('15.00')
+        ->and($comparacao->totalSimples())->toBe('112.50')
+        ->and($comparacao->debitosRegular())->toBe('279.00')
+        ->and($comparacao->liquidoRegular())->toBe('15.00')
+        ->and($comparacao->itens()->where('simulacao_item_id', $item->id)->sole()->totalSimples())->toBe('112.50');
+
+    Http::assertSent(fn (Request $r): bool => str_ends_with($r->url(), '/calculadora/observabilidade/simples-nacional')
+        && $r['itens'][0]['ncm'] === '22030000' && $r['itens'][0]['baseCalculo'] === '3000.00'
+        && $r['itens'][0]['valorImpostoSeletivo'] === '15.00');
+});

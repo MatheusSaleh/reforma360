@@ -23,5 +23,6 @@ final readonly class DadosSimulacaoItem
         public ?string $ncm = null,
         public ?string $nbs = null,
         public ?AliquotasNominais $aliquotasNominais = null,
+        public ?DadosImpostoSeletivo $impostoSeletivo = null,
     ) {}
 }

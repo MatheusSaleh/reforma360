@@ -17,8 +17,9 @@ final readonly class AnoDaLinhaDoTempo
      * @param  numeric-string|null  $base
      * @param  numeric-string|null  $cbs
      * @param  numeric-string|null  $ibs
+     * @param  numeric-string|null  $impostoSeletivo
      * @param  numeric-string|null  $total
-     * @param  numeric-string|null  $carga  CBS + IBS sobre a base, em %
+     * @param  numeric-string|null  $carga  CBS + IBS + IS sobre a base, em %
      */
     public function __construct(
         public int $ano,
@@ -28,6 +29,7 @@ final readonly class AnoDaLinhaDoTempo
         public ?string $base,
         public ?string $cbs,
         public ?string $ibs,
+        public ?string $impostoSeletivo,
         public ?string $total,
         public ?string $carga,
         public int $itensComErro = 0,

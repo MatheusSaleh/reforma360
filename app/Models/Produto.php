@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\TipoItem;
+use App\Models\Concerns\TemImpostoSeletivo;
 use Database\Factories\ProdutoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -18,11 +19,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property numeric-string $preco
  */
-#[Fillable(['descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'preco'])]
+#[Fillable([
+    'descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'preco',
+    'is_cst', 'is_c_class_trib', 'is_unidade', 'is_quantidade', 'is_aliquota_ad_valorem', 'is_aliquota_ad_rem',
+])]
 class Produto extends Model
 {
     /** @use HasFactory<ProdutoFactory> */
     use HasFactory;
+
+    use TemImpostoSeletivo;
 
     /**
      * @return BelongsTo<Empresa, $this>
@@ -69,6 +75,7 @@ class Produto extends Model
     {
         return [
             'preco' => 'decimal:2',
+            ...self::castsDoImpostoSeletivo(),
         ];
     }
 }

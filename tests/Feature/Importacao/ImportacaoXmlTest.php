@@ -198,3 +198,28 @@ test('planilhas também registram os itens importados', function (): void {
         ->and($importacao->ehDocumentoFiscal())->toBeFalse()
         ->and($importacao->itens()->orderBy('linha')->first()->valor)->toBe('28.90');
 });
+
+test('importa o IS da NF-e por unidade vendida e preserva a quantidade da linha para simular a nota', function (): void {
+    $importacao = importarXml('nfe-imposto-seletivo.xml');
+    expect($importacao->linhas_importadas)->toBe(1);
+
+    $produto = Produto::query()->sole();
+    expect($produto)->is_cst->toBe('000')->is_c_class_trib->toBe('000001')
+        ->is_unidade->toBe('LT')->is_quantidade->toBe('0.3500')
+        ->is_aliquota_ad_valorem->toBe('10.0000')->is_aliquota_ad_rem->toBe('0.1234');
+    expect($importacao->itens()->sole()->dados_imposto_seletivo['is_quantidade'])->toBe('4.2000');
+
+    $produto->update(['is_unidade' => 'UN', 'is_quantidade' => '1', 'is_aliquota_ad_rem' => '0.50']);
+    Bus::fake();
+
+    $this->actingAs($this->usuario)->post(route('simulacoes.store'), [
+        'importacao_id' => $importacao->id, 'data' => '2027-03-10', 'uf' => 'RS', 'municipio' => '4314902',
+        'aliquota_cbs'  => '8,8', 'aliquota_ibs_estadual' => '0,05', 'aliquota_ibs_municipal' => '0,05',
+    ])->assertRedirect();
+
+    expect(Simulacao::query()->sole()->itens()->sole())
+        ->base_calculo->toBe('54.00')
+        ->is_quantidade->toBe('4.2000')
+        ->is_unidade->toBe('LT')
+        ->is_aliquota_ad_rem->toBe('0.1234');
+});

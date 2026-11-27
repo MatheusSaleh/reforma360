@@ -8,6 +8,12 @@
     <x-campos-classificacao :cst="$produto->cst" :c-class-trib="$produto->c_class_trib" />
     <x-campo nome="preco" rotulo="Preço (R$)" :valor="$produto->preco" inputmode="decimal" placeholder="1.200,00" required />
 </div>
+@php
+    $camposIs = $produto->impostoSeletivo()?->campos() ?? [];
+    $dataIs = max(now('America/Sao_Paulo')->toDateString(), config('simulacao.ano_inicio_aliquotas_nominais').'-01-01');
+@endphp
+<x-campos-imposto-seletivo :valor="fn ($campo) => $camposIs[$campo] ?? null" quantidade="Quantidade de IS por unidade vendida" :data="$dataIs" />
+
 <div class="mt-6 flex items-center gap-3">
     <x-botao>Salvar</x-botao>
     <a href="{{ route('produtos.index') }}" class="text-sm text-slate-600 hover:text-slate-900">Cancelar</a>

@@ -19,10 +19,12 @@ final readonly class ItemSimples
         public string $aliquotaIbs,
         public ?string $ncm = null,
         public ?string $nbs = null,
+        public string $valorImpostoSeletivo = '0.00',
     ) {
         Decimal::validar($baseCalculo, 'baseCalculo');
         Decimal::validar($aliquotaCbs, 'pCBSSN');
         Decimal::validar($aliquotaIbs, 'pIBSSN');
+        Decimal::validar($valorImpostoSeletivo, 'valorImpostoSeletivo');
     }
 
     /**
@@ -37,7 +39,7 @@ final readonly class ItemSimples
             'ncm'                  => $this->ncm,
             'nbs'                  => $this->nbs,
             'baseCalculo'          => $this->baseCalculo,
-            'valorImpostoSeletivo' => '0.00',
+            'valorImpostoSeletivo' => $this->valorImpostoSeletivo,
             'pIBSSN'               => $this->aliquotaIbs,
             'pCBSSN'               => $this->aliquotaCbs,
         ], fn (mixed $valor): bool => $valor !== null);

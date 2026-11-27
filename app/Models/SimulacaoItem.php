@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\EstadoItemCalculo;
+use App\Models\Concerns\TemImpostoSeletivo;
 use Database\Factories\SimulacaoItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -28,13 +29,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 #[Table('simulacao_itens')]
 #[Fillable([
-    'produto_id', 'origem_id', 'descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'base_calculo', 'estado', 'valor_cbs',
+    'produto_id', 'origem_id', 'descricao', 'ncm', 'nbs', 'cst', 'c_class_trib', 'base_calculo',
+    'is_cst', 'is_c_class_trib', 'is_unidade', 'is_quantidade', 'is_aliquota_ad_valorem', 'is_aliquota_ad_rem', 'estado', 'valor_cbs',
     'valor_ibs', 'valor_imposto_seletivo', 'total_tributos', 'percentual_reducao', 'detalhes', 'erros',
 ])]
 class SimulacaoItem extends Model
 {
     /** @use HasFactory<SimulacaoItemFactory> */
     use HasFactory;
+
+    use TemImpostoSeletivo;
 
     /**
      * @return BelongsTo<Simulacao, $this>
@@ -64,6 +68,7 @@ class SimulacaoItem extends Model
             'percentual_reducao'     => 'decimal:4',
             'detalhes'               => 'array',
             'erros'                  => 'array',
+            ...self::castsDoImpostoSeletivo(),
         ];
     }
 }

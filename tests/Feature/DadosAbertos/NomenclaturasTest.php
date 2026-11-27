@@ -128,3 +128,18 @@ test('responde 503 quando a calculadora está fora', function (): void {
 
     $this->getJson(route('dados-abertos.nomenclaturas.busca', ['tipo' => 'nbs', 'q' => 'escola']))->assertStatus(503);
 });
+
+test('consulta a incidência de IS na data solicitada e rejeita datas inválidas', function (): void {
+    $rota = ['tipo' => 'ncm', 'codigo' => '22030000'];
+
+    $this->getJson(route('dados-abertos.nomenclaturas.detalhe', [...$rota, 'data' => '2027-03-10']))
+        ->assertSuccessful()
+        ->assertJsonPath('tributado_pelo_imposto_seletivo', true);
+
+    $this->getJson(route('dados-abertos.nomenclaturas.detalhe', [...$rota, 'data' => '2027-02-29']))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('data');
+
+    Http::assertSentCount(1);
+    Http::assertSent(fn ($request): bool => str_ends_with($request->url(), 'ncm=22030000&data=2027-03-10'));
+});

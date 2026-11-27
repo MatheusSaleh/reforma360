@@ -178,6 +178,72 @@ endpoints:
         exampleWasSpecified: false
         nullable: true
         deprecated: false
+      is_aliquota_ad_valorem:
+        custom: []
+        name: is_aliquota_ad_valorem
+        description: 'Imposto Seletivo (a partir de 2027, só para NCMs tributados): alíquota ad valorem estimada em %. Must match the regex /^\d+(?:\.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 100.'
+        required: false
+        example: null
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_aliquota_ad_rem:
+        custom: []
+        name: is_aliquota_ad_rem
+        description: 'Imposto Seletivo: alíquota ad rem estimada, em R$ por unidade do IS. Exige is_unidade e is_quantidade. Must match the regex /^\d+(?:\.\d+)?$/D. :Attribute deve ser no mínimo 0. :Attribute deve ser no máximo 99999999999.9999.'
+        required: false
+        example: null
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_unidade:
+        custom: []
+        name: is_unidade
+        description: 'Unidade do IS (ex.: LT, VN, KG). This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^[A-Z0-9]+$/. :Attribute deve ter no máximo 6 caracteres.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_quantidade:
+        custom: []
+        name: is_quantidade
+        description: 'Quantidade total do item na unidade do IS. This field is required when <code>is_aliquota_ad_rem</code> is present. Must match the regex /^\d+(?:\.\d+)?$/D. :Attribute deve ser no máximo 99999999999.9999.'
+        required: false
+        example: null
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_cst:
+        custom: []
+        name: is_cst
+        description: 'CST do IS (3 dígitos). Padrão 000. :Attribute deve ter 3 dígitos.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_c_class_trib:
+        custom: []
+        name: is_c_class_trib
+        description: 'cClassTrib do IS (6 dígitos). Padrão 000001. :Attribute deve ter 6 dígitos.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
       nbs: '122011200'
       cst: '200'

@@ -123,6 +123,7 @@ final readonly class CompararRegimesService
                     aliquotaCbs: $parametros->aliquotaCbs,
                     aliquotaIbs: $parametros->aliquotaIbs,
                     ncm: $item->ncm,
+                    valorImpostoSeletivo: $item->valor_imposto_seletivo ?? '0.00',
                 ), array_keys($bloco), $bloco),
                 tipoDocumento: $this->tipoDocumento($simulacao),
             );
@@ -158,7 +159,7 @@ final readonly class CompararRegimesService
     {
         $simulacao->comparacao()->delete();
 
-        $totais = ['base' => '0', 'simples_cbs' => '0', 'simples_ibs' => '0', 'regular_cbs' => '0', 'regular_ibs' => '0'];
+        $totais = ['base' => '0', 'simples_cbs' => '0', 'simples_ibs' => '0', 'regular_cbs' => '0', 'regular_ibs' => '0', 'is' => '0'];
         $linhas = [];
         $comparados = 0;
 
@@ -167,11 +168,12 @@ final readonly class CompararRegimesService
             $calculado = $resultado instanceof ResultadoItemSimples && $resultado->foiCalculado();
 
             $linhas[] = [
-                'simulacao_item_id' => $item->id,
-                'estado'            => $resultado instanceof ResultadoItemSimples ? $resultado->estado->value : EstadoItemCalculo::NaoImplementado->value,
-                'simples_cbs'       => $calculado ? $resultado->valorCbs : null,
-                'simples_ibs'       => $calculado ? $resultado->valorIbs : null,
-                'erros'             => $calculado ? null : json_encode(self::erros($resultado), JSON_UNESCAPED_UNICODE),
+                'simulacao_item_id'      => $item->id,
+                'estado'                 => $resultado instanceof ResultadoItemSimples ? $resultado->estado->value : EstadoItemCalculo::NaoImplementado->value,
+                'simples_cbs'            => $calculado ? $resultado->valorCbs : null,
+                'simples_ibs'            => $calculado ? $resultado->valorIbs : null,
+                'valor_imposto_seletivo' => $calculado ? $item->valor_imposto_seletivo : null,
+                'erros'                  => $calculado ? null : json_encode(self::erros($resultado), JSON_UNESCAPED_UNICODE),
             ];
 
             if ($calculado && $resultado->valorCbs !== null && $resultado->valorIbs !== null) {
@@ -181,24 +183,26 @@ final readonly class CompararRegimesService
                 $totais['simples_ibs'] = bcadd($totais['simples_ibs'], $resultado->valorIbs, 2);
                 $totais['regular_cbs'] = bcadd($totais['regular_cbs'], $item->valor_cbs ?? '0', 2);
                 $totais['regular_ibs'] = bcadd($totais['regular_ibs'], $item->valor_ibs ?? '0', 2);
+                $totais['is'] = bcadd($totais['is'], $item->valor_imposto_seletivo ?? '0', 2);
             }
         }
 
         $comparacao = $simulacao->empresa->comparacoesRegime()->create([
-            'user_id'              => $usuario->id,
-            'simulacao_id'         => $simulacao->id,
-            'atividade'            => $parametros->atividade,
-            'aliquota_cbs_simples' => $parametros->aliquotaCbs,
-            'aliquota_ibs_simples' => $parametros->aliquotaIbs,
-            'compras'              => $parametros->compras,
-            'itens_comparados'     => $comparados,
-            'itens_nao_comparados' => count($itens) - $comparados,
-            'base_calculo'         => $totais['base'],
-            'simples_cbs'          => $totais['simples_cbs'],
-            'simples_ibs'          => $totais['simples_ibs'],
-            'regular_cbs'          => $totais['regular_cbs'],
-            'regular_ibs'          => $totais['regular_ibs'],
-            'credito_estimado'     => $this->creditoEstimado($simulacao, $parametros->compras),
+            'user_id'                => $usuario->id,
+            'simulacao_id'           => $simulacao->id,
+            'atividade'              => $parametros->atividade,
+            'aliquota_cbs_simples'   => $parametros->aliquotaCbs,
+            'aliquota_ibs_simples'   => $parametros->aliquotaIbs,
+            'compras'                => $parametros->compras,
+            'itens_comparados'       => $comparados,
+            'itens_nao_comparados'   => count($itens) - $comparados,
+            'base_calculo'           => $totais['base'],
+            'simples_cbs'            => $totais['simples_cbs'],
+            'simples_ibs'            => $totais['simples_ibs'],
+            'regular_cbs'            => $totais['regular_cbs'],
+            'regular_ibs'            => $totais['regular_ibs'],
+            'valor_imposto_seletivo' => $totais['is'],
+            'credito_estimado'       => $this->creditoEstimado($simulacao, $parametros->compras),
         ]);
 
         foreach (array_chunk($linhas, 500) as $lote) {

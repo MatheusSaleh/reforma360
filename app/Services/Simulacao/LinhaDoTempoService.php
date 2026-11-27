@@ -41,7 +41,8 @@ final class LinhaDoTempoService
     {
         $cbs = $simulacao->total_cbs;
         $ibs = $simulacao->total_ibs;
-        $total = $cbs === null || $ibs === null ? null : bcadd($cbs, $ibs, 2);
+        $impostoSeletivo = $simulacao->total_imposto_seletivo;
+        $total = self::somarTributos($cbs, $ibs, $impostoSeletivo);
 
         return new AnoDaLinhaDoTempo(
             ano: $simulacao->data_fato_gerador->year,
@@ -51,6 +52,7 @@ final class LinhaDoTempoService
             base: $simulacao->total_base_calculo,
             cbs: $cbs,
             ibs: $ibs,
+            impostoSeletivo: $impostoSeletivo,
             total: $total,
             carga: self::carga($total, $simulacao->total_base_calculo),
             itensComErro: $simulacao->itens_com_erro,
@@ -62,7 +64,8 @@ final class LinhaDoTempoService
         $calculado = $item !== null && $item->estado !== null && $item->estado->foiCalculado();
         $cbs = $calculado ? $item->valor_cbs : null;
         $ibs = $calculado ? $item->valor_ibs : null;
-        $total = $cbs === null || $ibs === null ? null : bcadd($cbs, $ibs, 2);
+        $impostoSeletivo = $calculado ? $item->valor_imposto_seletivo : null;
+        $total = self::somarTributos($cbs, $ibs, $impostoSeletivo);
 
         return new AnoDaLinhaDoTempo(
             ano: $simulacao->data_fato_gerador->year,
@@ -72,10 +75,22 @@ final class LinhaDoTempoService
             base: $item?->base_calculo,
             cbs: $cbs,
             ibs: $ibs,
+            impostoSeletivo: $impostoSeletivo,
             total: $total,
             carga: self::carga($total, $item?->base_calculo),
             erro: $item !== null && $item->temErro() ? (string) ($item->erros[0]['mensagem'] ?? $item->estado?->label()) : null,
         );
+    }
+
+    /**
+     * @param  numeric-string|null  $cbs
+     * @param  numeric-string|null  $ibs
+     * @param  numeric-string|null  $impostoSeletivo
+     * @return numeric-string|null
+     */
+    private static function somarTributos(?string $cbs, ?string $ibs, ?string $impostoSeletivo): ?string
+    {
+        return $cbs === null || $ibs === null ? null : bcadd(bcadd($cbs, $ibs, 2), $impostoSeletivo ?? '0', 2);
     }
 
     /**

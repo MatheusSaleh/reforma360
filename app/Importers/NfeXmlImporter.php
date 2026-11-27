@@ -116,11 +116,46 @@ final readonly class NfeXmlImporter implements ImportadorDeDocumentoFiscal
                     'c_class_trib'    => $this->texto($xpath, 'nfe:imposto/nfe:IBSCBS/nfe:cClassTrib', $item),
                     'preco'           => $valorUnitario !== null && is_numeric($valorUnitario) ? NormalizadorFiscal::arredondar($valorUnitario, 2) : $valorUnitario,
                     'valor_documento' => $this->texto($xpath, 'nfe:prod/nfe:vProd', $item),
+                    ...$this->impostoSeletivoDaNfe($xpath, $item),
                 ],
             );
         }
 
         return $linhas;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function impostoSeletivoDaNfe(DOMXPath $xpath, DOMElement $item): array
+    {
+        $grupos = $xpath->query('nfe:imposto/nfe:IS', $item);
+        $grupo = $grupos === false ? null : $grupos->item(0);
+
+        if (! $grupo instanceof DOMElement) {
+            return [];
+        }
+
+        $quantidade = $this->texto($xpath, 'nfe:qTrib', $grupo);
+        $quantidadeComercial = $this->texto($xpath, 'nfe:prod/nfe:qCom', $item);
+        $decimal = '/^\d{1,11}(?:\.\d{1,4})?$/D';
+        $quantidadeUnitaria = null;
+
+        if (is_numeric($quantidade) && is_numeric($quantidadeComercial)
+            && preg_match($decimal, $quantidade) === 1 && preg_match($decimal, $quantidadeComercial) === 1
+            && bccomp($quantidadeComercial, '0', 4) > 0) {
+            $quantidadeUnitaria = NormalizadorFiscal::arredondar(bcdiv($quantidade, $quantidadeComercial, 5), 4);
+        }
+
+        return [
+            'is_cst'                  => $this->texto($xpath, 'nfe:CSTIS', $grupo),
+            'is_c_class_trib'         => $this->texto($xpath, 'nfe:cClassTribIS', $grupo),
+            'is_unidade'              => $this->texto($xpath, 'nfe:uTrib', $grupo),
+            'is_quantidade'           => $quantidadeUnitaria,
+            'is_quantidade_documento' => $quantidade,
+            'is_aliquota_ad_valorem'  => $this->texto($xpath, 'nfe:pIS', $grupo),
+            'is_aliquota_ad_rem'      => $this->texto($xpath, 'nfe:pISEspec', $grupo),
+        ];
     }
 
     private function linhaDaNfse(DOMXPath $xpath, DOMElement $nota): LinhaPlanilha

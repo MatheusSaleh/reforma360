@@ -14,10 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * o valor do item, usado como base de cálculo ao simular a nota).
  *
  * @property numeric-string $valor
+ * @property array<string, string|null>|null $dados_imposto_seletivo
  * @property-read Produto $produto
  */
 #[Table('importacao_produtos', timestamps: false)]
-#[Fillable(['produto_id', 'linha', 'valor'])]
+#[Fillable(['produto_id', 'linha', 'valor', 'dados_imposto_seletivo'])]
 class ImportacaoProduto extends Model
 {
     /**
@@ -41,6 +42,6 @@ class ImportacaoProduto extends Model
      */
     protected function casts(): array
     {
-        return ['valor' => 'decimal:2'];
+        return ['valor' => 'decimal:2', 'dados_imposto_seletivo' => 'array'];
     }
 }

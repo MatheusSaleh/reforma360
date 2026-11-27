@@ -16,7 +16,7 @@
     </p>
 
     <div class="mt-6 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" role="status">
-        <strong>Simulação simplificada.</strong> Compara só IBS e CBS dos {{ $comparacao->itens_comparados }} itens calculados nos dois regimes.
+        <strong>Simulação simplificada.</strong> Compara CBS, IBS e IS dos {{ $comparacao->itens_comparados }} itens calculados nos dois regimes.
         O crédito das compras é uma estimativa (compras × alíquotas nominais do ano). A escolha do regime envolve outros tributos
         (ICMS, ISS, IRPJ, CSLL, contribuição previdenciária) e o efeito do crédito para os seus clientes. Converse com o seu contador.
     </div>
@@ -25,17 +25,19 @@
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <dt class="text-xs uppercase text-slate-500">Simples Nacional</dt>
             <dd class="mt-1 text-2xl font-semibold">{{ Formatador::moeda($comparacao->totalSimples()) }}</dd>
-            <dd class="mt-1 text-xs text-slate-500">CBS {{ Formatador::moeda($comparacao->simples_cbs) }} · IBS {{ Formatador::moeda($comparacao->simples_ibs) }}</dd>
+            <dd class="mt-1 text-xs text-slate-500">CBS {{ Formatador::moeda($comparacao->simples_cbs) }} · IBS {{ Formatador::moeda($comparacao->simples_ibs) }}
+                @if (bccomp($comparacao->valor_imposto_seletivo, '0', 2) > 0) · IS {{ Formatador::moeda($comparacao->valor_imposto_seletivo) }} @endif
+            </dd>
         </div>
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <dt class="text-xs uppercase text-slate-500">Regime regular</dt>
             <dd class="mt-1 text-2xl font-semibold">{{ Formatador::moeda($comparacao->liquidoRegular()) }}</dd>
             <dd class="mt-1 text-xs text-slate-500">
                 Débitos {{ Formatador::moeda($comparacao->debitosRegular()) }}
-                @if ($comparacao->compras !== null) − crédito estimado {{ Formatador::moeda($comparacao->credito_estimado) }} @endif
+                @if ($comparacao->compras !== null) · crédito estimado {{ Formatador::moeda($comparacao->credito_estimado) }} @endif
             </dd>
             @if ($comparacao->sobraCredito())
-                <dd class="mt-1 text-xs text-amber-700">O crédito estimado passa dos débitos: sobraria saldo credor.</dd>
+                <dd class="mt-1 text-xs text-amber-700">O crédito estimado passa dos débitos de CBS e IBS: sobraria saldo credor.</dd>
             @endif
         </div>
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -74,7 +76,7 @@
                     @foreach ($itens as $linha)
                         @php
                             $item = $linha->simulacaoItem;
-                            $regular = bcadd($item->valor_cbs ?? '0', $item->valor_ibs ?? '0', 2);
+                            $regular = $linha->regularBruto();
                             $simples = $linha->totalSimples();
                         @endphp
                         <tr @class(['bg-slate-50/60' => ! $linha->foiComparado()])>

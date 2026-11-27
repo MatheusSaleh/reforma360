@@ -9,7 +9,7 @@
 
 <x-layouts.app titulo="Simular um item">
     <h1 class="text-2xl font-semibold text-slate-900">Simular um item</h1>
-    <p class="mt-1 text-sm text-slate-600">Informe o produto ou serviço e veja a CBS e o IBS calculados pela calculadora da Receita Federal.</p>
+    <p class="mt-1 text-sm text-slate-600">Informe o produto ou serviço e simule a CBS, o IBS e, quando aplicável, o Imposto Seletivo com a calculadora da Receita Federal.</p>
 
     @error('simulacao')
         <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{{ $message }}</div>
@@ -24,13 +24,15 @@
             <x-campos-classificacao :cst="$valor('cst')" :c-class-trib="$valor('c_class_trib')" />
 
             <label class="block">
-                <span class="mb-1 block text-sm font-medium text-slate-700">Valor (base de cálculo)</span>
+                <span class="mb-1 block text-sm font-medium text-slate-700">Valor (base de cálculo sem IS)</span>
                 <input type="text" inputmode="decimal" name="valor" value="{{ $valor('valor') }}" placeholder="1.200,00" class="{{ $input }}">
                 @error('valor')<span class="mt-1 block text-sm text-red-600" role="alert">{{ $message }}</span>@enderror
             </label>
         </fieldset>
 
         @include('simulacoes._parametros', ['ufs' => $ufs])
+
+        <x-campos-imposto-seletivo :valor="$valor" quantidade="Quantidade total na unidade do IS" />
 
         <button type="submit" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
             Simular
@@ -97,9 +99,16 @@
                         @if ($simulacao->impostoSeletivo)
                             <tr>
                                 <td class="py-2 font-medium">Imposto Seletivo</td>
-                                <td class="py-2 text-right">{{ Formatador::percentual($simulacao->impostoSeletivo->aliquota) }}</td>
+                                <td class="py-2 text-right">
+                                    @if ($simulacao->impostoSeletivo->aliquota !== null)
+                                        {{ Formatador::percentual($simulacao->impostoSeletivo->aliquota) }}
+                                    @endif
+                                    @if ($simulacao->impostoSeletivo->aliquotaAdRem !== null)
+                                        <span class="block">R$ {{ str_replace('.', ',', $simulacao->impostoSeletivo->aliquotaAdRem) }} / {{ $simulacao->impostoSeletivo->unidade }}</span>
+                                    @endif
+                                </td>
                                 <td class="py-2 text-right">—</td>
-                                <td class="py-2 text-right">{{ Formatador::percentual($simulacao->impostoSeletivo->aliquota) }}</td>
+                                <td class="py-2 text-right">—</td>
                                 <td class="py-2 text-right">{{ Formatador::moeda($simulacao->impostoSeletivo->valor) }}</td>
                             </tr>
                         @endif

@@ -24,6 +24,7 @@ final readonly class GerarXmlDoGrupoService
 {
     public function __construct(
         private XmlTributacao $xml,
+        private OperacaoDaSimulacao $operacao,
         #[Config('simulacao.maximo_itens_xml')]
         private int $maximoItens = 990,
     ) {}
@@ -79,7 +80,7 @@ final readonly class GerarXmlDoGrupoService
         }
 
         try {
-            $conteudo = $this->xml->gerarGrupo(OperacaoDaSimulacao::montar($simulacao, $itens), $tipo);
+            $conteudo = $this->xml->gerarGrupo($this->operacao->montar($simulacao, $itens), $tipo);
         } catch (PayloadInvalidoException $e) {
             throw self::erro('A calculadora recusou gerar o XML: '.$e->getMessage());
         }

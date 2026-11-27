@@ -55,9 +55,9 @@
         </form>
 
         <x-grafico-colunas-empilhadas class="mt-4"
-            :titulo="($item ? $item->descricao : 'Total da simulação').' — CBS e IBS por ano'"
-            :series="['CBS', 'IBS']"
-            :colunas="collect($anos)->map(fn ($a) => ['rotulo' => (string) $a->ano, 'valores' => [$a->cbs, $a->ibs]])->all()" />
+            :titulo="($item ? $item->descricao : 'Total da simulação').' — Tributos por ano'"
+            :series="['CBS', 'IBS', 'IS']"
+            :colunas="collect($anos)->map(fn ($a) => ['rotulo' => (string) $a->ano, 'valores' => [$a->cbs, $a->ibs, $a->cbs === null ? null : ($a->impostoSeletivo ?? '0')]])->all()" />
 
         <div class="relative mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
             <table class="w-full text-left text-sm">
@@ -69,6 +69,7 @@
                         <th class="whitespace-nowrap px-4 py-3 text-right">Base</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">CBS</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">IBS</th>
+                        <th class="whitespace-nowrap px-4 py-3 text-right">IS</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">Total</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">Carga</th>
                     </tr>
@@ -94,6 +95,7 @@
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $ano->base !== null ? Formatador::moeda($ano->base) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $ano->cbs !== null ? Formatador::moeda($ano->cbs) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $ano->ibs !== null ? Formatador::moeda($ano->ibs) : '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-right">{{ $ano->impostoSeletivo !== null ? Formatador::moeda($ano->impostoSeletivo) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right font-medium">{{ $ano->total !== null ? Formatador::moeda($ano->total) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $ano->carga !== null ? Formatador::percentual($ano->carga) : '—' }}</td>
                         </tr>
@@ -101,6 +103,6 @@
                 </tbody>
             </table>
         </div>
-        <p class="mt-2 text-xs text-slate-500">Carga = CBS + IBS sobre a base de cálculo. Clique no ano para ver o detalhe por item.</p>
+        <p class="mt-2 text-xs text-slate-500">Carga = CBS + IBS + IS sobre a base de cálculo. Clique no ano para ver o detalhe por item.</p>
     @endif
 </x-layouts.app>

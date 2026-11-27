@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Sleep;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 uses(RefreshDatabase::class);
 
@@ -264,4 +266,45 @@ test('baixa a planilha modelo em XLSX e CSV', function (): void {
         ->toContain('"Arroz tipo 1 (cesta básica)";"10063021";"";"200";"200003";"28,90"');
 
     $this->actingAs($this->usuario)->get('/importacoes/modelo/pdf')->assertNotFound();
+});
+
+test('importa colunas de IS do CSV e mantém os valores ao reimportar uma planilha sem estimativas', function (): void {
+    $colunas = 'descricao;ncm;nbs;cst;c_class_trib;preco';
+    $cerveja = 'Cerveja;22030000;;000;000001;4,50';
+
+    foreach ([
+        "{$colunas};aliquota_is;p_is_espec;unidade_is;quantidade_is
+{$cerveja};10,25;0,1234;lt;0,35",
+        "{$colunas}
+{$cerveja}",
+    ] as $csv) {
+        $this->actingAs($this->usuario)->post(route('importacoes.store'), [
+            'arquivo' => UploadedFile::fake()->createWithContent('catalogo-is.csv', $csv),
+        ])->assertRedirect();
+    }
+
+    expect(Importacao::query()->pluck('linhas_importadas')->all())->toBe([1, 1]);
+    expect(Produto::query()->sole())
+        ->is_aliquota_ad_valorem->toBe('10.2500')
+        ->is_aliquota_ad_rem->toBe('0.1234')
+        ->is_unidade->toBe('LT')
+        ->is_quantidade->toBe('0.3500');
+});
+
+test('importa estimativas do Imposto Seletivo de uma planilha XLSX', function (): void {
+    $arquivo = UploadedFile::fake()->create('catalogo-is.xlsx');
+    $planilha = new Spreadsheet;
+    $planilha->getActiveSheet()->fromArray([
+        ['descricao', 'ncm', 'cst', 'c_class_trib', 'preco', 'is_aliquota_ad_valorem', 'is_cst', 'is_c_class_trib'],
+        ['Cerveja', '22030000', '000', '000001', '4,50', '10,25', '000', '000001'],
+    ]);
+    (new Xlsx($planilha))->save($arquivo->path());
+
+    $this->actingAs($this->usuario)->post(route('importacoes.store'), ['arquivo' => $arquivo])->assertRedirect();
+
+    expect(Importacao::query()->sole()->linhas_importadas)->toBe(1);
+    expect(Produto::query()->sole())
+        ->is_aliquota_ad_valorem->toBe('10.2500')
+        ->is_cst->toBe('000')
+        ->is_c_class_trib->toBe('000001');
 });

@@ -100,10 +100,11 @@
                 <dd class="mt-1 text-xl font-semibold">{{ $simulacao->total_base_calculo !== null ? Formatador::moeda($simulacao->total_base_calculo) : '—' }}</dd>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <dt class="text-xs uppercase text-slate-500">CBS · IBS</dt>
+                <dt class="text-xs uppercase text-slate-500">CBS · IBS{{ $simulacao->total_imposto_seletivo !== null ? ' · IS' : '' }}</dt>
                 <dd class="mt-1 text-sm font-semibold">
                     {{ $simulacao->total_cbs !== null ? Formatador::moeda($simulacao->total_cbs) : '—' }} ·
                     {{ $simulacao->total_ibs !== null ? Formatador::moeda($simulacao->total_ibs) : '—' }}
+                    @if ($simulacao->total_imposto_seletivo !== null) · {{ Formatador::moeda($simulacao->total_imposto_seletivo) }} @endif
                 </dd>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -133,6 +134,7 @@
                         <th class="whitespace-nowrap px-4 py-3 text-right">Redução</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">CBS</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">IBS</th>
+                        <th class="whitespace-nowrap px-4 py-3 text-right">IS</th>
                         <th class="whitespace-nowrap px-4 py-3 text-right">Total</th>
                     </tr>
                 </thead>
@@ -154,6 +156,7 @@
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $item->percentual_reducao !== null && bccomp($item->percentual_reducao, '0', 4) > 0 ? Formatador::percentual(rtrim(rtrim($item->percentual_reducao, '0'), '.')) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $item->valor_cbs !== null ? Formatador::moeda($item->valor_cbs) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right">{{ $item->valor_ibs !== null ? Formatador::moeda($item->valor_ibs) : '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-right">{{ $item->valor_imposto_seletivo !== null ? Formatador::moeda($item->valor_imposto_seletivo) : '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-2 text-right font-medium">{{ $item->total_tributos !== null ? Formatador::moeda($item->total_tributos) : '—' }}</td>
                         </tr>
                     @endforeach

@@ -27,6 +27,17 @@ function iniciarCampo(raiz) {
     const lista = raiz.querySelector('[role="listbox"]');
     const detalhe = raiz.querySelector('[data-detalhe]');
 
+    const formulario = input.form;
+    const camposIs = tipo === 'ncm' ? formulario?.querySelector('[data-campos-is]') : null;
+    const dataSimulacao = camposIs ? formulario.querySelector('input[name="data"]') : null;
+
+    function mostrarCamposIs(visivel) {
+        if (camposIs) {
+            camposIs.hidden = !visivel;
+            camposIs.disabled = !visivel;
+        }
+    }
+
     let opcoes = [];
     let ativa = -1;
     let requisicao = null;
@@ -130,32 +141,50 @@ function iniciarCampo(raiz) {
         limparDetalhe();
 
         if (codigo.length !== digitos) {
+            mostrarCamposIs(false);
             return;
         }
 
         requisicaoDetalhe = new AbortController();
 
         try {
-            const resposta = await fetch(raiz.dataset.urlDetalhe.replace('__CODIGO__', codigo), {
-                headers: { Accept: 'application/json' },
-                signal: requisicaoDetalhe.signal,
-            });
+            const url = new URL(raiz.dataset.urlDetalhe.replace('__CODIGO__', codigo), window.location.origin);
+            const data = dataSimulacao?.value || camposIs?.dataset.data;
+            if (data) {
+                url.searchParams.set('data', data);
+            }
+
+            const { signal } = requisicaoDetalhe;
+            const resposta = await fetch(url, { headers: { Accept: 'application/json' }, signal });
+
+            if (signal.aborted) {
+                return;
+            }
 
             if (resposta.status === 404) {
+                mostrarCamposIs(false);
                 detalhe.textContent = 'Código não encontrado na tabela vigente.';
                 detalhe.classList.add('text-amber-700');
                 return;
             }
 
             if (!resposta.ok) {
+                mostrarCamposIs(true);
                 return;
             }
 
             const dados = await resposta.json();
+            if (signal.aborted) {
+                return;
+            }
+
+            mostrarCamposIs(dados.tributado_pelo_imposto_seletivo);
             detalhe.textContent = dados.niveis.join(' › ')
                 + (dados.tributado_pelo_imposto_seletivo ? ' · Sujeito ao Imposto Seletivo' : '');
-        } catch {
-            // Detalhe é informativo: se falhar, o campo continua funcionando.
+        } catch (erro) {
+            if (erro.name !== 'AbortError') {
+                mostrarCamposIs(true);
+            }
         }
     }
 
@@ -217,7 +246,9 @@ function iniciarCampo(raiz) {
 
     input.addEventListener('blur', () => setTimeout(fechar, 150));
 
-    carregarDetalhe(input.value.replace(/\D/g, ''));
+    const atualizarDetalhe = () => carregarDetalhe(input.value.replace(/\D/g, ''));
+    dataSimulacao?.addEventListener('change', atualizarDetalhe);
+    atualizarDetalhe();
 }
 
 export function iniciarAutocompleteNomenclatura() {

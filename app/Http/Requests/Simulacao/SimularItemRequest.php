@@ -6,6 +6,8 @@ namespace App\Http\Requests\Simulacao;
 
 use App\Http\Requests\Concerns\NormalizaEntradaFiscal;
 use App\Http\Requests\Concerns\ValidaParametrosOperacao;
+use App\Rules\Catalogo\RegrasImpostoSeletivo;
+use App\Services\Simulacao\Data\DadosImpostoSeletivo;
 use App\Services\Simulacao\Data\DadosSimulacaoItem;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -31,6 +33,7 @@ class SimularItemRequest extends FormRequest
             'c_class_trib' => ['required', 'digits:6'],
             'valor'        => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:9999999999999.99'],
             ...$this->regrasDosParametros(),
+            ...RegrasImpostoSeletivo::regras(),
         ];
     }
 
@@ -46,6 +49,7 @@ class SimularItemRequest extends FormRequest
             'c_class_trib' => 'cClassTrib',
             'valor'        => 'valor',
             ...$this->atributosDosParametros(),
+            ...RegrasImpostoSeletivo::atributos(),
         ];
     }
 
@@ -56,6 +60,7 @@ class SimularItemRequest extends FormRequest
     {
         return [
             ...$this->mensagensDosParametros(),
+            ...RegrasImpostoSeletivo::mensagens(),
             'ncm.required_without' => 'Informe o NCM (mercadoria) ou o NBS (serviço).',
             'nbs.required_without' => 'Informe o NCM (mercadoria) ou o NBS (serviço).',
             'ncm.prohibits'        => 'Informe apenas o NCM ou apenas o NBS.',
@@ -77,6 +82,9 @@ class SimularItemRequest extends FormRequest
             'c_class_trib' => ['description' => 'Código de classificação tributária (6 dígitos).', 'example' => '200028'],
             'valor'        => ['description' => 'Valor da operação em reais, texto decimal com até 2 casas.', 'example' => '1200.00'],
             ...$this->documentacaoDosParametros(),
+            ...array_replace(RegrasImpostoSeletivo::documentacao(), [
+                'is_quantidade' => ['description' => 'Quantidade total do item na unidade do IS.', 'example' => null],
+            ]),
         ];
     }
 
@@ -94,6 +102,7 @@ class SimularItemRequest extends FormRequest
             ncm: $this->filled('ncm') ? $this->string('ncm')->toString() : null,
             nbs: $this->filled('nbs') ? $this->string('nbs')->toString() : null,
             aliquotasNominais: $parametros->aliquotasNominais,
+            impostoSeletivo: DadosImpostoSeletivo::deCampos($this->validated()),
         );
     }
 
@@ -103,5 +112,6 @@ class SimularItemRequest extends FormRequest
             camposSoDigitos: ['ncm', 'nbs', 'cst', 'c_class_trib', 'municipio'],
             camposDecimais: ['valor', 'aliquota_cbs', 'aliquota_ibs_estadual', 'aliquota_ibs_municipal'],
         );
+        $this->merge(RegrasImpostoSeletivo::normalizar($this->all()));
     }
 }
