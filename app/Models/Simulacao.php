@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property numeric-string|null $total_imposto_seletivo
  * @property numeric-string|null $total_tributos
  * @property CarbonImmutable|null $concluida_em
+ * @property-read Empresa $empresa
  */
 #[Table('simulacoes')]
 #[Fillable([

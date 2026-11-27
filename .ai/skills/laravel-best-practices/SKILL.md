@@ -9,7 +9,7 @@ description: "Aplique sempre que escrever, revisar ou refatorar PHP Laravel no R
 
 ## Stack
 
-- PHP ^8.4, Laravel 13, Pest 5, Pint, Larastan nível 7
+- PHP ^8.4, Laravel 13, Pest 5, Pint, Larastan nível 8
 - MySQL, Redis, Horizon, Reverb, Sanctum, Filament (admin)
 - Calculadoras da Receita + DANFSe como serviços HTTP internos — skill **calculadora-rtc**
 - Importação CSV/XLSX/XML — skill **catalog-import**

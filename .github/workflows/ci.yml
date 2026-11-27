@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_EXTENSIONS: bcmath, ctype, curl, dom, fileinfo, gd, iconv, intl, mbstring, pcntl, pdo_sqlite, sqlite3, xml, xmlreader, xmlwriter, zip
+
+jobs:
+  testes:
+    name: Pest (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        include:
+          - php: '8.5'
+            cobertura: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: ${{ matrix.cobertura && 'pcov' || 'none' }}
+          # A suíte passa de 128M (planilha XLSX); 512M ainda pega vazamentos.
+          ini-values: memory_limit=512M
+
+      - uses: ramsey/composer-install@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # As views usam @vite: os testes precisam do manifest em public/build.
+      - name: Build do front
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Preparar ambiente
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Testes
+        if: ${{ !matrix.cobertura }}
+        run: php artisan test --compact
+
+      - name: Testes com cobertura (mínimo 90%)
+        if: ${{ matrix.cobertura }}
+        run: |
+          php artisan test --compact --coverage --min=90 | tee cobertura.txt
+          echo "### Cobertura de testes" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**$(grep -oE 'Total: [0-9.]+ ?%' cobertura.txt | tail -1)** (mínimo 90%)" >> "$GITHUB_STEP_SUMMARY"
+        shell: bash -o pipefail {0}
+
+  larastan:
+    name: Larastan (nível 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Larastan
+        run: vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
+
+  pint:
+    name: Pint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Pint
+        run: vendor/bin/pint --test -v

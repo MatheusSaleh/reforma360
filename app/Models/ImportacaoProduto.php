@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * o valor do item, usado como base de cálculo ao simular a nota).
  *
  * @property numeric-string $valor
+ * @property-read Produto $produto
  */
 #[Table('importacao_produtos', timestamps: false)]
 #[Fillable(['produto_id', 'linha', 'valor'])]

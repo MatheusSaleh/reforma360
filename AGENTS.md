@@ -6,7 +6,7 @@ Reforma360 é um simulador da Reforma Tributária do Consumo (CBS/IBS — LC 214
 
 ## Stack
 
-- PHP ^8.4 · Laravel 13 · Pest 5 · Pint (`pint.json`, `declare_strict_types`) · Larastan nível 7 (`phpstan.neon.dist`)
+- PHP ^8.4 · Laravel 13 · Pest 5 · Pint (`pint.json`, `declare_strict_types`) · Larastan nível 8 (`phpstan.neon.dist`)
 - Ambiente local: Laravel Sail (`compose.yaml`) — PHP 8.5, MySQL 8.4, Redis. Testes em SQLite `:memory:` (`phpunit.xml`)
 - MySQL · Redis · Fortify (login, registro, redefinição de senha) · Blade + Tailwind 4 · Laravel Excel (importação CSV/XLSX) · XML de NF-e/NFC-e/NFS-e (DOM nativo) · laravel-dompdf (relatório em PDF)
 - Filas Redis com **Horizon** (serviço `horizon` do compose; filas `simulacoes`, `importacoes`, `default`) e tempo real com **Reverb** (serviço `reverb`, canais privados em `routes/channels.php`)
@@ -70,6 +70,7 @@ Edite skills **apenas** em `.ai/skills/`. Detalhes em `.ai/README.md`.
 - Gere arquivos com `php artisan make:*` e sempre `--no-interaction` (classe genérica: `make:class`).
 - Ao criar um model, crie também factory (e seeder quando fizer sentido).
 - Se o projeto estiver rodando com Sail/Docker, prefixe com `vendor/bin/sail` (confira `docker-compose.yml`).
+- Use `sail artisan`/`sail php`/`sail composer` (rodam como o usuário `sail`). `sail exec laravel.test ...` roda como **root** e deixa arquivos root em `storage/` e `vendor/`, quebrando os testes seguintes; se precisar de `exec`, passe `-u sail`. Cobertura: `sail php -d pcov.enabled=1 artisan test --coverage`.
 
 ## Verificação
 
@@ -78,7 +79,7 @@ Toda mudança precisa de teste automatizado (novo ou atualizado). Rode o mínimo
 - Pest: `php artisan test --compact --filter=...` (suite completa: `composer test`)
 - Pint: `vendor/bin/pint --dirty --format agent` depois de alterar PHP (`composer lint` checa, `composer format` corrige)
 - Larastan: `composer analyse` quando o escopo for amplo
-- CI (GitHub Actions) exige Pest + Larastan + Pint verdes
+- CI (GitHub Actions, `.github/workflows/ci.yml`) exige Pest (PHP 8.4 e 8.5, cobertura ≥ 90%) + Larastan + Pint verdes. Ela faz `npm run build` antes dos testes (as views usam `@vite`) e roda com `memory_limit=512M`
 
 Testes **nunca** chamam as calculadoras reais: use `Http::fake()` com fixtures em `tests/Fixtures/`.
 
